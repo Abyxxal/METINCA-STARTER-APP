@@ -75,46 +75,108 @@
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
-
-
                         </li>
 
-                        <li class="sidebar-item  ">
+                        <li class="sidebar-item has-sub {{ request()->is('master-data*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
-                                <i class="bi bi-grid-1x2-fill"></i>
-                                <span>standalone menu</span>
+                                <i class="bi bi-database-fill"></i>
+                                <span>Master Data</span>
                             </a>
-
-
+                            <ul class="submenu">
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Data Karyawan</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Departemen & Line</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Jabatan</a>
+                                </li>
+                            </ul>
                         </li>
 
-                        <li class="sidebar-item  has-sub {{ request()->routeIs('machining.*') ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link '>
-                                <i class="bi bi-stack"></i>
-                                <span>Machining</span>
+                        <li class="sidebar-item has-sub {{ request()->is('manajemen-materi*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-book-fill"></i>
+                                <span>Manajemen Materi</span>
                             </a>
-
-                            <ul class="submenu ">
-
-                                <li class="submenu-item  ">
-                                    <a href="{{ route('machining.monitoring.index') }}" class="submenu-link">Monitoring</a>
+                            <ul class="submenu">
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Katalog Pelatihan</a>
                                 </li>
-
-                                <li class="submenu-item  ">
-                                    <a href="#" class="submenu-link">Product</a>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Pustaka SOP/WI</a>
                                 </li>
-
-                                <li class="submenu-item  ">
-                                    <a href="#" class="submenu-link">Process</a>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Media Library</a>
                                 </li>
-
-                                <li class="submenu-item  ">
-                                    <a href="#" class="submenu-link">History</a>
-                                </li>
-
                             </ul>
+                        </li>
 
+                        <li class="sidebar-item has-sub {{ request()->is('evaluasi-ujian*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-clipboard-check-fill"></i>
+                                <span>Evaluasi & Ujian</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Bank Soal</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Setup Ujian</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Hasil Ujian</a>
+                                </li>
+                            </ul>
+                        </li>
 
+                        <li class="sidebar-item has-sub {{ request()->is('sosialisasi-berita*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-megaphone-fill"></i>
+                                <span>Sosialisasi & Berita</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Buat Pengumuman</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Status Baca</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="sidebar-item has-sub {{ request()->is('laporan-audit*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-file-earmark-text-fill"></i>
+                                <span>Laporan dan Audit</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Matriks Kompetensi</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Riwayat Pelatihan</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Cetak Sertifikat</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="sidebar-item has-sub {{ request()->is('pengaturan*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-gear-fill"></i>
+                                <span>Pengaturan</span>
+                            </a>
+                            <ul class="submenu">
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Manajemen Admin</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a href="#" class="submenu-link">Audit Log</a>
+                                </li>
+                            </ul>
                         </li>
 
                     </ul>

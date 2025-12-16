@@ -477,7 +477,7 @@
                                     </div>
                                     <div class="menu-text">Improvement and Development</div>
                                 </a>
-                                <a href="#" class="menu-item">
+                                <a href="{{ route('login') }}" class="menu-item">
                                     <div class="menu-icon">
                                         <i class="bi bi-people-fill"></i>
                                     </div>

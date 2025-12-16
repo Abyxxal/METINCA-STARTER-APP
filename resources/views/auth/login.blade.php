@@ -94,6 +94,11 @@
             <div class="signup-link">
                 Belum punya akun? <a href="#">Daftar sekarang</a>
             </div> --}}
+            
+            <div class="signup-link">
+                Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a>
+            </div>
+            
             <div class="signup-link">
                 kembali ke <a href="/home">Homepage</a>
             </div>
