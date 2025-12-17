@@ -83,98 +83,98 @@
                                 <span>Master Data</span>
                             </a>
                             <ul class="submenu">
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Data Karyawan</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*master-data#karyawan*') ? 'active' : '' }}">
+                                    <a href="{{ route('master-data') }}#karyawan" class="submenu-link">Employee Data</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Departemen & Line</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*master-data#departemen*') ? 'active' : '' }}">
+                                    <a href="{{ route('master-data') }}#departemen" class="submenu-link">Department & Line</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Jabatan</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*master-data#jabatan*') ? 'active' : '' }}">
+                                    <a href="{{ route('master-data') }}#jabatan" class="submenu-link">Position</a>
                                 </li>
                             </ul>
                         </li>
 
-                        <li class="sidebar-item has-sub {{ request()->is('manajemen-materi*') ? 'active' : '' }}">
+                        <li class="sidebar-item has-sub {{ request()->is('material-management*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-book-fill"></i>
-                                <span>Manajemen Materi</span>
+                                <span>Material Management</span>
                             </a>
                             <ul class="submenu">
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Katalog Pelatihan</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*material-management#katalog*') ? 'active' : '' }}">
+                                    <a href="{{ route('material-management') }}#katalog" class="submenu-link">Training Catalog</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Pustaka SOP/WI</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*material-management#dokumen*') ? 'active' : '' }}">
+                                    <a href="{{ route('material-management') }}#dokumen" class="submenu-link">SOP/WI Library</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Media Library</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*material-management#media*') ? 'active' : '' }}">
+                                    <a href="{{ route('material-management') }}#media" class="submenu-link">Media Library</a>
                                 </li>
                             </ul>
                         </li>
 
-                        <li class="sidebar-item has-sub {{ request()->is('evaluasi-ujian*') ? 'active' : '' }}">
+                        <li class="sidebar-item has-sub {{ request()->is('evaluation-and-exam*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-clipboard-check-fill"></i>
-                                <span>Evaluasi & Ujian</span>
+                                <span>Evaluation & Exam</span>
                             </a>
                             <ul class="submenu">
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Bank Soal</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*evaluation-and-exam#banksoal*') ? 'active' : '' }}">
+                                    <a href="{{ route('evaluation-and-exam') }}#banksoal" class="submenu-link">Question Bank</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Setup Ujian</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*evaluation-and-exam#setupujian*') ? 'active' : '' }}">
+                                    <a href="{{ route('evaluation-and-exam') }}#setupujian" class="submenu-link">Exam Setup</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Hasil Ujian</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*evaluation-and-exam#hasilujian*') ? 'active' : '' }}">
+                                    <a href="{{ route('evaluation-and-exam') }}#hasilujian" class="submenu-link">Exam Results</a>
                                 </li>
                             </ul>
                         </li>
 
-                        <li class="sidebar-item has-sub {{ request()->is('sosialisasi-berita*') ? 'active' : '' }}">
+                        <li class="sidebar-item has-sub {{ request()->is('socialization-and-news*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-megaphone-fill"></i>
-                                <span>Sosialisasi & Berita</span>
+                                <span>Socialization & News</span>
                             </a>
                             <ul class="submenu">
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Buat Pengumuman</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*socialization-and-news#pengumuman*') ? 'active' : '' }}">
+                                    <a href="{{ route('socialization-and-news') }}#pengumuman" class="submenu-link">Create Announcement</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Status Baca</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*socialization-and-news#statusbaca*') ? 'active' : '' }}">
+                                    <a href="{{ route('socialization-and-news') }}#statusbaca" class="submenu-link">Read Status</a>
                                 </li>
                             </ul>
                         </li>
 
-                        <li class="sidebar-item has-sub {{ request()->is('laporan-audit*') ? 'active' : '' }}">
+                        <li class="sidebar-item has-sub {{ request()->is('report-and-audit*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-file-earmark-text-fill"></i>
-                                <span>Laporan dan Audit</span>
+                                <span>Report & Audit</span>
                             </a>
                             <ul class="submenu">
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Matriks Kompetensi</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*report-and-audit#matrikskompetensi*') ? 'active' : '' }}">
+                                    <a href="{{ route('report-and-audit') }}#matrikskompetensi" class="submenu-link">Competency Matrix</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Riwayat Pelatihan</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*report-and-audit#riwayatpelatihan*') ? 'active' : '' }}">
+                                    <a href="{{ route('report-and-audit') }}#riwayatpelatihan" class="submenu-link">Training History</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Cetak Sertifikat</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*report-and-audit#cetaksertifikat*') ? 'active' : '' }}">
+                                    <a href="{{ route('report-and-audit') }}#cetaksertifikat" class="submenu-link">Print Certificate</a>
                                 </li>
                             </ul>
                         </li>
 
-                        <li class="sidebar-item has-sub {{ request()->is('pengaturan*') ? 'active' : '' }}">
+                        <li class="sidebar-item has-sub {{ request()->is('settings*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-gear-fill"></i>
-                                <span>Pengaturan</span>
+                                <span>Settings</span>
                             </a>
                             <ul class="submenu">
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Manajemen Admin</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*settings#manajemenadmin*') ? 'active' : '' }}">
+                                    <a href="{{ route('settings') }}#manajemenadmin" class="submenu-link">Manajemen Admin</a>
                                 </li>
-                                <li class="submenu-item">
-                                    <a href="#" class="submenu-link">Audit Log</a>
+                                <li class="submenu-item {{ request()->fullUrlIs('*settings#auditlog*') ? 'active' : '' }}">
+                                    <a href="{{ route('settings') }}#auditlog" class="submenu-link">Audit Log</a>
                                 </li>
                             </ul>
                         </li>

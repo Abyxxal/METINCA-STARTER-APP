@@ -86,6 +86,36 @@ Route::middleware(['auth'])->group(function(){
     //dashboard
     Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
 
+    //master data
+    Route::get('/master-data',function(){
+        return view('master-data');
+    })->name('master-data');
+
+    //material management
+    Route::get('/material-management',function(){
+        return view('material-management');
+    })->name('material-management');
+
+    //evaluation and exam
+    Route::get('/evaluation-and-exam',function(){
+        return view('evaluation-and-exam');
+    })->name('evaluation-and-exam');
+
+    //socialization and news
+    Route::get('/socialization-and-news',function(){
+        return view('socialization-and-news');
+    })->name('socialization-and-news');
+
+    //report and audit
+    Route::get('/report-and-audit',function(){
+        return view('report-and-audit');
+    })->name('report-and-audit');
+
+    //settings
+    Route::get('/settings',function(){
+        return view('settings');
+    })->name('settings');
+
     //machining process
     Route::prefix('machining')->name('machining.')->group(function(){
 
