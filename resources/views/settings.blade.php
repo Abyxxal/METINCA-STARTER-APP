@@ -13,6 +13,8 @@
 {{-- Isi content --}}
 @section('content')
 
+    {{-- SECTION: Page Header --}}
+    {{-- Fungsi: Menampilkan judul halaman Settings dan breadcrumb --}}
     <div class="page-heading">
         <div class="page-title">
             <div class="row">
@@ -36,6 +38,8 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
+                    {{-- SECTION: Tab Navigation untuk Settings --}}
+                    {{-- Fungsi: Navigation untuk berpindah antar 2 tab (Manajemen Admin dan Audit Log) --}}
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs nav-justified" id="settingsTab" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -53,12 +57,18 @@
                         </li>
                     </ul>
 
+                    {{-- SECTION: Tab Content Container --}}
+                    {{-- Fungsi: Wrapper untuk semua konten tab --}}
                     <!-- Tab panes -->
                     <div class="tab-content" id="settingsTabContent">
+                        {{-- TAB 1: Manajemen Admin --}}
+                        {{-- Fungsi: Menampilkan daftar admin yang terdaftar dan tombol untuk tambah admin baru --}}
+                        {{-- Isi: Tabel dengan kolom Foto, NIK, Nama, Email, Role, Status, Terakhir Login, dan Aksi --}}
                         <!-- Manajemen Admin Tab -->
                         <div class="tab-pane fade show active" id="manajemenadmin" role="tabpanel"
                             aria-labelledby="manajemenadmin-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Tambah Admin --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Manajemen Admin</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahAdmin">
@@ -66,12 +76,15 @@
                                     </button>
                                 </div>
 
+                                {{-- Alert warning tentang keamanan akses admin --}}
                                 <div class="alert alert-warning">
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                     <strong>Perhatian!</strong> Hanya user dengan role admin yang dapat mengakses halaman ini. 
                                     Pastikan hanya memberikan akses kepada orang yang berwenang.
                                 </div>
 
+                                {{-- Tabel Daftar Admin --}}
+                                {{-- Kolom: Foto, NIK, Nama, Email, Role Admin, Status, Terakhir Login, Aksi (Detail/Edit/Reset Password/Nonaktifkan) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableAdmin">
                                         <thead>
@@ -287,12 +300,17 @@
                                     </table>
                                 </div>
 
+                                {{-- Card Informasi: Deskripsi Role Admin --}}
+                                {{-- Fungsi: Menjelaskan 3 role admin dan hak akses masing-masing --}}
+                                {{-- Isi: 3 kolom dengan penjelasan Super Admin, Admin HR, Admin Document Control --}}
                                 <div class="card mt-4">
                                     <div class="card-header">
                                         <h5 class="mb-0">Deskripsi Role Admin</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
+                                            {{-- Role 1: Super Admin --}}
+                                            {{-- Hak akses penuh ke sistem --}}
                                             <div class="col-md-4">
                                                 <div class="d-flex align-items-start mb-3">
                                                     <span class="badge bg-danger me-3" style="font-size: 1.5rem;">
@@ -307,6 +325,8 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            {{-- Role 2: Admin HR --}}
+                                            {{-- Hak akses untuk mengelola karyawan, training, dan evaluasi --}}
                                             <div class="col-md-4">
                                                 <div class="d-flex align-items-start mb-3">
                                                     <span class="badge bg-primary me-3" style="font-size: 1.5rem;">
@@ -341,12 +361,17 @@
                             </div>
                         </div>
 
+                        {{-- TAB 2: Audit Log --}}
+                        {{-- Fungsi: Menampilkan log audit semua aktivitas admin untuk keamanan dan compliance --}}
+                        {{-- Isi: Tabel dengan filter berdasarkan jenis aksi dan tanggal, tombol export Excel --}}
                         <!-- Audit Log Tab -->
                         <div class="tab-pane fade" id="auditlog" role="tabpanel" aria-labelledby="auditlog-tab">
                             <div class="mt-4">
+                                {{-- Header dengan filter dan export button --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Audit Log Sistem</h5>
                                     <div>
+                                        {{-- Filter Select: Jenis Aksi (Create/Update/Delete/Login/Logout) --}}
                                         <select class="form-select d-inline-block w-auto me-2" id="filterAction">
                                             <option value="">Semua Aksi</option>
                                             <option value="create">Create</option>
@@ -355,19 +380,24 @@
                                             <option value="login">Login</option>
                                             <option value="logout">Logout</option>
                                         </select>
+                                        {{-- Filter Input: Tanggal audit log --}}
                                         <input type="date" class="form-control d-inline-block w-auto me-2" id="filterDate">
+                                        {{-- Tombol Export Audit Log ke Excel (untuk compliance ISO) --}}
                                         <button type="button" class="btn btn-success" id="btnExportAuditLog">
                                             <i class="bi bi-file-excel me-1"></i>Export Excel
                                         </button>
                                     </div>
                                 </div>
 
+                                {{-- Alert info tentang audit log dan retention policy --}}
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle-fill me-2"></i>
                                     Semua aktivitas admin tercatat di sini untuk keperluan keamanan dan audit. 
                                     Log disimpan selama 2 tahun sesuai kebijakan ISO 9001.
                                 </div>
 
+                                {{-- Tabel Audit Log --}}
+                                {{-- Kolom: ID Log, Waktu, User Admin, Aksi, Module, Detail Data, IP Address, Status --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped table-hover" id="tableAuditLog">
                                         <thead>

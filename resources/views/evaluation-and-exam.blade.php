@@ -17,6 +17,9 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
+                    {{-- SECTION: Page Header --}}
+                    {{-- Nama: Evaluation & Exam --}}
+                    {{-- Fungsi: Halaman untuk mengelola soal ujian, konfigurasi setup ujian, dan tracking hasil/skor ujian karyawan --}}
                     <h3>Evaluation & Exam</h3>
                     <p class="text-subtitle text-muted">Kelola bank soal, setup ujian, dan hasil ujian</p>
                 </div>
@@ -36,8 +39,12 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
+                    {{-- SECTION: Tab Navigation untuk Evaluation & Exam --}}
+                    {{-- Fungsi: Navigasi untuk memilih antara 3 fungsi: Bank Soal, Setup Ujian, dan Hasil Ujian --}}
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs nav-justified" id="evaluationExamTab" role="tablist">
+                        {{-- TAB 1: Bank Soal --}}
+                        {{-- Isi: Daftar soal ujian dengan filter materi (GMP/5R/Safety/Quality/Technical), bobot soal, dan opsi CRUD --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="banksoal-tab" data-bs-toggle="tab"
                                 data-bs-target="#banksoal" type="button" role="tab" aria-controls="banksoal"
@@ -45,12 +52,16 @@
                                 <i class="bi bi-question-circle-fill me-2"></i>Bank Soal
                             </button>
                         </li>
+                        {{-- TAB 2: Setup Ujian --}}
+                        {{-- Isi: Konfigurasi ujian (durasi, passing grade, max attempts, shuffle mode, assigned training categories) --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="setupujian-tab" data-bs-toggle="tab" data-bs-target="#setupujian"
                                 type="button" role="tab" aria-controls="setupujian" aria-selected="false">
                                 <i class="bi bi-file-earmark-text-fill me-2"></i>Setup Ujian
                             </button>
                         </li>
+                        {{-- TAB 3: Hasil Ujian --}}
+                        {{-- Isi: Hasil ujian per karyawan dengan skor, attempt count, status (LULUS/GAGAL), tanggal ujian, waktu tempuh --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="hasilujian-tab" data-bs-toggle="tab" data-bs-target="#hasilujian"
                                 type="button" role="tab" aria-controls="hasilujian" aria-selected="false">
@@ -61,12 +72,16 @@
 
                     <!-- Tab panes -->
                     <div class="tab-content" id="evaluationExamTabContent">
+                        {{-- TAB CONTENT 1: Bank Soal Tab --}}
+                        {{-- Fungsi: Menampilkan dan mengelola database soal ujian dengan kategori filtering --}}
                         <!-- Bank Soal Tab -->
                         <div class="tab-pane fade show active" id="banksoal" role="tabpanel"
                             aria-labelledby="banksoal-tab">
                             <div class="mt-4">
+                                {{-- Header dengan filter materi dan tombol tambah soal --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Bank Soal</h5>
+                                    {{-- Filter untuk kategori/materi training (GMP, 5R, Safety, Quality, Technical) --}}
                                     <div>
                                         <select class="form-select d-inline-block w-auto me-2" id="filterMateri">
                                             <option value="">Semua Materi</option>
@@ -82,6 +97,8 @@
                                     </div>
                                 </div>
 
+                                {{-- Tabel Bank Soal --}}
+                                {{-- Kolom: No (nomor urut), Materi (kategori training), Pertanyaan (soal detail dengan opsi), Jawaban (jawaban benar), Bobot (score points), Status (Active/Inactive), Aksi (Detail/Edit/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableBankSoal">
                                         <thead>
@@ -220,8 +237,11 @@
                         </div>
 
                         <!-- Setup Ujian Tab -->
+                        {{-- TAB CONTENT 2: Setup Ujian Tab --}}
+                        {{-- Fungsi: Konfigurasi dan setup detail setiap ujian yang akan diberikan kepada karyawan --}}
                         <div class="tab-pane fade" id="setupujian" role="tabpanel" aria-labelledby="setupujian-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Buat Ujian Baru --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Setup Ujian</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahUjian">
@@ -229,6 +249,8 @@
                                     </button>
                                 </div>
 
+                                {{-- Tabel Setup Ujian --}}
+                                {{-- Kolom: Nama Ujian, Kategori Training, Durasi (menit), Passing Grade (%), Max Attempts, Shuffle Mode (Yes/No), Soal Count, Status (Active/Inactive), Aksi (Detail/Edit/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableSetupUjian">
                                         <thead>
@@ -388,10 +410,14 @@
                         </div>
 
                         <!-- Hasil Ujian Tab -->
+                        {{-- TAB CONTENT 3: Hasil Ujian Tab --}}
+                        {{-- Fungsi: Monitoring dan tracking hasil ujian semua karyawan dengan skor, status kelulusan (LULUS/GAGAL), dan attempt tracking --}}
                         <div class="tab-pane fade" id="hasilujian" role="tabpanel" aria-labelledby="hasilujian-tab">
                             <div class="mt-4">
+                                {{-- Header dengan filter ujian dan export button --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Hasil Ujian</h5>
+                                    {{-- Filter untuk memilih ujian tertentu dan export hasil ke Excel --}}
                                     <div>
                                         <select class="form-select d-inline-block w-auto me-2" id="filterUjian">
                                             <option value="">Semua Ujian</option>
@@ -405,6 +431,8 @@
                                     </div>
                                 </div>
 
+                                {{-- Tabel Hasil Ujian --}}
+                                {{-- Kolom: NIK (employee ID), Nama Peserta (employee name), Ujian (exam name), Tanggal (exam date), Skor (score/%), Percobaan Ke- (attempt count), Status (LULUS/GAGAL dengan badge color), Aksi (Detail/Certificate/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableHasilUjian">
                                         <thead>

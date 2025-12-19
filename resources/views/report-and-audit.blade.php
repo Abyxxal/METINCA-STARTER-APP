@@ -79,6 +79,9 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
+                    {{-- SECTION: Page Header --}}
+                    {{-- Nama: Report & Audit --}}
+                    {{-- Fungsi: Reporting dan compliance untuk audit ISO 9001 dengan tracking kompetensi karyawan dan certificate management --}}
                     <h3>Report & Audit</h3>
                     <p class="text-subtitle text-muted">Matriks kompetensi, riwayat pelatihan, dan cetak sertifikat</p>
                 </div>
@@ -98,8 +101,12 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
+                    {{-- SECTION: Tab Navigation untuk Report & Audit --}}
+                    {{-- Fungsi: Navigasi untuk memilih antara 3 laporan: Matriks Kompetensi, Riwayat Pelatihan, dan Cetak Sertifikat --}}
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs nav-justified" id="reportAuditTab" role="tablist">
+                        {{-- TAB 1: Matriks Kompetensi --}}
+                        {{-- Isi: Grid matrix dengan karyawan sebagai baris, skill/training sebagai kolom, warna indikator status (Competent/Not Passed/Not Trained) --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="matrikskompetensi-tab" data-bs-toggle="tab"
                                 data-bs-target="#matrikskompetensi" type="button" role="tab" aria-controls="matrikskompetensi"
@@ -107,12 +114,16 @@
                                 <i class="bi bi-grid-3x3-gap-fill me-2"></i>Matriks Kompetensi
                             </button>
                         </li>
+                        {{-- TAB 2: Riwayat Pelatihan --}}
+                        {{-- Isi: Complete history pelatihan per karyawan dengan tanggal, nilai ujian, status kelulusan (LULUS/GAGAL), sertifikat status --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="riwayatpelatihan-tab" data-bs-toggle="tab" data-bs-target="#riwayatpelatihan"
                                 type="button" role="tab" aria-controls="riwayatpelatihan" aria-selected="false">
                                 <i class="bi bi-clock-history me-2"></i>Riwayat Pelatihan
                             </button>
                         </li>
+                        {{-- TAB 3: Cetak Sertifikat --}}
+                        {{-- Isi: Daftar sertifikat yang bisa di-generate dan dicetak untuk karyawan yang telah lulus training --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="cetaksertifikat-tab" data-bs-toggle="tab" data-bs-target="#cetaksertifikat"
                                 type="button" role="tab" aria-controls="cetaksertifikat" aria-selected="false">
@@ -123,12 +134,16 @@
 
                     <!-- Tab panes -->
                     <div class="tab-content" id="reportAuditTabContent">
+                        {{-- TAB CONTENT 1: Matriks Kompetensi Tab --}}
+                        {{-- Fungsi: Menampilkan competency matrix untuk ISO 9001 audit dengan color-coded status setiap karyawan per skill --}}
                         <!-- Matriks Kompetensi Tab -->
                         <div class="tab-pane fade show active" id="matrikskompetensi" role="tabpanel"
                             aria-labelledby="matrikskompetensi-tab">
                             <div class="mt-4">
+                                {{-- Header dengan filter departemen dan export button untuk ISO audit --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Matriks Kompetensi Karyawan</h5>
+                                    {{-- Filter untuk departemen (Produksi, QC, Maintenance, Warehouse) --}}
                                     <div>
                                         <select class="form-select d-inline-block w-auto me-2" id="filterDepartemen">
                                             <option value="">Semua Departemen</option>
@@ -143,6 +158,7 @@
                                     </div>
                                 </div>
 
+                                {{-- Information box untuk legend --}}
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle-fill me-2"></i>
                                     Matriks ini menunjukkan status kompetensi karyawan untuk setiap skill/training. 
@@ -348,10 +364,14 @@
                         </div>
 
                         <!-- Riwayat Pelatihan Tab -->
+                        {{-- TAB CONTENT 2: Riwayat Pelatihan Tab --}}
+                        {{-- Fungsi: Menampilkan complete training history per karyawan dengan detail skor, status, dan sertifikat --}}
                         <div class="tab-pane fade" id="riwayatpelatihan" role="tabpanel" aria-labelledby="riwayatpelatihan-tab">
                             <div class="mt-4">
+                                {{-- Header dengan search input dan export button --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Riwayat Pelatihan Karyawan</h5>
+                                    {{-- Search untuk filter berdasarkan NIK atau nama karyawan --}}
                                     <div>
                                         <input type="text" class="form-control d-inline-block w-auto me-2" 
                                             placeholder="Cari NIK atau Nama..." id="searchKaryawan">
@@ -361,6 +381,8 @@
                                     </div>
                                 </div>
 
+                                {{-- Tabel Riwayat Pelatihan --}}
+                                {{-- Kolom: NIK (employee ID), Nama Karyawan (employee name with avatar), Jabatan (position), Judul Training (training title), Kategori (category badge), Tanggal (training date), Skor (score %), Status (LULUS/GAGAL), Sertifikat (download button) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableRiwayat">
                                         <thead>
@@ -536,10 +558,14 @@
                         </div>
 
                         <!-- Cetak Sertifikat Tab -->
+                        {{-- TAB CONTENT 3: Cetak Sertifikat Tab --}}
+                        {{-- Fungsi: Management dan printing sertifikat pelatihan untuk karyawan yang telah lulus dengan tracking validity period --}}
                         <div class="tab-pane fade" id="cetaksertifikat" role="tabpanel" aria-labelledby="cetaksertifikat-tab">
                             <div class="mt-4">
+                                {{-- Header dengan filter training dan cetak massal button --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Cetak Sertifikat Karyawan</h5>
+                                    {{-- Filter untuk memilih jenis training tertentu (GMP, 5R, QC, Safety, Technical) --}}
                                     <div>
                                         <select class="form-select d-inline-block w-auto me-2" id="filterTraining">
                                             <option value="">Semua Training</option>
@@ -555,12 +581,15 @@
                                     </div>
                                 </div>
 
+                                {{-- Information box tentang format sertifikat --}}
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle-fill me-2"></i>
                                     Sertifikat akan di-generate dalam format PDF dengan template standar perusahaan. 
                                     Termasuk: Nama Peserta, Nilai Akhir, Tanggal Lulus, dan Tanda Tangan Digital Manager QA.
                                 </div>
 
+                                {{-- Tabel Sertifikat dengan checkbox untuk mass printing --}}
+                                {{-- Kolom: Checkbox (untuk multi-select), NIK, Nama Karyawan (dengan avatar), Jabatan, Judul Training (dengan Cert ID), Tanggal Lulus, Nilai Akhir, Berlaku Sampai (validity period), Aksi (Print/Download/View) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableSertifikat">
                                         <thead>

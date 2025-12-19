@@ -43,6 +43,9 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
+                    {{-- SECTION: Page Header --}}
+                    {{-- Nama: Material Management --}}
+                    {{-- Fungsi: Halaman utama untuk mengelola semua materi pelatihan, dokumen SOP/WI, dan media pembelajaran --}}
                     <h3>Material Management</h3>
                     <p class="text-subtitle text-muted">Kelola katalog pelatihan, dokumen SOP/WI, dan media library</p>
                 </div>
@@ -62,8 +65,12 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
+                    {{-- SECTION: Tab Navigation untuk Material Management --}}
+                    {{-- Fungsi: Navigasi untuk memilih antara 3 jenis materi: Katalog Pelatihan, Pustaka SOP/WI, dan Media Library --}}
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs nav-justified" id="materialManagementTab" role="tablist">
+                        {{-- TAB 1: Katalog Pelatihan --}}
+                        {{-- Isi: Daftar katalog pelatihan dengan cover image, kategori (Safety/Quality/Technical), target jabatan, deskripsi, status (Active/Inactive) --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="katalog-tab" data-bs-toggle="tab"
                                 data-bs-target="#katalog" type="button" role="tab" aria-controls="katalog"
@@ -71,12 +78,16 @@
                                 <i class="bi bi-book-fill me-2"></i>Katalog Pelatihan
                             </button>
                         </li>
+                        {{-- TAB 2: Pustaka SOP/WI --}}
+                        {{-- Isi: Dokumen SOP dan Work Instruction dengan tracking versi (Rev 1, Rev 2, dll), status (Active/Obsolete), tanggal berlaku --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="dokumen-tab" data-bs-toggle="tab" data-bs-target="#dokumen"
                                 type="button" role="tab" aria-controls="dokumen" aria-selected="false">
                                 <i class="bi bi-file-earmark-pdf-fill me-2"></i>Pustaka SOP/WI
                             </button>
                         </li>
+                        {{-- TAB 3: Media Library --}}
+                        {{-- Isi: Koleksi media pembelajaran (video MP4, gambar JPG/PNG, YouTube links) dengan preview grid dan info file size --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media"
                                 type="button" role="tab" aria-controls="media" aria-selected="false">
@@ -87,10 +98,13 @@
 
                     <!-- Tab panes -->
                     <div class="tab-content" id="materialManagementTabContent">
+                        {{-- TAB CONTENT 1: Katalog Pelatihan Tab --}}
+                        {{-- Fungsi: Menampilkan daftar semua training catalogs dengan fitur CRUD (Create, Read, Update, Delete) --}}
                         <!-- Katalog Pelatihan Tab -->
                         <div class="tab-pane fade show active" id="katalog" role="tabpanel"
                             aria-labelledby="katalog-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Tambah Katalog --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Katalog Pelatihan</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahKatalog">
@@ -98,6 +112,8 @@
                                     </button>
                                 </div>
 
+                                {{-- Tabel Daftar Katalog Pelatihan --}}
+                                {{-- Kolom: Cover (cover image), Judul Training (ID pelatihan), Kategori (Safety/Quality/Technical), Target Jabatan (Multi-select roles), Deskripsi, Status (Active/Inactive), Aksi (Detail/Edit/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableKatalog">
                                         <thead>
@@ -211,8 +227,11 @@
                         </div>
 
                         <!-- Pustaka SOP/WI Tab -->
+                        {{-- TAB CONTENT 2: Pustaka SOP/WI Tab --}}
+                        {{-- Fungsi: Manajemen dokumen SOP dan Work Instruction dengan version control untuk compliance audit --}}
                         <div class="tab-pane fade" id="dokumen" role="tabpanel" aria-labelledby="dokumen-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Upload Dokumen --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Pustaka SOP/WI</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahDokumen">
@@ -220,6 +239,8 @@
                                     </button>
                                 </div>
 
+                                {{-- Tabel Daftar Dokumen SOP/WI dengan Version Control --}}
+                                {{-- Kolom: Nomor Dokumen (WI-QC-001, SOP-PRD-001), Judul Dokumen, Revisi (Rev.1, Rev.2, dll dengan keterangan "Updated from Rev.X"), Tanggal Berlaku, Status (Active/Obsolete), File (PDF download link), Aksi (Upload Revisi/History/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableDokumen">
                                         <thead>
@@ -337,10 +358,14 @@
                         </div>
 
                         <!-- Media Library Tab -->
+                        {{-- TAB CONTENT 3: Media Library Tab --}}
+                        {{-- Fungsi: Penyimpanan media pembelajaran dalam bentuk video, gambar, dan YouTube link untuk supporting materi training --}}
                         <div class="tab-pane fade" id="media" role="tabpanel" aria-labelledby="media-tab">
                             <div class="mt-4">
+                                {{-- Header dengan dual buttons: Upload Media (untuk file lokal) dan Add YouTube Link --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Media Library</h5>
+                                    {{-- Support file types: MP4 video, JPG/PNG images dengan file size tracking --}}
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-primary" id="btnUploadMedia">
                                             <i class="bi bi-cloud-upload me-1"></i>Upload Media
@@ -351,6 +376,8 @@
                                     </div>
                                 </div>
 
+                                {{-- Grid layout untuk menampilkan media items --}}
+                                {{-- Setiap item menampilkan: thumbnail preview, nama file, tipe file (MP4/JPG/PNG/YouTube), ukuran file, tanggal upload, tombol watch/hapus --}}
                                 <div class="media-grid">
                                     <!-- Video Item -->
                                     <div class="media-item">

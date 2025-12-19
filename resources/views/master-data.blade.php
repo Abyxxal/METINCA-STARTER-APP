@@ -17,6 +17,9 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
+                    {{-- SECTION: Page Header --}}
+                    {{-- Nama: Master Data --}}
+                    {{-- Fungsi: Mengelola data referensi karyawan, struktur organisasi (departemen/line), dan daftar jabatan untuk mapping training requirements --}}
                     <h3>Master Data</h3>
                     <p class="text-subtitle text-muted">Kelola data karyawan, departemen, dan jabatan</p>
                 </div>
@@ -36,8 +39,12 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
+                    {{-- SECTION: Tab Navigation untuk Master Data --}}
+                    {{-- Fungsi: Navigasi untuk mengelola 3 master data: Data Karyawan, Departemen & Line, dan Jabatan --}}
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs nav-justified" id="masterDataTab" role="tablist">
+                        {{-- TAB 1: Data Karyawan --}}
+                        {{-- Isi: Daftar karyawan dengan NIK, nama, departemen, jabatan, shift, status (Active/Inactive) - support CRUD dan import Excel --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="karyawan-tab" data-bs-toggle="tab"
                                 data-bs-target="#karyawan" type="button" role="tab" aria-controls="karyawan"
@@ -45,12 +52,16 @@
                                 <i class="bi bi-people-fill me-2"></i>Data Karyawan
                             </button>
                         </li>
+                        {{-- TAB 2: Departemen & Line --}}
+                        {{-- Isi: Struktur organisasi dengan departemen, line produksi, dan hierarchy untuk organization mapping --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="departemen-tab" data-bs-toggle="tab" data-bs-target="#departemen"
                                 type="button" role="tab" aria-controls="departemen" aria-selected="false">
                                 <i class="bi bi-building me-2"></i>Departemen & Line
                             </button>
                         </li>
+                        {{-- TAB 3: Jabatan --}}
+                        {{-- Isi: Daftar jabatan/posisi dengan deskripsi untuk mapping target training --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="jabatan-tab" data-bs-toggle="tab" data-bs-target="#jabatan"
                                 type="button" role="tab" aria-controls="jabatan" aria-selected="false">
@@ -61,12 +72,16 @@
 
                     <!-- Tab panes -->
                     <div class="tab-content" id="masterDataTabContent">
+                        {{-- TAB CONTENT 1: Data Karyawan Tab --}}
+                        {{-- Fungsi: Menampilkan dan mengelola profil semua karyawan dengan fitur CRUD dan bulk import --}}
                         <!-- Data Karyawan Tab -->
                         <div class="tab-pane fade show active" id="karyawan" role="tabpanel"
                             aria-labelledby="karyawan-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Tambah Karyawan dan Import Excel --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Data Karyawan</h5>
+                                    {{-- Support for individual creation dan bulk import via Excel file --}}
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-primary" id="btnTambahKaryawan">
                                             <i class="bi bi-plus-circle me-1"></i>Tambah Karyawan
@@ -77,6 +92,8 @@
                                     </div>
                                 </div>
 
+                                {{-- Tabel Data Karyawan --}}
+                                {{-- Kolom: Foto (avatar), NIK (employee ID), Nama Lengkap, Departemen (organizational unit), Jabatan (position), Shift (work shift), Status (Active/Inactive), Aksi (Detail/Edit/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableKaryawan">
                                         <thead>
@@ -183,8 +200,11 @@
                         </div>
 
                         <!-- Departemen & Line Tab -->
+                        {{-- TAB CONTENT 2: Departemen & Line Tab --}}
+                        {{-- Fungsi: Mengelola struktur organisasi dengan departemen, line produksi, dan lokasi gedung --}}
                         <div class="tab-pane fade" id="departemen" role="tabpanel" aria-labelledby="departemen-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Tambah Departemen --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Departemen & Line</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahDepartemen">
@@ -192,6 +212,8 @@
                                     </button>
                                 </div>
 
+                                {{-- Tabel Departemen & Line --}}
+                                {{-- Kolom: No (nomor urut), Nama Departemen (department name), Nama Line (production line), Nama Gedung (building location), Jumlah Karyawan (employee count), Aksi (Edit/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableDepartemen">
                                         <thead>
@@ -272,8 +294,11 @@
                         </div>
 
                         <!-- Jabatan Tab -->
+                        {{-- TAB CONTENT 3: Jabatan Tab --}}
+                        {{-- Fungsi: Mengelola daftar jabatan/posisi dengan level dan deskripsi untuk target training mapping --}}
                         <div class="tab-pane fade" id="jabatan" role="tabpanel" aria-labelledby="jabatan-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Tambah Jabatan --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Jabatan</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahJabatan">
@@ -281,6 +306,8 @@
                                     </button>
                                 </div>
 
+                                {{-- Tabel Jabatan --}}
+                                {{-- Kolom: No (nomor urut), Nama Jabatan (position name), Level (hierarchy level with badge), Keterangan (description), Jumlah Karyawan (employee count), Aksi (Edit/Delete) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableJabatan">
                                         <thead>

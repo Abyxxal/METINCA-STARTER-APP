@@ -13,6 +13,8 @@
 {{-- Isi content --}}
 @section('content')
 
+    {{-- SECTION: Page Header --}}
+    {{-- Fungsi: Menampilkan judul halaman, deskripsi, dan breadcrumb navigasi --}}
     <div class="page-heading">
         <div class="page-title">
             <div class="row">
@@ -33,10 +35,13 @@
 
     <div class="page-content">
         <section class="row">
-            <!-- 4 Kartu Statistik -->
+            {{-- SECTION: 4 Kartu Statistik Utama --}}
+            {{-- Fungsi: Menampilkan KPI (Key Performance Indicator) dari sistem training --}}
+            {{-- Isi: Total Karyawan Aktif, Materi Tersedia, User Belum Lulus, Sertifikat Expired --}}
             <div class="col-12">
                 <div class="row">
-                    <!-- Total Karyawan Aktif -->
+                    {{-- Kartu 1: Total Karyawan Aktif --}}
+                    {{-- Menunjukkan jumlah karyawan yang aktif dalam sistem training --}}
                     <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
@@ -56,7 +61,8 @@
                         </div>
                     </div>
 
-                    <!-- Total Materi/SOP Tersedia -->
+                    {{-- Kartu 2: Total Materi/SOP Tersedia --}}
+                    {{-- Menunjukkan jumlah materi training dan dokumen SOP/WI yang tersedia --}}
                     <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
@@ -76,7 +82,8 @@
                         </div>
                     </div>
 
-                    <!-- User Belum Lulus Ujian (Warning) -->
+                    {{-- Kartu 3: User Belum Lulus Ujian (Warning/Alert) --}}
+                    {{-- Menunjukkan jumlah karyawan yang belum lulus ujian - butuh perhatian khusus --}}
                     <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
@@ -96,8 +103,8 @@
                         </div>
                     </div>
 
-                    <!-- Sertifikat Expired Bulan Ini -->
-                    <div class="col-6 col-lg-3 col-md-6">
+                    {{-- Kartu 4: Sertifikat Expired Bulan Ini --}}
+                    {{-- Menunjukkan jumlah sertifikat yang akan kadaluarsa atau sudah kadaluarsa bulan ini --}}
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
@@ -118,10 +125,14 @@
                 </div>
             </div>
 
-            <!-- Grafik dan Tabel -->
+            {{-- SECTION: Grafik dan Tabel Mini --}}
+            {{-- Fungsi: Menampilkan analisis visual dan ringkasan aktivitas terbaru --}}
             <div class="col-12">
                 <div class="row">
-                    <!-- Bar Chart: Rata-rata Nilai Ujian per Departemen -->
+                    {{-- Sub-section: Bar Chart Nilai Ujian per Departemen --}}
+                    {{-- Nama: Rata-rata Nilai Ujian per Departemen --}}
+                    {{-- Fungsi: Visualisasi perbandingan rata-rata nilai ujian antar departemen untuk melihat departemen mana yang perlu improvement --}}
+                    {{-- Chart ID: #chartNilaiDepartemen (dirender menggunakan ApexCharts) --}}
                     <div class="col-12 col-lg-8">
                         <div class="card">
                             <div class="card-header">
@@ -134,7 +145,10 @@
                         </div>
                     </div>
 
-                    <!-- Tabel Mini: 5 Aktivitas Terakhir -->
+                    {{-- Sub-section: Tabel Mini Aktivitas Terakhir --}}
+                    {{-- Nama: Aktivitas Terakhir --}}
+                    {{-- Fungsi: Menampilkan 5 aktivitas terbaru dalam sistem (lulus ujian, upload dokumen, update data, etc) --}}
+                    {{-- Isi: Daftar aktivitas dengan badge status, nama user, action, dan waktu --}}
                     <div class="col-12 col-lg-4">
                         <div class="card">
                             <div class="card-header">
@@ -203,6 +217,7 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                {{-- Tombol untuk melihat semua aktivitas di halaman Report & Audit --}}
                                 <div class="px-4 mt-3">
                                     <a href="{{ route('report-and-audit') }}#riwayatpelatihan" class="btn btn-sm btn-primary w-100">
                                         <i class="bi bi-eye me-1"></i>Lihat Semua Aktivitas
@@ -214,10 +229,14 @@
                 </div>
             </div>
 
-            <!-- Additional Info Cards -->
+            {{-- SECTION: Informasi Tambahan & Quick Access --}}
+            {{-- Fungsi: Menyediakan navigasi cepat ke modul-modul utama dan overview status training --}}
             <div class="col-12">
                 <div class="row">
-                    <!-- Quick Links -->
+                    {{-- Sub-section: Quick Access Buttons --}}
+                    {{-- Nama: Quick Access --}}
+                    {{-- Fungsi: Tombol navigasi cepat ke 4 modul utama sistem --}}
+                    {{-- Isi: 4 button besar dengan icon (Material Management, Evaluation, Socialization, Report & Audit) --}}
                     <div class="col-12 col-lg-6">
                         <div class="card">
                             <div class="card-header">
@@ -225,24 +244,28 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
+                                    {{-- Button ke Material Management --}}
                                     <div class="col-6 mb-3">
                                         <a href="{{ route('material-management') }}" class="btn btn-outline-primary w-100">
                                             <i class="bi bi-collection-fill d-block" style="font-size: 2rem;"></i>
                                             <span class="d-block mt-2">Material Management</span>
                                         </a>
                                     </div>
+                                    {{-- Button ke Evaluation & Exam --}}
                                     <div class="col-6 mb-3">
                                         <a href="{{ route('evaluation-and-exam') }}" class="btn btn-outline-success w-100">
                                             <i class="bi bi-journal-text d-block" style="font-size: 2rem;"></i>
                                             <span class="d-block mt-2">Evaluation & Exam</span>
                                         </a>
                                     </div>
+                                    {{-- Button ke Socialization & News --}}
                                     <div class="col-6 mb-3">
                                         <a href="{{ route('socialization-and-news') }}" class="btn btn-outline-warning w-100">
                                             <i class="bi bi-megaphone-fill d-block" style="font-size: 2rem;"></i>
                                             <span class="d-block mt-2">Socialization</span>
                                         </a>
                                     </div>
+                                    {{-- Button ke Report & Audit --}}
                                     <div class="col-6 mb-3">
                                         <a href="{{ route('report-and-audit') }}" class="btn btn-outline-info w-100">
                                             <i class="bi bi-file-earmark-bar-graph-fill d-block" style="font-size: 2rem;"></i>
@@ -254,13 +277,17 @@
                         </div>
                     </div>
 
-                    <!-- Training Status Overview -->
+                    {{-- Sub-section: Training Status Overview dengan Progress Bar --}}
+                    {{-- Nama: Status Training Overview --}}
+                    {{-- Fungsi: Menampilkan persentase kelulusan untuk setiap jenis training --}}
+                    {{-- Isi: Progress bar untuk GMP, 5R/5S, Safety, Quality Control dengan warna berbeda (hijau=baik, kuning=sedang, merah=perlu improvement) --}}
                     <div class="col-12 col-lg-6">
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="mb-0">Status Training Overview</h4>
                             </div>
                             <div class="card-body">
+                                {{-- Progress Bar 1: GMP Training (92% - Hijau) --}}
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>GMP Training</span>
@@ -271,6 +298,8 @@
                                             aria-valuenow="92" aria-valuemin="0" aria-valuemax="100">92% Lulus</div>
                                     </div>
                                 </div>
+
+                                {{-- Progress Bar 2: 5R/5S Training (88% - Hijau) --}}
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>5R/5S Training</span>
@@ -281,6 +310,8 @@
                                             aria-valuenow="88" aria-valuemin="0" aria-valuemax="100">88% Lulus</div>
                                     </div>
                                 </div>
+
+                                {{-- Progress Bar 3: Safety Training (75% - Kuning/Warning) --}}
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>Safety Training</span>
@@ -291,6 +322,8 @@
                                             aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75% Lulus</div>
                                     </div>
                                 </div>
+
+                                {{-- Progress Bar 4: Quality Control (65% - Merah/Perlu Improvement) --}}
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>Quality Control</span>

@@ -34,6 +34,9 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
+                    {{-- SECTION: Page Header --}}
+                    {{-- Nama: Socialization & News --}}
+                    {{-- Fungsi: Mengelola pengumuman kepada karyawan dan monitoring status pembacaan untuk audit trail kepatuhan --}}
                     <h3>Socialization & News</h3>
                     <p class="text-subtitle text-muted">Kelola pengumuman dan monitor status baca karyawan</p>
                 </div>
@@ -53,8 +56,12 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
+                    {{-- SECTION: Tab Navigation untuk Socialization & News --}}
+                    {{-- Fungsi: Navigasi untuk memilih antara membuat pengumuman baru atau monitoring status pembacaan pengumuman --}}
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs nav-justified" id="socializationNewsTab" role="tablist">
+                        {{-- TAB 1: Buat Pengumuman --}}
+                        {{-- Isi: Daftar pengumuman yang telah dibuat dengan urgency badge (CRITICAL/NORMAL), force read indicator, tanggal publikasi --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="pengumuman-tab" data-bs-toggle="tab"
                                 data-bs-target="#pengumuman" type="button" role="tab" aria-controls="pengumuman"
@@ -62,6 +69,8 @@
                                 <i class="bi bi-megaphone-fill me-2"></i>Buat Pengumuman
                             </button>
                         </li>
+                        {{-- TAB 2: Status Baca --}}
+                        {{-- Isi: Audit trail dengan tracking siapa saja yang telah membaca setiap pengumuman, kapan, dan durasi membaca --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="statusbaca-tab" data-bs-toggle="tab" data-bs-target="#statusbaca"
                                 type="button" role="tab" aria-controls="statusbaca" aria-selected="false">
@@ -72,10 +81,13 @@
 
                     <!-- Tab panes -->
                     <div class="tab-content" id="socializationNewsTabContent">
+                        {{-- TAB CONTENT 1: Buat Pengumuman Tab --}}
+                        {{-- Fungsi: Menampilkan list pengumuman yang telah dibuat dengan opsi untuk edit, delete, atau republish --}}
                         <!-- Buat Pengumuman Tab -->
                         <div class="tab-pane fade show active" id="pengumuman" role="tabpanel"
                             aria-labelledby="pengumuman-tab">
                             <div class="mt-4">
+                                {{-- Header dengan tombol Buat Pengumuman Baru --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Daftar Pengumuman</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahPengumuman">
@@ -83,6 +95,8 @@
                                     </button>
                                 </div>
 
+                                {{-- Card-based layout untuk pengumuman --}}
+                                {{-- Setiap card menampilkan: urgency badge (CRITICAL/NORMAL), force read badge, judul, konten preview, tanggal publikasi, aksi (Edit/Delete/View Readers) --}}
                                 <div class="row">
                                     <!-- Announcement Card 1 - Critical -->
                                     <div class="col-12 mb-3">
@@ -293,10 +307,14 @@
                         </div>
 
                         <!-- Status Baca Tab -->
+                        {{-- TAB CONTENT 2: Status Baca Tab --}}
+                        {{-- Fungsi: Audit trail lengkap untuk monitoring pembacaan pengumuman dengan tracking siapa baca kapan dan durasi membaca --}}
                         <div class="tab-pane fade" id="statusbaca" role="tabpanel" aria-labelledby="statusbaca-tab">
                             <div class="mt-4">
+                                {{-- Header dengan filter pengumuman/status dan tombol export --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Status Baca Pengumuman</h5>
+                                    {{-- Filter untuk memilih pengumuman tertentu dan status pembacaan (Sudah Konfirmasi/Belum Konfirmasi) --}}
                                     <div>
                                         <select class="form-select d-inline-block w-auto me-2" id="filterPengumuman">
                                             <option value="">Semua Pengumuman</option>
@@ -316,12 +334,15 @@
                                     </div>
                                 </div>
 
+                                {{-- Information box --}}
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle-fill me-2"></i>
                                     Tabel ini menunjukkan audit trail pembacaan pengumuman oleh karyawan. 
                                     Status "Sudah Konfirmasi" menandakan user telah scroll sampai bawah dan klik tombol konfirmasi.
                                 </div>
 
+                                {{-- Tabel Status Baca --}}
+                                {{-- Kolom: NIK (employee ID), Nama (employee name), Pengumuman (announcement title & urgency), Tanggal Terima (publish date), Waktu Baca (read time), Durasi Baca (reading duration), Status (Sudah Konfirmasi/Belum Konfirmasi), Aksi (View Detail) --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableStatusBaca">
                                         <thead>
