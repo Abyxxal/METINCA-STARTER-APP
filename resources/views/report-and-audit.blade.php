@@ -45,6 +45,21 @@
             color: white;
             font-weight: bold;
         }
+        .cell-level-3 {
+            background: #ffc107;
+            color: #333;
+            font-weight: bold;
+        }
+        .cell-level-2 {
+            background: #fd7e14;
+            color: white;
+            font-weight: bold;
+        }
+        .cell-level-1 {
+            background: #0dcaf0;
+            color: white;
+            font-weight: bold;
+        }
         .cell-not-passed {
             background: #dc3545;
             color: white;
@@ -161,22 +176,29 @@
                                 {{-- Information box untuk legend --}}
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle-fill me-2"></i>
-                                    Matriks ini menunjukkan status kompetensi karyawan untuk setiap skill/training. 
-                                    File Excel hasil export dapat digunakan untuk audit ISO 9001.
+                                    <strong>Tingkat Kemahiran Karyawan:</strong> Level mencerminkan kemampuan dan kemandirian karyawan dalam mengerjakan skill/training tertentu.
                                 </div>
 
                                 <div class="matrix-legend">
                                     <div class="legend-item">
-                                        <div class="legend-box cell-competent"></div>
-                                        <span>Kompeten / Lulus</span>
+                                        <div class="legend-box cell-level-1"></div>
+                                        <span><strong>Level 1</strong> - Novice (Masih perlu dibimbing)</span>
                                     </div>
                                     <div class="legend-item">
-                                        <div class="legend-box cell-not-passed"></div>
-                                        <span>Belum Lulus</span>
+                                        <div class="legend-box cell-level-2"></div>
+                                        <span><strong>Level 2</strong> - Beginner (Mulai bisa dilepas)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-box cell-level-3"></div>
+                                        <span><strong>Level 3</strong> - Proficient (Bisa mengerjakan sendiri dgn baik)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-box cell-competent"></div>
+                                        <span><strong>Level 4</strong> - Expert/Master (Bisa mengajarkan ke level rendah)</span>
                                     </div>
                                     <div class="legend-item">
                                         <div class="legend-box cell-not-trained"></div>
-                                        <span>Belum Training</span>
+                                        <span><strong>-</strong> - Belum Training</span>
                                     </div>
                                 </div>
 
@@ -209,22 +231,22 @@
                                                     <small class="badge bg-light-primary">Operator</small>
                                                 </th>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>85%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>90%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>88%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-passed">
-                                                    <i class="bi bi-x-circle-fill"></i><br>65%
+                                                    <i class="bi bi-x-circle-fill"></i><br><strong>Level 2</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>82%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
@@ -240,19 +262,19 @@
                                                     <small class="badge bg-light-warning">QC Inspector</small>
                                                 </th>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>92%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>95%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>90%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>95%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>88%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
@@ -271,13 +293,13 @@
                                                     <small class="badge bg-light-danger">Technician</small>
                                                 </th>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>85%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>90%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>93%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
@@ -286,10 +308,10 @@
                                                     <i class="bi bi-dash-circle"></i><br>-
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>95%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>92%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
@@ -302,28 +324,28 @@
                                                     <small class="badge bg-light-success">Line Leader</small>
                                                 </th>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>98%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>95%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>96%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>88%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>85%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>90%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>92%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -333,13 +355,13 @@
                                                     <small class="badge bg-light-primary">Operator</small>
                                                 </th>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>80%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-passed">
-                                                    <i class="bi bi-x-circle-fill"></i><br>72%
+                                                    <i class="bi bi-x-circle-fill"></i><br><strong>Level 2</strong>
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>85%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
@@ -348,7 +370,7 @@
                                                     <i class="bi bi-dash-circle"></i><br>-
                                                 </td>
                                                 <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br>88%
+                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
                                                 </td>
                                                 <td class="cell-not-trained">
                                                     <i class="bi bi-dash-circle"></i><br>-
@@ -884,9 +906,92 @@
                 tableRiwayat.search(this.value).draw();
             });
 
-            // Filter handlers
+            // Data skill requirement per departemen
+            const departemenSkills = {
+                '': {
+                    categoryHeaders: [
+                        { label: 'Safety & K3', colspan: 3 },
+                        { label: 'Quality', colspan: 2 },
+                        { label: 'Technical', colspan: 2 },
+                        { label: 'Production', colspan: 1 }
+                    ],
+                    skills: ['GMP Basic', '5R/5S', 'K3L', 'QC Basic', '7 QC Tools', 'Machine Operation', 'Maintenance', 'Line Leader'],
+                    columnIndices: [0, 1, 2, 3, 4, 5, 6, 7]
+                },
+                'produksi': {
+                    categoryHeaders: [
+                        { label: 'Safety & K3', colspan: 3 },
+                        { label: 'Production', colspan: 2 }
+                    ],
+                    skills: ['GMP Basic', '5R/5S', 'K3L', 'Machine Operation', 'Line Leader'],
+                    columnIndices: [0, 1, 2, 5, 7]
+                },
+                'qc': {
+                    categoryHeaders: [
+                        { label: 'Safety & K3', colspan: 2 },
+                        { label: 'Quality', colspan: 2 }
+                    ],
+                    skills: ['GMP Basic', 'K3L', 'QC Basic', '7 QC Tools'],
+                    columnIndices: [0, 2, 3, 4]
+                },
+                'maintenance': {
+                    categoryHeaders: [
+                        { label: 'Safety & K3', colspan: 2 },
+                        { label: 'Technical', colspan: 2 }
+                    ],
+                    skills: ['GMP Basic', 'K3L', 'Machine Operation', 'Maintenance'],
+                    columnIndices: [0, 2, 5, 6]
+                },
+                'warehouse': {
+                    categoryHeaders: [
+                        { label: 'Safety & K3', colspan: 3 }
+                    ],
+                    skills: ['GMP Basic', '5R/5S', 'K3L'],
+                    columnIndices: [0, 1, 2]
+                }
+            };
+
+            // Filter departemen handler
             $('#filterDepartemen').on('change', function() {
-                alert('Filter Departemen: ' + $(this).val());
+                var dept = $(this).val();
+                var skillsData = departemenSkills[dept];
+                
+                if (!skillsData) return;
+                
+                var $table = $('.matrix-table');
+                var $thead = $table.find('thead');
+                var $tbody = $table.find('tbody');
+                
+                // Update header baris 1 (category)
+                var row1 = '<tr><th rowspan="2" style="position: sticky; left: 0; z-index: 5;">NIK / Nama Karyawan</th>';
+                skillsData.categoryHeaders.forEach(function(cat) {
+                    row1 += '<th colspan="' + cat.colspan + '">' + cat.label + '</th>';
+                });
+                row1 += '</tr>';
+                
+                // Update header baris 2 (skill names)
+                var row2 = '<tr>';
+                skillsData.skills.forEach(function(skill) {
+                    row2 += '<th>' + skill + '</th>';
+                });
+                row2 += '</tr>';
+                
+                $thead.html(row1 + row2);
+                
+                // Update tbody - hide/show columns
+                $tbody.find('tr').each(function() {
+                    var $cells = $(this).find('td, th');
+                    $cells.each(function(index) {
+                        // Header kolom (NIK/Nama) selalu ditampilkan
+                        if (index === 0) {
+                            $(this).show();
+                        } else if (skillsData.columnIndices.includes(index - 1)) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+                });
             });
 
             $('#filterTraining').on('change', function() {

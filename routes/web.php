@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeImportController;
+use App\Http\Controllers\UserDashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 // Fungsi: Redirect ke dashboard jika sudah login, atau ke home.main jika belum
 Route::get('/',function(){
     if(Auth::check()){
+        // Jika sudah login, redirect ke dashboard (akan di-handle oleh DashboardController)
         return redirect()->route('dashboard');
     }
     return redirect()->route('home.main');
@@ -114,76 +117,118 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth'])->group(function(){
 
     // ============================================
-    // TRAINING MANAGEMENT ROUTES
+    // SHARED ROUTES - Dashboard untuk Admin & User
     // ============================================
-    // Routes untuk fitur utama training management system
     
-    // GET /dashboard - Dashboard utama
-    // Fungsi: Menampilkan overview/KPI sistem training
-    // Isi: Statistik karyawan, material available, exam results, certificates
+    // GET /dashboard - Dashboard untuk both admin dan user
+    // Fungsi: Redirect atau show sesuai dengan role
     Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
 
-    // GET /master-data - Halaman Master Data
-    // Fungsi: Mengelola data referensi (karyawan, departemen, jabatan)
-    // Submenu: Data Karyawan, Departemen & Line, Jabatan
-    Route::get('/master-data',function(){
-        return view('master-data');
-    })->name('master-data');
-
-    // GET /material-management - Halaman Material Management
-    // Fungsi: Mengelola materi pelatihan dan dokumen SOP
-    // Submenu: Katalog Pelatihan, Pustaka SOP/WI, Media Library
-    Route::get('/material-management',function(){
-        return view('material-management');
-    })->name('material-management');
-
-    // GET /evaluation-and-exam - Halaman Evaluation & Exam
-    // Fungsi: Mengelola soal ujian, setup ujian, dan hasil ujian
-    // Submenu: Bank Soal, Setup Ujian, Hasil Ujian
-    Route::get('/evaluation-and-exam',function(){
-        return view('evaluation-and-exam');
-    })->name('evaluation-and-exam');
-
-    // GET /socialization-and-news - Halaman Socialization & News
-    // Fungsi: Mengelola pengumuman ke karyawan dan tracking pembacaan
-    // Submenu: Buat Pengumuman, Status Baca
-    Route::get('/socialization-and-news',function(){
-        return view('socialization-and-news');
-    })->name('socialization-and-news');
-
-    // GET /report-and-audit - Halaman Report & Audit
-    // Fungsi: Reporting dan compliance untuk audit ISO 9001
-    // Submenu: Matriks Kompetensi, Riwayat Pelatihan, Cetak Sertifikat
-    Route::get('/report-and-audit',function(){
-        return view('report-and-audit');
-    })->name('report-and-audit');
-
-    // GET /settings - Halaman Settings
-    // Fungsi: Pengaturan sistem dan manajemen user admin
-    // Submenu: Admin Management, Audit Log
-    Route::get('/settings',function(){
-        return view('settings');
-    })->name('settings');
-
     // ============================================
-    // MACHINING PROCESS ROUTES (Sub-module)
+    // ADMIN ROUTES - Hanya untuk Admin
     // ============================================
-    // Routes untuk fitur machining/monitoring produksi
+    // Middleware: 'is.admin' - hanya accessible untuk user dengan role 'admin'
     
-    Route::prefix('machining')->name('machining.')->group(function(){
+    Route::middleware(['is.admin'])->group(function(){
 
-        // Monitoring sub-routes
-        Route::prefix('monitoring')->name('monitoring.')->group(function(){
+        // GET /master-data - Halaman Master Data
+        // Fungsi: Mengelola data referensi (karyawan, departemen, jabatan)
+        // Submenu: Data Karyawan, Departemen & Line, Jabatan
+        Route::get('/master-data',function(){
+            return view('master-data');
+        })->name('master-data');
 
-            // GET /machining/monitoring/ - Halaman monitoring proses produksi
-            // Fungsi: Monitoring real-time status mesin dan line produksi
-            Route::get('/',function(){
-                return view('machining.monitoring.index');
-            })->name('index');
+        // ============================================
+        // EMPLOYEE IMPORT ROUTES
+        // ============================================
+        // Routes untuk import data karyawan dari Excel
+        
+        // GET /employee-import - Form import
+        Route::get('/employee-import', [EmployeeImportController::class, 'showImportForm'])->name('employee.import.form');
+        
+        // POST /employee-import - Process import
+        Route::post('/employee-import', [EmployeeImportController::class, 'import'])->name('employee.import');
+        
+        // GET /employee-import/template - Download template
+        Route::get('/employee-import/template', [EmployeeImportController::class, 'downloadTemplate'])->name('employee.template');
+
+        // GET /material-management - Halaman Material Management
+        // Fungsi: Mengelola materi pelatihan dan dokumen SOP
+        // Submenu: Katalog Pelatihan, Pustaka SOP/WI, Media Library
+        Route::get('/material-management',function(){
+            return view('material-management');
+        })->name('material-management');
+
+        // GET /evaluation-and-exam - Halaman Evaluation & Exam
+        // Fungsi: Mengelola soal ujian, setup ujian, dan hasil ujian
+        // Submenu: Bank Soal, Setup Ujian, Hasil Ujian
+        Route::get('/evaluation-and-exam',function(){
+            return view('evaluation-and-exam');
+        })->name('evaluation-and-exam');
+
+        // GET /socialization-and-news - Halaman Socialization & News
+        // Fungsi: Mengelola pengumuman ke karyawan dan tracking pembacaan
+        // Submenu: Buat Pengumuman, Status Baca
+        Route::get('/socialization-and-news',function(){
+            return view('socialization-and-news');
+        })->name('socialization-and-news');
+
+        // GET /report-and-audit - Halaman Report & Audit
+        // Fungsi: Reporting dan compliance untuk audit ISO 9001
+        // Submenu: Matriks Kompetensi, Riwayat Pelatihan, Cetak Sertifikat
+        Route::get('/report-and-audit',function(){
+            return view('report-and-audit');
+        })->name('report-and-audit');
+
+        // GET /settings - Halaman Settings
+        // Fungsi: Pengaturan sistem dan manajemen user admin
+        // Submenu: Admin Management, Audit Log
+        Route::get('/settings',function(){
+            return view('settings');
+        })->name('settings');
+
+        // ============================================
+        // MACHINING PROCESS ROUTES (Sub-module)
+        // ============================================
+        // Routes untuk fitur machining/monitoring produksi
+        
+        Route::prefix('machining')->name('machining.')->group(function(){
+
+            // Monitoring sub-routes
+            Route::prefix('monitoring')->name('monitoring.')->group(function(){
+
+                // GET /machining/monitoring/ - Halaman monitoring proses produksi
+                // Fungsi: Monitoring real-time status mesin dan line produksi
+                Route::get('/',function(){
+                    return view('machining.monitoring.index');
+                })->name('index');
+
+            });
 
         });
 
     });
 
-});
+    // ============================================
+    // USER ROUTES - Hanya untuk User Biasa
+    // ============================================
+    // Routes untuk fitur yang diakses user/karyawan
+    // Middleware: 'is.user' - hanya accessible untuk user dengan role 'user'
+    
+    Route::middleware(['is.user'])->group(function(){
 
+        // GET /my-training - Halaman pelatihan saya
+        // Fungsi: Menampilkan daftar pelatihan yang ditugaskan ke user
+        Route::get('/my-training', [UserDashboardController::class, 'myTraining'])->name('my-training');
+
+        // GET /training-history - Halaman riwayat pelatihan
+        // Fungsi: Menampilkan riwayat pelatihan yang sudah dikerjakan user
+        Route::get('/training-history', [UserDashboardController::class, 'trainingHistory'])->name('training-history');
+
+        // GET /my-profile - Halaman profil saya
+        // Fungsi: Menampilkan dan mengedit profil user
+        Route::get('/my-profile', [UserDashboardController::class, 'myProfile'])->name('my-profile');
+
+    });
+
+});

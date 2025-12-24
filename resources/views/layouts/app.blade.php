@@ -16,6 +16,12 @@
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/iconly.css') }}">
+    <style>
+        .logo img {
+            width: 50px !important;
+            height: auto !important;
+        }
+    </style>
     @stack('styles')
 </head>
 
@@ -27,7 +33,7 @@
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="./assets/compiled/svg/logo.svg" alt="Logo"
+                            <a href="index.html"><img src="{{ asset('assets/compiled/svg/logo-metinca.svg') }}" alt="logo-metinca"
                                     srcset=""></a>
                         </div>
                         <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
@@ -95,15 +101,10 @@
                                 <li class="submenu-item {{ request()->fullUrlIs('*master-data#karyawan*') ? 'active' : '' }}">
                                     <a href="{{ route('master-data') }}#karyawan" class="submenu-link">Employee</a>
                                 </li>
-                                {{-- Submenu 2: Department & Line --}}
-                                {{-- Isi: Daftar departemen, line produksi, dan struktur organisasi --}}
+                                {{-- Submenu 2: Department --}}
+                                {{-- Isi: Daftar departemen dan struktur organisasi --}}
                                 <li class="submenu-item {{ request()->fullUrlIs('*master-data#departemen*') ? 'active' : '' }}">
-                                    <a href="{{ route('master-data') }}#departemen" class="submenu-link">Department & Line</a>
-                                </li>
-                                {{-- Submenu 3: Position --}}
-                                {{-- Isi: Daftar posisi/jabatan karyawan --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*master-data#jabatan*') ? 'active' : '' }}">
-                                    <a href="{{ route('master-data') }}#jabatan" class="submenu-link">Job Position</a>
+                                    <a href="{{ route('master-data') }}#departemen" class="submenu-link">Department</a>
                                 </li>
                             </ul>
                         </li>

@@ -16,12 +16,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Run seeders
+        $this->call([
+            DepartmentAndPositionSeeder::class,
+            EmployeeSeeder::class,
+        ]);
 
+        // Create Admin User
         User::factory()->create([
-            'name' => 'admin',
+            'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => Hash::make('admin123')
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+            'profile_photo_url' => 'https://ui-avatars.com/api/?name=Admin+User&background=0d6efd&color=ffffff'
+        ]);
+
+        // Create Regular User
+        User::factory()->create([
+            'name' => 'User Karyawan',
+            'email' => 'user@example.com',
+            'password' => Hash::make('user123'),
+            'role' => 'user',
+            'profile_photo_url' => 'https://ui-avatars.com/api/?name=User+Karyawan&background=198754&color=ffffff'
         ]);
     }
 }
