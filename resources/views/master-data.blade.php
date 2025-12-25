@@ -631,7 +631,6 @@
                     dataSrc: function(json) {
                         return json.data.map(function(emp, index) {
                             return {
-                                'no': index + 1,
                                 'id': emp.id,
                                 'photo': emp.photo_path ? emp.photo_path : '<i class="bi bi-person-fill"></i>',
                                 'employee_id': emp.id,
@@ -647,9 +646,10 @@
                 columnDefs: [
                     {
                         targets: 0,
-                        data: 'no',
+                        orderable: false,
                         render: function(data, type, row, meta) {
-                            return data;
+                            // Nomor berdasarkan posisi row yang ditampilkan (dimulai dari 1 setiap kali render)
+                            return meta.row + 1;
                         }
                     },
                     { targets: 1, data: 'photo' },
@@ -677,11 +677,6 @@
                 ],
                 order: [[2, 'asc']],
                 drawCallback: function() {
-                    // Update No column dynamically based on displayed rows
-                    tableKaryawan.cells(null, 0).nodes().to$().each(function(i) {
-                        $(this).text(i + 1);
-                    });
-                    
                     // Attach edit/delete handlers after table render
                     $('.btn-edit-karyawan').off('click').on('click', function() {
                         var id = $(this).data('id');
