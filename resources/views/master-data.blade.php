@@ -465,10 +465,10 @@
                                         <label for="editDepartemenKaryawan" class="form-label">Departemen <span class="text-danger">*</span></label>
                                         <select class="form-select" id="editDepartemenKaryawan" required>
                                             <option value="">-- Pilih Departemen --</option>
-                                            <option value="Quality">Quality</option>
-                                            <option value="Maintenance">Maintenance</option>
-                                            <option value="Production Planning & Control">Production Planning & Control</option>
-                                            <option value="Produksi & Development Engineering">Produksi & Development Engineering</option>
+                                            <option value="1">Quality</option>
+                                            <option value="2">Maintenance</option>
+                                            <option value="3">Production Planning & Control</option>
+                                            <option value="4">Produksi & Development Engineering</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1078,15 +1078,19 @@
 
             // Update Jabatan dropdown pada edit modal ketika Departemen berubah
             $('#editDepartemenKaryawan').on('change', function() {
-                var selectedDept = $(this).val();
+                var departemenId = $(this).val();
+                if (!departemenId) return;
                 var jabatanSelect = $('#editJabatanKaryawan');
-                jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
                 
-                if (selectedDept && jabatanByDepartemen[selectedDept]) {
-                    jabatanByDepartemen[selectedDept].forEach(function(jabatan) {
-                        jabatanSelect.append('<option value="' + jabatan + '">' + jabatan + '</option>');
-                    });
-                }
+                $.ajax({
+                    url: '/api/positions?department_id=' + departemenId,
+                    success: function(response) {
+                        jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
+                        response.data.forEach(function(pos) {
+                            jabatanSelect.append('<option value="' + pos.id + '">' + pos.name + '</option>');
+                        });
+                    }
+                });
             });
 
             // Handle Hapus Karyawan button click
