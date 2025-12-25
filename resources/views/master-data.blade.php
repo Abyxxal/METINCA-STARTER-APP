@@ -700,25 +700,9 @@
                 $(document).trigger('click.edit-karyawan', [id]);
             }
 
-            // Helper function to trigger delete confirmation for employee
+            // Old helper function - no longer used, SweetAlert2 handles delete confirmation now
             function hapusKaryawan(id) {
-                if (confirm('Apakah Anda yakin ingin menghapus karyawan ini?')) {
-                    $.ajax({
-                        url: '/api/employees/' + id,
-                        type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            alert(response.message || 'Karyawan berhasil dihapus');
-                            tableKaryawan.ajax.reload();
-                        },
-                        error: function(xhr) {
-                            var message = xhr.responseJSON?.message || 'Gagal menghapus karyawan';
-                            alert(message);
-                        }
-                    });
-                }
+                // This function is deprecated, use .btn-hapus-karyawan click handler instead
             }
 
             var tableDepartemen = $('#tableDepartemen').DataTable({
@@ -892,7 +876,13 @@
             });
 
             $('#btnImportExcel').on('click', function() {
-                alert('Fitur Import Excel akan segera tersedia');
+                Swal.fire({
+                    title: 'Fitur Segera Hadir',
+                    text: 'Fitur Import Excel akan segera tersedia',
+                    icon: 'info',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
             });
 
             $('#btnTambahDepartemen').on('click', function() {
@@ -1022,7 +1012,12 @@
                         $('#modalEditKaryawan').modal('show');
                     },
                     error: function(xhr) {
-                        alert('Gagal memuat data karyawan');
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: 'Gagal memuat data karyawan',
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545'
+                        });
                     }
                 });
             });
@@ -1196,7 +1191,13 @@
                 var jumlahKaryawan = $('#jumlahKaryawan').val();
 
                 if (!namaDept) {
-                    alert('Nama departemen harus diisi!');
+                    Swal.fire({
+                        title: 'Validasi!',
+                        text: 'Nama departemen harus diisi!',
+                        icon: 'warning',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
                     return;
                 }
 
@@ -1213,9 +1214,15 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Departemen berhasil ditambahkan!');
-                            $('#modalTambahDepartemen').modal('hide');
-                            tableDepartemen.ajax.reload();
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: 'Departemen berhasil ditambahkan!',
+                                icon: 'success',
+                                confirmButtonColor: '#28a745'
+                            }).then(() => {
+                                $('#modalTambahDepartemen').modal('hide');
+                                tableDepartemen.ajax.reload();
+                            });
                         }
                     },
                     error: function(xhr) {
@@ -1224,7 +1231,12 @@
                         for (let key in errors) {
                             errorMsg += errors[key][0] + '\n';
                         }
-                        alert(errorMsg || 'Gagal menambahkan departemen');
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: errorMsg || 'Gagal menambahkan departemen',
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545'
+                        });
                     }
                 });
             });
@@ -1251,7 +1263,13 @@
                 var jumlahKaryawan = $('#editJumlahKaryawan').val();
 
                 if (!namaDept) {
-                    alert('Nama departemen harus diisi!');
+                    Swal.fire({
+                        title: 'Validasi!',
+                        text: 'Nama departemen harus diisi!',
+                        icon: 'warning',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
                     return;
                 }
 
@@ -1268,9 +1286,15 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Departemen berhasil diperbarui!');
-                            $('#modalEditDepartemen').modal('hide');
-                            tableDepartemen.ajax.reload();
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: 'Departemen berhasil diperbarui!',
+                                icon: 'success',
+                                confirmButtonColor: '#28a745'
+                            }).then(() => {
+                                $('#modalEditDepartemen').modal('hide');
+                                tableDepartemen.ajax.reload();
+                            });
                         }
                     },
                     error: function(xhr) {
@@ -1279,7 +1303,12 @@
                         for (let key in errors) {
                             errorMsg += errors[key][0] + '\n';
                         }
-                        alert(errorMsg || 'Gagal memperbarui departemen');
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: errorMsg || 'Gagal memperbarui departemen',
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545'
+                        });
                     }
                 });
             });
@@ -1289,34 +1318,58 @@
                 var id = $(this).data('id');
                 var departemen = $(this).data('departemen');
 
-                // Populate modal with data
-                $('#hapusDepartemenId').val(id);
-                $('#hapusDepartemenNama').text(departemen);
+                // Show SweetAlert confirmation dialog
+                Swal.fire({
+                    title: 'Hapus Departemen?',
+                    html: '<strong>' + departemen + '</strong>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading dialog
+                        Swal.fire({
+                            title: 'Menghapus...',
+                            html: 'Tunggu sebentar, data sedang dihapus...',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
 
-                // Show modal
-                $('#modalHapusDepartemen').modal('show');
-            });
-
-            // Handle Konfirmasi Hapus
-            $('#btnKonfirmasiHapus').on('click', function() {
-                var id = $('#hapusDepartemenId').val();
-                var departemen = $('#hapusDepartemenNama').text();
-
-                $.ajax({
-                    url: '/api/departments/' + id,
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Departemen ' + departemen + ' berhasil dihapus!');
-                            $('#modalHapusDepartemen').modal('hide');
-                            tableDepartemen.ajax.reload();
-                        }
-                    },
-                    error: function(xhr) {
-                        alert('Gagal menghapus departemen: ' + (xhr.responseJSON.message || 'Unknown error'));
+                        // Delete the department
+                        $.ajax({
+                            url: '/api/departments/' + id,
+                            type: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: 'Berhasil!',
+                                        text: 'Departemen ' + departemen + ' berhasil dihapus.',
+                                        icon: 'success',
+                                        confirmButtonColor: '#28a745'
+                                    }).then(() => {
+                                        tableDepartemen.ajax.reload();
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: 'Gagal menghapus departemen: ' + (xhr.responseJSON.message || 'Unknown error'),
+                                    icon: 'error',
+                                    confirmButtonColor: '#dc3545'
+                                });
+                            }
+                        });
                     }
                 });
             });
