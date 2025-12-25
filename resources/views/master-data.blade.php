@@ -1040,9 +1040,21 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Data Karyawan berhasil diperbarui!');
-                            $('#modalEditKaryawan').modal('hide');
-                            tableKaryawan.ajax.reload();
+                            // Show success message with custom styling
+                            var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                                '<strong><i class="bi bi-check-circle"></i> Berhasil!</strong> Data Karyawan berhasil diperbarui.' +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                '</div>';
+                            
+                            // Insert alert at the top of modal body
+                            var modalBody = $('#modalEditKaryawan .modal-body');
+                            modalBody.prepend(successHtml);
+                            
+                            // Auto-hide modal and reload table after 2 seconds
+                            setTimeout(function() {
+                                $('#modalEditKaryawan').modal('hide');
+                                tableKaryawan.ajax.reload();
+                            }, 2000);
                         }
                     },
                     error: function(xhr) {
@@ -1051,7 +1063,16 @@
                         for (let key in errors) {
                             errorMsg += errors[key][0] + '\n';
                         }
-                        alert(errorMsg || 'Gagal memperbarui data');
+                        
+                        // Show error message with custom styling
+                        var errorHtml = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                            '<strong><i class="bi bi-exclamation-circle"></i> Gagal!</strong> ' + (errorMsg || 'Gagal memperbarui data') +
+                            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                            '</div>';
+                        
+                        // Insert alert at the top of modal body
+                        var modalBody = $('#modalEditKaryawan .modal-body');
+                        modalBody.prepend(errorHtml);
                     }
                 });
             });
