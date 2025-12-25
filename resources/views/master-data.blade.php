@@ -908,7 +908,13 @@
                 var status = $('input[name="statusKaryawan"]:checked').val();
 
                 if (!nik || !nama || !departemenId || !jabatanId) {
-                    alert('Semua field harus diisi!');
+                    // Show validation error with custom styling
+                    var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
+                        '<strong><i class="bi bi-exclamation-triangle"></i> Perhatian!</strong> Semua field harus diisi!' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                        '</div>';
+                    var modalBody = $('#modalTambahKaryawan .modal-body');
+                    modalBody.prepend(errorHtml);
                     return;
                 }
 
@@ -1031,7 +1037,13 @@
                 var status = $('input[name="editStatusKaryawan"]:checked').val();
 
                 if (!nik || !nama || !departemenId || !jabatanId) {
-                    alert('Semua field harus diisi!');
+                    // Show validation error with custom styling
+                    var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
+                        '<strong><i class="bi bi-exclamation-triangle"></i> Perhatian!</strong> Semua field harus diisi!' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                        '</div>';
+                    var modalBody = $('#modalEditKaryawan .modal-body');
+                    modalBody.prepend(errorHtml);
                     return;
                 }
 
