@@ -675,7 +675,7 @@
                         searchable: false
                     }
                 ],
-                order: [[2, 'asc']],
+                order: [],
                 drawCallback: function() {
                     // Attach edit/delete handlers after table render
                     $('.btn-edit-karyawan').off('click').on('click', function() {
