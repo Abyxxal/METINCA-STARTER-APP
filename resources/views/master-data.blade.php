@@ -93,14 +93,14 @@
                                 </div>
 
                                 {{-- Tabel Data Karyawan --}}
-                                {{-- Kolom: No, Foto, NIK, Nama Lengkap, Departemen, Jabatan, Status, Aksi --}}
+                                {{-- Kolom: No, Foto, ID, Nama Lengkap, Departemen, Jabatan, Status, Aksi --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableKaryawan">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
                                                 <th>Foto</th>
-                                                <th>NIK</th>
+                                                <th>ID</th>
                                                 <th>Nama Lengkap</th>
                                                 <th>Departemen</th>
                                                 <th>Jabatan</th>
@@ -351,8 +351,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nikKaryawan" class="form-label">NIK <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="nikKaryawan" placeholder="Contoh: EMP047" required>
+                                        <label for="idKaryawan" class="form-label">ID <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="idKaryawan" placeholder="Contoh: EMP047" required>
                                     </div>
                                 </div>
                             </div>
@@ -436,8 +436,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="editNikKaryawan" class="form-label">NIK <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="editNikKaryawan" placeholder="Contoh: EMP047" required>
+                                        <label for="editIdKaryawan" class="form-label">ID <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="editIdKaryawan" placeholder="Contoh: EMP047" required>
                                     </div>
                                 </div>
                             </div>
@@ -634,7 +634,7 @@
                                 'no': index + 1,
                                 'id': emp.id,
                                 'photo': emp.photo_path ? emp.photo_path : '<i class="bi bi-person-fill"></i>',
-                                'nik': emp.nik,
+                                'employee_id': emp.id,
                                 'nama': emp.name,
                                 'departemen': emp.department.name,
                                 'jabatan': emp.position.name,
@@ -653,7 +653,7 @@
                         }
                     },
                     { targets: 1, data: 'photo' },
-                    { targets: 2, data: 'nik' },
+                    { targets: 2, data: 'employee_id' },
                     { targets: 3, data: 'nama' },
                     { targets: 4, data: 'departemen' },
                     { targets: 5, data: 'jabatan' },
@@ -891,20 +891,20 @@
             });
 
             $('#btnSimpanKaryawan').on('click', function() {
-                var nik = $('#nikKaryawan').val();
+                var id = $('#idKaryawan').val();
                 var nama = $('#namaKaryawan').val();
                 var departemenId = $('#departemenKaryawan').val();
                 var jabatanId = $('#jabatanKaryawan').val();
                 var status = $('input[name="statusKaryawan"]:checked').val();
 
-                if (!nik || !nama || !departemenId || !jabatanId) {
-                    // Show validation error with custom styling
-                    var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
-                        '<strong><i class="bi bi-exclamation-triangle"></i> Perhatian!</strong> Semua field harus diisi!' +
-                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                        '</div>';
-                    var modalBody = $('#modalTambahKaryawan .modal-body');
-                    modalBody.prepend(errorHtml);
+                if (!id || !nama || !departemenId || !jabatanId) {
+                    Swal.fire({
+                        title: 'Validasi!',
+                        text: 'Semua field harus diisi!',
+                        icon: 'warning',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
                     return;
                 }
 
@@ -916,7 +916,7 @@
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        nik: nik,
+                        nik: id,
                         name: nama,
                         department_id: parseInt(departemenId),
                         position_id: parseInt(jabatanId),
@@ -981,7 +981,7 @@
                         
                         // Populate edit modal with data
                         $('#editKaryawanId').val(emp.id);
-                        $('#editNikKaryawan').val(emp.nik);
+                        $('#editIdKaryawan').val(emp.nik);
                         $('#editNamaKaryawan').val(emp.name);
                         $('#editDepartemenKaryawan').val(emp.department_id);
                         
@@ -1025,7 +1025,7 @@
             // Handle Update Karyawan
             $('#btnUpdateKaryawan').on('click', function() {
                 var id = $('#editKaryawanId').val();
-                var nik = $('#editNikKaryawan').val();
+                var nik = $('#editIdKaryawan').val();
                 var nama = $('#editNamaKaryawan').val();
                 var departemenId = $('#editDepartemenKaryawan').val();
                 var jabatanId = $('#editJabatanKaryawan').val();
