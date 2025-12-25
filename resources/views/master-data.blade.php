@@ -134,17 +134,17 @@
                                     <table class="table table-striped" id="tableKaryawan">
                                         <thead>
                                             <tr>
-                                                <th>No</th>
-                                                <th>Foto</th>
-                                                <th>NIK</th>
-                                                <th>Nama Lengkap</th>
-                                                <th>Departemen</th>
-                                                <th>Jabatan</th>
-                                                <th>Status</th>
-                                                <th>Aksi</th>
+                                                <th style="width: 50px; text-align: center;">No</th>
+                                                <th style="width: 70px; text-align: center;">Foto</th>
+                                                <th style="width: 80px; text-align: center;">NIK</th>
+                                                <th style="width: auto; text-align: left;">Nama Lengkap</th>
+                                                <th style="width: auto; text-align: left;">Departemen</th>
+                                                <th style="width: auto; text-align: left;">Jabatan</th>
+                                                <th style="width: 100px; text-align: center;">Status</th>
+                                                <th style="width: 100px; text-align: center;">Aksi</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="tableKaryawanBody" style="background-color: white;">
                                             {{-- Data loaded dynamically via AJAX from /api/employees --}}
                                         </tbody>
                                     </table>
@@ -390,19 +390,35 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Status <span class="text-danger">*</span></label>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="statusKaryawan" id="statusAktif" value="active" checked>
-                                    <label class="form-check-label" for="statusAktif">
-                                        <span class="badge bg-success">Aktif</span>
-                                    </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="levelKompetensi" class="form-label">Level Kompetensi <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="levelKompetensi" required>
+                                            <option value="">-- Pilih Level --</option>
+                                            <option value="1">L1: Masih perlu dibimbing</option>
+                                            <option value="2">L2: Mulai bisa dilepas</option>
+                                            <option value="3">L3: Bisa mengerjakan sendiri dgn baik</option>
+                                            <option value="4">L4: Bisa mengajarkan ke level rendah</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="statusKaryawan" id="statusNonAktif" value="inactive">
-                                    <label class="form-check-label" for="statusNonAktif">
-                                        <span class="badge bg-warning text-dark">Non-Aktif</span>
-                                    </label>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="statusKaryawan" id="statusAktif" value="active" checked>
+                                            <label class="form-check-label" for="statusAktif">
+                                                <span class="badge bg-success">Aktif</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="statusKaryawan" id="statusNonAktif" value="inactive">
+                                            <label class="form-check-label" for="statusNonAktif">
+                                                <span class="badge bg-warning text-dark">Non-Aktif</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -490,19 +506,35 @@
                                 </div>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label">Status <span class="text-danger">*</span></label>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusAktif" value="active">
-                                    <label class="form-check-label" for="editStatusAktif">
-                                        <span class="badge bg-success">Aktif</span>
-                                    </label>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editLevelKompetensi" class="form-label">Level Kompetensi <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="editLevelKompetensi" required>
+                                            <option value="">-- Pilih Level --</option>
+                                            <option value="1">L1: Masih perlu dibimbing</option>
+                                            <option value="2">L2: Mulai bisa dilepas</option>
+                                            <option value="3">L3: Bisa mengerjakan sendiri dgn baik</option>
+                                            <option value="4">L4: Bisa mengajarkan ke level rendah</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusNonAktif" value="inactive">
-                                    <label class="form-check-label" for="editStatusNonAktif">
-                                        <span class="badge bg-warning text-dark">Non-Aktif</span>
-                                    </label>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusAktif" value="active">
+                                            <label class="form-check-label" for="editStatusAktif">
+                                                <span class="badge bg-success">Aktif</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusNonAktif" value="inactive">
+                                            <label class="form-check-label" for="editStatusNonAktif">
+                                                <span class="badge bg-warning text-dark">Non-Aktif</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -689,131 +721,101 @@
             // Load departments into filter dropdowns on page load
             loadDepartemenDropdown();
 
-            // Initialize DataTables
-            var tableKaryawan = $('#tableKaryawan').DataTable({
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
-                    "decimal": ",",
-                    "emptyTable": "Tidak ada data tersedia",
-                    "info": "Menampilkan _START_ ke _END_ dari _TOTAL_ entri",
-                    "infoEmpty": "Menampilkan 0 ke 0 dari 0 entri",
-                    "infoFiltered": "(disaring dari _MAX_ total entri)",
-                    "infoPostFix": "",
-                    "thousands": ".",
-                    "lengthMenu": "Tampilkan _MENU_ entri",
-                    "loadingRecords": "Memuat...",
-                    "processing": "Memproses...",
-                    "search": "Cari:",
-                    "zeroRecords": "Tidak ada entri yang cocok ditemukan"
-                },
-                pageLength: 10,
-                serverSide: false,
-                ajax: {
+            // Load and render karyawan table manually (same style as matrix)
+            function loadKaryawanTable() {
+                const tableBody = document.getElementById('tableKaryawanBody');
+                const filterDepartemen = document.getElementById('filterDepartemenKaryawan').value;
+                
+                $.ajax({
                     url: '/api/employees',
-                    dataSrc: function(json) {
-                        return json.data.map(function(emp, index) {
-                            return {
-                                'nik': emp.nik,
-                                'photo': emp.photo_path,
-                                'nama_karyawan': emp.nama_karyawan,
-                                'department': emp.department,
-                                'position': emp.position,
-                                'status': emp.status,
-                                'aksi': '<button class="btn btn-sm btn-warning btn-edit-karyawan" data-nik="' + emp.nik + '"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-danger btn-hapus-karyawan" data-nik="' + emp.nik + '"><i class="bi bi-trash"></i></button>'
-                            };
-                        });
-                    }
-                },
-                columnDefs: [
-                    {
-                        targets: 0,
-                        orderable: false,
-                        width: '50px',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + 1;
-                        }
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    { 
-                        targets: 1, 
-                        data: 'photo',
-                        width: '70px',
-                        className: 'text-center',
-                        render: function(data, type, row) {
-                            if (data) {
-                                return '<img src="' + data + '" alt="Foto" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">';
-                            } else {
-                                return '<i class="bi bi-person-fill" style="font-size: 24px; color: #999;"></i>';
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            // Filter data berdasarkan department name jika ada filter
+                            let filteredData = response.data;
+                            if (filterDepartemen) {
+                                filteredData = response.data.filter(emp => {
+                                    return emp.department && emp.department.name === filterDepartemen;
+                                });
                             }
+                            renderKaryawanTable(filteredData, tableBody);
                         }
                     },
-                    { 
-                        targets: 2, 
-                        data: 'nik',
-                        width: '80px',
-                        className: 'text-center'
-                    },
-                    { 
-                        targets: 3, 
-                        data: 'nama_karyawan',
-                        width: '18%'
-                    },
-                    { 
-                        targets: 4, 
-                        data: 'department',
-                        width: '18%',
-                        render: function(data, type, row) {
-                            return data ? data.name : '-';
-                        }
-                    },
-                    { 
-                        targets: 5, 
-                        data: 'position',
-                        width: '18%',
-                        render: function(data, type, row) {
-                            return data ? data.name : '-';
-                        }
-                    },
-                    {
-                        targets: 6,
-                        data: 'status',
-                        width: '100px',
-                        className: 'text-center',
-                        render: function(data, type, row) {
-                            if (data === 'active') {
-                                return '<span class="badge bg-success">Aktif</span>';
-                            } else {
-                                return '<span class="badge bg-warning text-dark">Non-Aktif</span>';
-                            }
-                        }
-                    },
-                    {
-                        targets: 7,
-                        data: 'aksi',
-                        orderable: false,
-                        searchable: false,
-                        width: '120px',
-                        className: 'text-center'
+                    error: function(xhr) {
+                        tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data</td></tr>';
                     }
-                ],
-                order: [],
-                drawCallback: function() {
-                    // Attach edit/delete handlers after table render
-                    $('.btn-edit-karyawan').off('click').on('click', function() {
-                        var nik = $(this).data('nik');
-                        editKaryawan(nik);
+                });
+            }
+
+            // Render karyawan table with manual renumbering
+            function renderKaryawanTable(data, tableBody) {
+                tableBody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Tidak ada data karyawan</td></tr>';
+                    return;
+                }
+
+                // Render rows - renumber based on filtered data
+                data.forEach((item, index) => {
+                    const statusBadge = item.status === 'active' 
+                        ? '<span class="badge bg-success">Aktif</span>'
+                        : '<span class="badge bg-warning text-dark">Non-Aktif</span>';
+
+                    const photoHtml = item.photo_path
+                        ? `<img src="${item.photo_path}" alt="Foto" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`
+                        : '<i class="bi bi-person-fill" style="font-size: 24px; color: #999;"></i>';
+
+                    const row = `
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">${index + 1}</td>
+                            <td style="text-align: center; vertical-align: middle;">${photoHtml}</td>
+                            <td style="text-align: center; vertical-align: middle;">${item.nik}</td>
+                            <td style="text-align: left;">${item.nama_karyawan}</td>
+                            <td style="text-align: left;">${item.department ? item.department.name : '-'}</td>
+                            <td style="text-align: left;">${item.position ? item.position.name : '-'}</td>
+                            <td style="text-align: center;">${statusBadge}</td>
+                            <td style="text-align: center;">
+                                <button class="btn btn-sm btn-warning btn-edit-karyawan" data-nik="${item.nik}" style="padding: 6px 12px; font-size: 0.85rem;">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger btn-hapus-karyawan" data-nik="${item.nik}" style="padding: 6px 12px; font-size: 0.85rem;">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+
+                    tableBody.innerHTML += row;
+                });
+
+                // Attach event handlers
+                document.querySelectorAll('.btn-edit-karyawan').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        var nik = this.getAttribute('data-nik');
+                        // Trigger the edit modal (this will be handled by existing code)
+                        $(this).trigger('click');
                     });
-                    $('.btn-hapus-karyawan').off('click').on('click', function() {
-                        var nik = $(this).data('nik');
+                });
+
+                document.querySelectorAll('.btn-hapus-karyawan').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        var nik = this.getAttribute('data-nik');
                         hapusKaryawan(nik);
                     });
-                }
-            });
+                });
+            }
+
+            // Load initial data
+            loadKaryawanTable();
 
             // Filter departemen karyawan dropdown
             $('#filterDepartemenKaryawan').on('change', function() {
-                var selectedDept = $(this).val();
-                tableKaryawan.column(4).search(selectedDept).draw();
+                // Reload table when department filter changes
+                loadKaryawanTable();
             });
 
             // Helper function to trigger edit modal for employee
@@ -1038,9 +1040,10 @@
                 var password = $('#passwordKaryawan').val();
                 var departemenId = $('#departemenKaryawan').val();
                 var jabatanId = $('#jabatanKaryawan').val();
+                var levelKompetensi = $('#levelKompetensi').val();
                 var status = $('input[name="statusKaryawan"]:checked').val();
 
-                if (!id || !nama || !email || !password || !departemenId || !jabatanId) {
+                if (!id || !nama || !email || !password || !departemenId || !jabatanId || !levelKompetensi) {
                     Swal.fire({
                         title: 'Validasi!',
                         text: 'Semua field harus diisi!',
@@ -1072,26 +1075,41 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            // Show success message with custom styling
-                            var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                                '<strong><i class="bi bi-check-circle"></i> Berhasil!</strong> Data Karyawan berhasil disimpan.' +
-                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                                '</div>';
-                            
-                            // Insert alert at the top of modal body
-                            var modalBody = $('#modalTambahKaryawan .modal-body');
-                            modalBody.prepend(successHtml);
-                            
-                            // Auto-close alert after 3 seconds
-                            autoCloseAlert(modalBody.find('.alert-success'));
-                            
-                            // Auto-hide modal and reload table after 5 seconds
-                            setTimeout(function() {
-                                $('#modalTambahKaryawan').modal('hide');
-                                $('#formTambahKaryawan')[0].reset();
-                                tableKaryawan.ajax.reload();
-                                tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
-                            }, 5000);
+                            // Save competency level
+                            $.ajax({
+                                url: '/api/competencies',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    nik: id,
+                                    level: parseInt(levelKompetensi)
+                                }),
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function(competencyResponse) {
+                                    // Show success message
+                                    var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                                        '<strong><i class="bi bi-check-circle"></i> Berhasil!</strong> Data Karyawan dan Level Kompetensi berhasil disimpan.' +
+                                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                        '</div>';
+                                    
+                                    // Insert alert at the top of modal body
+                                    var modalBody = $('#modalTambahKaryawan .modal-body');
+                                    modalBody.prepend(successHtml);
+                                    
+                                    // Auto-close alert after 3 seconds
+                                    autoCloseAlert(modalBody.find('.alert-success'));
+                                    
+                                    // Auto-hide modal and reload table after 5 seconds
+                                    setTimeout(function() {
+                                        $('#modalTambahKaryawan').modal('hide');
+                                        $('#formTambahKaryawan')[0].reset();
+                                        loadKaryawanTable();
+                                        tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
+                                    }, 5000);
+                                }
+                            });
                         }
                     },
                     error: function(xhr) {
@@ -1162,6 +1180,25 @@
                         }
                         $('#editImageFotoPreview').hide();
                         
+                        // Fetch and set competency level
+                        $.ajax({
+                            url: '/api/competencies?nik=' + employeeNik,
+                            type: 'GET',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(competencyResponse) {
+                                if (competencyResponse.success && competencyResponse.data && competencyResponse.data.length > 0) {
+                                    $('#editLevelKompetensi').val(competencyResponse.data[0].level);
+                                } else {
+                                    $('#editLevelKompetensi').val(''); // Default to empty if no competency found
+                                }
+                            },
+                            error: function() {
+                                $('#editLevelKompetensi').val(''); // Default to empty if API fails
+                            }
+                        });
+                        
                         // Show modal
                         $('#modalEditKaryawan').modal('show');
                     },
@@ -1185,9 +1222,10 @@
                 var password = $('#editPasswordKaryawan').val();
                 var departemenId = $('#editDepartemenKaryawan').val();
                 var jabatanId = $('#editJabatanKaryawan').val();
+                var editLevelKompetensi = $('#editLevelKompetensi').val();
                 var status = $('input[name="editStatusKaryawan"]:checked').val();
 
-                if (!nik || !nama || !email || !departemenId || !jabatanId) {
+                if (!nik || !nama || !email || !departemenId || !jabatanId || !editLevelKompetensi) {
                     // Show validation error with custom styling
                     var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
                         '<strong><i class="bi bi-exclamation-triangle"></i> Perhatian!</strong> Semua field harus diisi!' +
@@ -1222,25 +1260,40 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            // Show success message with custom styling
-                            var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                                '<strong><i class="bi bi-check-circle"></i> Berhasil!</strong> Data Karyawan berhasil diperbarui.' +
-                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                                '</div>';
-                            
-                            // Insert alert at the top of modal body
-                            var modalBody = $('#modalEditKaryawan .modal-body');
-                            modalBody.prepend(successHtml);
-                            
-                            // Auto-close alert after 3 seconds
-                            autoCloseAlert(modalBody.find('.alert-success'));
-                            
-                            // Auto-hide modal and reload table after 5 seconds
-                            setTimeout(function() {
-                                $('#modalEditKaryawan').modal('hide');
-                                tableKaryawan.ajax.reload();
-                                tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
-                            }, 5000);
+                            // Update competency level
+                            $.ajax({
+                                url: '/api/competencies',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({
+                                    nik: nik,
+                                    level: parseInt(editLevelKompetensi)
+                                }),
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function(competencyResponse) {
+                                    // Show success message with custom styling
+                                    var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                                        '<strong><i class="bi bi-check-circle"></i> Berhasil!</strong> Data Karyawan dan Level Kompetensi berhasil diperbarui.' +
+                                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                        '</div>';
+                                    
+                                    // Insert alert at the top of modal body
+                                    var modalBody = $('#modalEditKaryawan .modal-body');
+                                    modalBody.prepend(successHtml);
+                                    
+                                    // Auto-close alert after 3 seconds
+                                    autoCloseAlert(modalBody.find('.alert-success'));
+                                    
+                                    // Auto-hide modal and reload table after 5 seconds
+                                    setTimeout(function() {
+                                        $('#modalEditKaryawan').modal('hide');
+                                        loadKaryawanTable();
+                                        tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
+                                    }, 5000);
+                                }
+                            });
                         }
                     },
                     error: function(xhr) {
@@ -1340,7 +1393,7 @@
                                         icon: 'success',
                                         confirmButtonColor: '#28a745'
                                     }).then(() => {
-                                        tableKaryawan.ajax.reload();
+                                        loadKaryawanTable();
                                         tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
                                     });
                                 }
@@ -1647,7 +1700,7 @@
                                             }
                                         });
                                         // Reload karyawan table since position is deleted
-                                        tableKaryawan.ajax.reload();
+                                        loadKaryawanTable();
                                     });
                                 }
                             },
@@ -1831,7 +1884,7 @@
                                         confirmButtonColor: '#28a745'
                                     }).then(() => {
                                         tableDepartemen.ajax.reload();
-                                        tableKaryawan.ajax.reload(); // Reload karyawan table since employees may reference this department
+                                        loadKaryawanTable(); // Reload karyawan table since employees may reference this department
                                         loadDepartemenDropdown(); // Reload dropdowns
                                     });
                                 }

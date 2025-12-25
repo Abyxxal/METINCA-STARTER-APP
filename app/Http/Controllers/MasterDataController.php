@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
+use App\Models\EmployeeCompetency;
 use Illuminate\Http\Request;
 
 class MasterDataController extends Controller
@@ -386,6 +387,102 @@ class MasterDataController extends Controller
                 'message' => 'Jabatan berhasil dihapus',
                 'data' => $position
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    // ============================================
+    // COMPETENCY MANAGEMENT
+    // ============================================
+
+    /**
+     * Get competency data with employee details
+     * GET /api/competencies?department_id=X
+     */
+    public function getCompetencies(Request $request)
+    {
+        try {
+            $departmentId = $request->query('department_id');
+            $nik = $request->query('nik');
+
+            $query = Employee::query()
+                ->join('departments', 'employees.department_id', '=', 'departments.id')
+                ->join('positions', 'employees.position_id', '=', 'positions.id')
+                ->leftJoin('employee_competencies', 'employees.nik', '=', 'employee_competencies.nik')
+                ->select([
+                    'employees.nik',
+                    'employees.nama_karyawan',
+                    'employees.department_id',
+                    'employees.position_id',
+                    'employees.status',
+                    'departments.name as nama_departemen',
+                    'positions.name as nama_jabatan',
+                    'employee_competencies.level'
+                ]);
+
+            // Filter by department if provided
+            if ($departmentId) {
+                $query->where('employees.department_id', $departmentId);
+            }
+
+            // Filter by NIK if provided
+            if ($nik) {
+                $query->where('employees.nik', $nik);
+            }
+
+            $employees = $query->get();
+
+            // Format response
+            $data = $employees->map(function ($employee) {
+                return [
+                    'id' => $employee->nik,
+                    'nik' => $employee->nik,
+                    'nama' => $employee->nama_karyawan,
+                    'jabatan' => $employee->nama_jabatan ?? 'N/A',
+                    'departemen' => $employee->nama_departemen ?? 'N/A',
+                    'level' => $employee->level ?? 1,
+                    'status' => $employee->status ?? 'active'
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Update employee competency level
+     * POST /api/competencies
+     */
+    public function storeCompetency(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nik' => 'required|exists:employees,nik',
+                'level' => 'required|integer|in:1,2,3,4'
+            ]);
+
+            $competency = EmployeeCompetency::updateOrCreate(
+                ['nik' => $validated['nik']],
+                ['level' => $validated['level']]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kompetensi berhasil diperbarui',
+                'data' => $competency
+            ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

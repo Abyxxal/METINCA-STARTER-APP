@@ -36,5 +36,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/positions', [MasterDataController::class, 'getPositionsByDepartment']);
     Route::delete('/positions/{id}', [MasterDataController::class, 'destroyPosition']);
 
+    // ============================================
+    // COMPETENCY ROUTES
+    // ============================================
+    Route::get('/competencies', [MasterDataController::class, 'getCompetencies']);
+    Route::post('/competencies', [MasterDataController::class, 'storeCompetency']);
+
 });
 

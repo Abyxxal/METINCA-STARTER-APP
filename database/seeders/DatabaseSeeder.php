@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DepartmentAndPositionSeeder::class,
             EmployeeSeeder::class,
+            EmployeeCompetencySeeder::class,
         ]);
 
         // Create Admin User

@@ -155,230 +155,73 @@
                         <div class="tab-pane fade show active" id="matrikskompetensi" role="tabpanel"
                             aria-labelledby="matrikskompetensi-tab">
                             <div class="mt-4">
-                                {{-- Header dengan filter departemen dan export button untuk ISO audit --}}
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="mb-0">Matriks Kompetensi Karyawan</h5>
-                                    {{-- Filter untuk departemen (Produksi, QC, Maintenance, Warehouse) --}}
-                                    <div>
-                                        <select class="form-select d-inline-block w-auto me-2" id="filterDepartemen">
-                                            <option value="">Semua Departemen</option>
-                                            <option value="produksi">Produksi</option>
-                                            <option value="qc">Quality Control</option>
+                                {{-- Header dengan Filter Departemen --}}
+                                <div class="row mb-4">
+                                    <div class="col-md-4">
+                                        <label for="filterDepartemen" class="form-label"><strong>Pilih Departemen:</strong></label>
+                                        <select class="form-select" id="filterDepartemen">
+                                            <option value="">-- Semua Departemen --</option>
+                                            <option value="quality">Quality</option>
                                             <option value="maintenance">Maintenance</option>
-                                            <option value="warehouse">Warehouse</option>
+                                            <option value="ppc">PPC</option>
+                                            <option value="production">Produksi & Dev Engineering</option>
                                         </select>
-                                        <button type="button" class="btn btn-success" id="btnExportMatriks">
-                                            <i class="bi bi-file-excel me-1"></i>Export Excel (ISO Audit)
-                                        </button>
                                     </div>
                                 </div>
 
-                                {{-- Information box untuk legend --}}
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle-fill me-2"></i>
-                                    <strong>Tingkat Kemahiran Karyawan:</strong> Level mencerminkan kemampuan dan kemandirian karyawan dalam mengerjakan skill/training tertentu.
+                                {{-- Dashboard Stats --}}
+                                <div class="row mb-4" id="dashboardStats">
+                                    <div class="col-md-3 mb-3">
+                                        <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
+                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-1-count">0</div>
+                                            <small style="color: #666;">Level 1 (Perlu Training)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
+                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-2-count">0</div>
+                                            <small style="color: #666;">Level 2 (Mandiri)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div style="background-color: #f8f9fa; border-left: 4px solid #0dcaf0; padding: 15px; border-radius: 4px;">
+                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-3-count">0</div>
+                                            <small style="color: #666;">Level 3 (Supervisor)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div style="background-color: #f8f9fa; border-left: 4px solid #198754; padding: 15px; border-radius: 4px;">
+                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-4-count">0</div>
+                                            <small style="color: #666;">Level 4 (Expert/Manager)</small>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="matrix-legend">
-                                    <div class="legend-item">
-                                        <div class="legend-box cell-level-1"></div>
-                                        <span><strong>Level 1</strong> - Novice (Masih perlu dibimbing)</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-box cell-level-2"></div>
-                                        <span><strong>Level 2</strong> - Beginner (Mulai bisa dilepas)</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-box cell-level-3"></div>
-                                        <span><strong>Level 3</strong> - Proficient (Bisa mengerjakan sendiri dgn baik)</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-box cell-competent"></div>
-                                        <span><strong>Level 4</strong> - Expert/Master (Bisa mengajarkan ke level rendah)</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-box cell-not-trained"></div>
-                                        <span><strong>-</strong> - Belum Training</span>
+                                {{-- Panduan Matriks Level --}}
+                                <div style="background-color: #f8f9fa; padding: 12px; border-left: 4px solid #3d7c2a; margin-bottom: 20px; border-radius: 4px;">
+                                    <strong style="font-size: 0.95rem;">Panduan Matriks Level:</strong>
+                                    <div style="font-size: 0.85rem; color: #666; margin-top: 8px; line-height: 1.6;">
+                                        <div><span style="color: #dc3545;">●</span> <strong>L1:</strong> Masih perlu dibimbing | <span style="color: #ffc107;">●</span> <strong>L2:</strong> Mulai bisa dilepas | <span style="color: #0dcaf0;">●</span> <strong>L3:</strong> Bisa mengerjakan sendiri | <span style="color: #198754;">●</span> <strong>L4:</strong> Bisa mengajarkan</div>
                                     </div>
                                 </div>
 
-                                <div class="competency-matrix">
-                                    <table class="matrix-table table">
+                                {{-- Tabel Kompetensi --}}
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="competencyTable">
                                         <thead>
                                             <tr>
-                                                <th rowspan="2">NIK / Nama Karyawan</th>
-                                                <th colspan="3">Safety & K3</th>
-                                                <th colspan="2">Quality</th>
-                                                <th colspan="2">Technical</th>
-                                                <th colspan="1">Production</th>
-                                            </tr>
-                                            <tr>
-                                                <th>GMP Basic</th>
-                                                <th>5R/5S</th>
-                                                <th>K3L</th>
-                                                <th>QC Basic</th>
-                                                <th>7 QC Tools</th>
-                                                <th>Machine Operation</th>
-                                                <th>Maintenance</th>
-                                                <th>Line Leader</th>
+                                                <th style="width: 50px; text-align: center;">No</th>
+                                                <th style="width: 18%; text-align: left;">Nama & NIK</th>
+                                                <th style="width: 13%; text-align: left;">Departemen</th>
+                                                <th style="width: 16%; text-align: left;">Jabatan Saat Ini</th>
+                                                <th style="width: 12%; text-align: center;">Level Kompetensi</th>
+                                                <th style="width: 18%; text-align: left;">Wewenang / Status</th>
+                                                <th style="width: 10%; text-align: center;">Status Karyawan</th>
+                                                <th style="width: 9%; text-align: center;">History</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th>
-                                                    2024001<br>
-                                                    <small class="text-muted">Ahmad Fauzi</small><br>
-                                                    <small class="badge bg-light-primary">Operator</small>
-                                                </th>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-passed">
-                                                    <i class="bi bi-x-circle-fill"></i><br><strong>Level 2</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>
-                                                    2024002<br>
-                                                    <small class="text-muted">Siti Nurhaliza</small><br>
-                                                    <small class="badge bg-light-warning">QC Inspector</small>
-                                                </th>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>
-                                                    2024003<br>
-                                                    <small class="text-muted">Budi Santoso</small><br>
-                                                    <small class="badge bg-light-danger">Technician</small>
-                                                </th>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>
-                                                    2024004<br>
-                                                    <small class="text-muted">Dewi Lestari</small><br>
-                                                    <small class="badge bg-light-success">Line Leader</small>
-                                                </th>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>
-                                                    2024005<br>
-                                                    <small class="text-muted">Rudi Hermawan</small><br>
-                                                    <small class="badge bg-light-primary">Operator</small>
-                                                </th>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-passed">
-                                                    <i class="bi bi-x-circle-fill"></i><br><strong>Level 2</strong>
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-competent">
-                                                    <i class="bi bi-check-circle-fill"></i><br><strong>Level 4</strong>
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                                <td class="cell-not-trained">
-                                                    <i class="bi bi-dash-circle"></i><br>-
-                                                </td>
-                                            </tr>
+                                        <tbody id="tableBody" style="background-color: white;">
+                                            <!-- Data akan dimuat via JavaScript -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -859,172 +702,188 @@
     <script src="{{ asset('assets/extensions/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            // Check for hash in URL and activate corresponding tab
-            function activateTabFromHash() {
-                var hash = window.location.hash;
-                if (hash) {
-                    var tabId = hash.substring(1);
-                    var tabButton = document.getElementById(tabId + '-tab');
-                    if (tabButton) {
-                        var tab = new bootstrap.Tab(tabButton);
-                        tab.show();
+        // Competency level descriptions and colors
+        const levelDescriptions = {
+            1: 'Masih perlu dibimbing',
+            2: 'Mulai bisa dilepas',
+            3: 'Bisa mengerjakan sendiri dgn baik',
+            4: 'Bisa mengajarkan ke level rendah'
+        };
+
+        const levelColors = {
+            1: '#dc3545',
+            2: '#ffc107',
+            3: '#0dcaf0',
+            4: '#198754'
+        };
+
+        // Department mapping for API filter (will be populated dynamically)
+        let departemenMap = {
+            '': null
+        };
+
+        // Load department dropdown dynamically
+        function loadDepartemenFilterDynamis() {
+            const filterDepartemen = document.getElementById('filterDepartemen');
+            
+            $.ajax({
+                url: '/api/departments/list',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        // Clear existing options except first
+                        filterDepartemen.innerHTML = '<option value="">-- Semua Departemen --</option>';
+                        
+                        // Rebuild departemenMap
+                        departemenMap = { '': null };
+                        
+                        // Add departments from API
+                        response.data.forEach(function(dept) {
+                            const option = document.createElement('option');
+                            option.value = dept.id;
+                            option.textContent = dept.name;
+                            filterDepartemen.appendChild(option);
+                            
+                            // Map department ID for API filter
+                            departemenMap[dept.id] = dept.id;
+                        });
                     }
+                },
+                error: function(xhr) {
+                    console.error('Error loading departments:', xhr);
                 }
+            });
+        }
+
+        // Initialize Competency Matrix
+        function initCompetencyMatrix() {
+            const filterDepartemen = document.getElementById('filterDepartemen');
+            const tableBody = document.getElementById('tableBody');
+
+            // Load initial data
+            loadCompetencyDataFromAPI('', tableBody);
+
+            // Filter on dropdown change
+            filterDepartemen.addEventListener('change', function() {
+                loadCompetencyDataFromAPI(this.value, tableBody);
+            });
+        }
+
+        // Load competency data from API
+        function loadCompetencyDataFromAPI(departemenFilter, tableBody) {
+            const departmentId = departemenMap[departemenFilter] || null;
+            let url = '/api/competencies';
+            
+            if (departmentId) {
+                url += '?department_id=' + departmentId;
             }
 
-            activateTabFromHash();
-
-            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                var hash = $(e.target).attr('data-bs-target');
-                history.pushState(null, null, hash);
-            });
-
-            $(window).on('hashchange', function() {
-                activateTabFromHash();
-            });
-
-            // Initialize DataTables
-            var tableRiwayat = $('#tableRiwayat').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
-                },
-                pageLength: 10,
-                order: [[5, 'desc']] // Sort by date
-            });
-
-            $('#tableSertifikat').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
-                },
-                pageLength: 10,
-                order: [[5, 'desc']] // Sort by date
-            });
-
-            // Search functionality
-            $('#searchKaryawan').on('keyup', function() {
-                tableRiwayat.search(this.value).draw();
-            });
-
-            // Data skill requirement per departemen
-            const departemenSkills = {
-                '': {
-                    categoryHeaders: [
-                        { label: 'Safety & K3', colspan: 3 },
-                        { label: 'Quality', colspan: 2 },
-                        { label: 'Technical', colspan: 2 },
-                        { label: 'Production', colspan: 1 }
-                    ],
-                    skills: ['GMP Basic', '5R/5S', 'K3L', 'QC Basic', '7 QC Tools', 'Machine Operation', 'Maintenance', 'Line Leader'],
-                    columnIndices: [0, 1, 2, 3, 4, 5, 6, 7]
-                },
-                'produksi': {
-                    categoryHeaders: [
-                        { label: 'Safety & K3', colspan: 3 },
-                        { label: 'Production', colspan: 2 }
-                    ],
-                    skills: ['GMP Basic', '5R/5S', 'K3L', 'Machine Operation', 'Line Leader'],
-                    columnIndices: [0, 1, 2, 5, 7]
-                },
-                'qc': {
-                    categoryHeaders: [
-                        { label: 'Safety & K3', colspan: 2 },
-                        { label: 'Quality', colspan: 2 }
-                    ],
-                    skills: ['GMP Basic', 'K3L', 'QC Basic', '7 QC Tools'],
-                    columnIndices: [0, 2, 3, 4]
-                },
-                'maintenance': {
-                    categoryHeaders: [
-                        { label: 'Safety & K3', colspan: 2 },
-                        { label: 'Technical', colspan: 2 }
-                    ],
-                    skills: ['GMP Basic', 'K3L', 'Machine Operation', 'Maintenance'],
-                    columnIndices: [0, 2, 5, 6]
-                },
-                'warehouse': {
-                    categoryHeaders: [
-                        { label: 'Safety & K3', colspan: 3 }
-                    ],
-                    skills: ['GMP Basic', '5R/5S', 'K3L'],
-                    columnIndices: [0, 1, 2]
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
-            };
-
-            // Filter departemen handler
-            $('#filterDepartemen').on('change', function() {
-                var dept = $(this).val();
-                var skillsData = departemenSkills[dept];
-                
-                if (!skillsData) return;
-                
-                var $table = $('.matrix-table');
-                var $thead = $table.find('thead');
-                var $tbody = $table.find('tbody');
-                
-                // Update header baris 1 (category)
-                var row1 = '<tr><th rowspan="2" style="position: sticky; left: 0; z-index: 5;">NIK / Nama Karyawan</th>';
-                skillsData.categoryHeaders.forEach(function(cat) {
-                    row1 += '<th colspan="' + cat.colspan + '">' + cat.label + '</th>';
-                });
-                row1 += '</tr>';
-                
-                // Update header baris 2 (skill names)
-                var row2 = '<tr>';
-                skillsData.skills.forEach(function(skill) {
-                    row2 += '<th>' + skill + '</th>';
-                });
-                row2 += '</tr>';
-                
-                $thead.html(row1 + row2);
-                
-                // Update tbody - hide/show columns
-                $tbody.find('tr').each(function() {
-                    var $cells = $(this).find('td, th');
-                    $cells.each(function(index) {
-                        // Header kolom (NIK/Nama) selalu ditampilkan
-                        if (index === 0) {
-                            $(this).show();
-                        } else if (skillsData.columnIndices.includes(index - 1)) {
-                            $(this).show();
-                        } else {
-                            $(this).hide();
-                        }
-                    });
-                });
-            });
-
-            $('#filterTraining').on('change', function() {
-                var training = $(this).val();
-                if (training) {
-                    $('#tableSertifikat').DataTable().column(4).search(training).draw();
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    renderCompetencyTable(result.data, tableBody);
                 } else {
-                    $('#tableSertifikat').DataTable().column(4).search('').draw();
+                    console.error('Failed to load competencies:', result.message);
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data</td></tr>';
                 }
+            })
+            .catch(error => {
+                console.error('Error fetching competencies:', error);
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error: ' + error.message + '</td></tr>';
+            });
+        }
+
+        // Render competency table
+        function renderCompetencyTable(data, tableBody) {
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Tidak ada data karyawan</td></tr>';
+                updateCompetencyStats({1: 0, 2: 0, 3: 0, 4: 0});
+                return;
+            }
+
+            // Calculate stats
+            const stats = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+            // Render rows - renumber based on filtered data
+            data.forEach((item, index) => {
+                const level = item.level || 1;
+                stats[level]++;
+
+                const badgeColor = levelColors[level];
+                const wewenang = levelDescriptions[level];
+                
+                // Determine status badge
+                const statusBadge = item.status === 'active' 
+                    ? '<span class="badge bg-success">Aktif</span>'
+                    : '<span class="badge bg-warning text-dark">Non-Aktif</span>';
+
+                const row = `
+                    <tr>
+                        <td style="text-align: center; vertical-align: middle;">${index + 1}</td>
+                        <td style="text-align: left;">
+                            <div style="font-weight: 600; color: #333;">${item.nama}</div>
+                            <div style="font-size: 0.85rem; color: #666;">NIK: ${item.nik}</div>
+                        </td>
+                        <td style="text-align: left; font-size: 0.9rem;">${item.departemen}</td>
+                        <td style="text-align: left; font-size: 0.95rem;">${item.jabatan}</td>
+                        <td style="text-align: center;">
+                            <span style="display: inline-block; padding: 8px 16px; background-color: ${badgeColor}; color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem;">
+                                Level ${level}
+                            </span>
+                        </td>
+                        <td style="text-align: left; font-size: 0.9rem; color: #555; line-height: 1.4;">
+                            ${wewenang}
+                        </td>
+                        <td style="text-align: center;">
+                            ${statusBadge}
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-sm" style="background-color: #3d7c2a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;" onclick="showCompetencyHistory('${item.nik}', '${item.nama}', ${level}, '${wewenang}')">
+                                <i class="bi bi-clock-history"></i> History
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+                tableBody.innerHTML += row;
             });
 
-            // Select All checkbox
-            $('#selectAll').on('change', function() {
-                $('.select-item').prop('checked', $(this).prop('checked'));
-            });
+            // Update stats
+            updateCompetencyStats(stats);
+        }
 
-            // Button handlers
-            $('#btnExportMatriks').on('click', function() {
-                alert('Fitur Export Excel Matriks Kompetensi akan segera tersedia.\n\nFile Excel akan berisi:\n- Matriks kompetensi lengkap\n- Color coding sesuai status\n- Format siap untuk audit ISO 9001');
-            });
+        // Update competency dashboard stats
+        function updateCompetencyStats(stats) {
+            document.querySelector('.level-1-count').textContent = stats[1] || 0;
+            document.querySelector('.level-2-count').textContent = stats[2] || 0;
+            document.querySelector('.level-3-count').textContent = stats[3] || 0;
+            document.querySelector('.level-4-count').textContent = stats[4] || 0;
+        }
 
-            $('#btnExportRiwayat').on('click', function() {
-                alert('Fitur Export Excel Riwayat Pelatihan akan segera tersedia');
-            });
+        // Show competency history (demo for now)
+        function showCompetencyHistory(nik, nama, level, wewenang) {
+            const historyData = [
+                { tanggal: '2025-01-15', level: level, catatan: 'Evaluasi terbaru' },
+                { tanggal: '2024-12-01', level: Math.max(1, level - 1), catatan: 'Promosi' }
+            ];
 
-            $('#btnCetakMassalSertifikat').on('click', function() {
-                var selected = $('.select-item:checked').length;
-                if (selected === 0) {
-                    alert('Silakan pilih sertifikat yang akan dicetak');
-                } else {
-                    alert('Cetak ' + selected + ' sertifikat terpilih.\n\nSertifikat akan di-generate dalam format PDF dengan:\n- Nama Peserta\n- Nilai Akhir\n- Tanggal Lulus\n- Tanda Tangan Digital Manager QA');
-                }
-            });
+            alert(`Riwayat Kompetensi ${nama} (NIK: ${nik}):\n\n${historyData.map(h => `Level ${h.level} - ${h.catatan} (${h.tanggal})`).join('\n')}\n\nWewenang: ${wewenang}`);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDepartemenFilterDynamis();
+            initCompetencyMatrix();
         });
     </script>
 @endpush
