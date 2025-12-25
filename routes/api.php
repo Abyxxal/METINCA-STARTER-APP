@@ -17,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/employees', [MasterDataController::class, 'storeEmployee']);
     Route::put('/employees/{id}', [MasterDataController::class, 'updateEmployee']);
     Route::delete('/employees/{id}', [MasterDataController::class, 'destroyEmployee']);
+    Route::get('/employees/{id}', [MasterDataController::class, 'getEmployee']); // Fetch single employee
     Route::get('/employees', [MasterDataController::class, 'getEmployees']);
 
     // ============================================
@@ -26,6 +27,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/departments/{id}', [MasterDataController::class, 'updateDepartment']);
     Route::delete('/departments/{id}', [MasterDataController::class, 'destroyDepartment']);
     Route::get('/departments', [MasterDataController::class, 'getDepartments']);
+    Route::get('/departments/list', [MasterDataController::class, 'listDepartments']); // For dropdown
 
     // ============================================
     // POSITION ROUTES

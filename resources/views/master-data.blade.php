@@ -113,979 +113,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {{-- Quality Department - 10 employees --}}
-                                            <tr>
-                                                <td>1</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP001</td>
-                                                <td>Ahmad Fauzi</td>
-                                                <td>Quality</td>
-                                                <td>Manager Quality</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit" data-id="1" data-nik="EMP001" data-nama="Ahmad Fauzi" data-departemen="Quality" data-jabatan="Manager Quality" data-status="Aktif" data-foto="{{ asset('assets/compiled/jpg/1.jpg') }}">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>2</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP002</td>
-                                                <td>Budi Santoso</td>
-                                                <td>Quality</td>
-                                                <td>Assistant Manager Quality</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>3</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP003</td>
-                                                <td>Citra Dewi</td>
-                                                <td>Quality</td>
-                                                <td>Supervisor Quality Control</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>4</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP004</td>
-                                                <td>Dedi Prasetyo</td>
-                                                <td>Quality</td>
-                                                <td>QA Engineer</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>5</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP005</td>
-                                                <td>Eka Sari</td>
-                                                <td>Quality</td>
-                                                <td>Foreman QC</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>6</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP006</td>
-                                                <td>Fajar Nugroho</td>
-                                                <td>Quality</td>
-                                                <td>Inspektor QC</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>7</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP007</td>
-                                                <td>Gita Permata</td>
-                                                <td>Quality</td>
-                                                <td>Staff Admin QC</td>
-                                                <td><span class="badge bg-warning text-dark">Non-Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>8</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP008</td>
-                                                <td>Hadi Wijaya</td>
-                                                <td>Quality</td>
-                                                <td>Staff Admin QA</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>9</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP009</td>
-                                                <td>Indah Lestari</td>
-                                                <td>Quality</td>
-                                                <td>Staff HSE</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>10</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP010</td>
-                                                <td>Joko Susilo</td>
-                                                <td>Quality</td>
-                                                <td>Manager Quality</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-
-                                            {{-- Maintenance Department - 9 employees --}}
-                                            <tr>
-                                                <td>11</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP011</td>
-                                                <td>Kurnia Rahman</td>
-                                                <td>Maintenance</td>
-                                                <td>Manager Maintenance</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>12</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP012</td>
-                                                <td>Lina Marlina</td>
-                                                <td>Maintenance</td>
-                                                <td>Supervisor Maintenance</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>13</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP013</td>
-                                                <td>Muhamad Yusuf</td>
-                                                <td>Maintenance</td>
-                                                <td>Foreman Maintenance</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>14</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP014</td>
-                                                <td>Nur Hidayat</td>
-                                                <td>Maintenance</td>
-                                                <td>Operator Maintenance Listrik</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>15</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP015</td>
-                                                <td>Oktavia Sari</td>
-                                                <td>Maintenance</td>
-                                                <td>Operator Maintenance Umum</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>16</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP016</td>
-                                                <td>Priyanto Adi</td>
-                                                <td>Maintenance</td>
-                                                <td>Operator Maintenance Listrik</td>
-                                                <td><span class="badge bg-warning text-dark">Non-Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>17</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP017</td>
-                                                <td>Qori Aini</td>
-                                                <td>Maintenance</td>
-                                                <td>Operator Maintenance Umum</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>18</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP018</td>
-                                                <td>Rudi Hartono</td>
-                                                <td>Maintenance</td>
-                                                <td>Operator Maintenance Umum</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>19</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP019</td>
-                                                <td>Siti Nurhaliza</td>
-                                                <td>Maintenance</td>
-                                                <td>Operator Maintenance Umum</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-
-                                            {{-- Production Planning & Control Department - 8 employees --}}
-                                            <tr>
-                                                <td>20</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP020</td>
-                                                <td>Taufik Hidayat</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Manager Production, Planning & Control</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>21</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP021</td>
-                                                <td>Umar Bakri</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Staff PPIC</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>22</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP022</td>
-                                                <td>Vina Anggraini</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Supervisor Gudang</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>23</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP023</td>
-                                                <td>Wahyu Saputra</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Foreman Gudang</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>24</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP024</td>
-                                                <td>Xena Kartika</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Operator Gudang</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>25</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP025</td>
-                                                <td>Yanto Prabowo</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Operator Gudang</td>
-                                                <td><span class="badge bg-warning text-dark">Non-Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>26</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP026</td>
-                                                <td>Zahra Amelia</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Operator Gudang</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>27</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP027</td>
-                                                <td>Andi Firmansyah</td>
-                                                <td>Production Planning & Control</td>
-                                                <td>Supervisor Gudang</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-
-                                            {{-- Produksi & Development Engineering Department - 19 employees --}}
-                                            <tr>
-                                                <td>28</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP028</td>
-                                                <td>Bambang Sutrisno</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Manager Produksi & Development Engineering</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>29</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP029</td>
-                                                <td>Candra Wijaya</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Supervisor Development Engineer</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>30</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP030</td>
-                                                <td>Dewi Kusuma</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Staff Development Engineer</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>31</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP031</td>
-                                                <td>Eko Prasetyo</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Supervisor Wax Room</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>32</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP032</td>
-                                                <td>Fitri Handayani</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Foreman Wax Room</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>33</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP033</td>
-                                                <td>Guntur Wicaksono</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Operator Wax Room</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>34</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP034</td>
-                                                <td>Hendra Setiawan</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Supervisor Mould Room</td>
-                                                <td><span class="badge bg-warning text-dark">Non-Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>35</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP035</td>
-                                                <td>Irma Suryani</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Foreman Mould Room</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>36</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP036</td>
-                                                <td>Jaka Firmansyah</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Operator Mould Room</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>37</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP037</td>
-                                                <td>Kartika Sari</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Supervisor Melting</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>38</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP038</td>
-                                                <td>Lukman Hakim</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Foreman Melting</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>39</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP039</td>
-                                                <td>Maya Susanti</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Operator Melting</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>40</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP040</td>
-                                                <td>Nanda Pratama</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Supervisor Cut Off</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>41</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP041</td>
-                                                <td>Oki Setiawan</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Foreman Cut Off</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>42</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/2.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP042</td>
-                                                <td>Putri Ayu</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Operator Cut Off</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>43</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/3.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP043</td>
-                                                <td>Rizki Ramadhan</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Supervisor Finishing & Straightening</td>
-                                                <td><span class="badge bg-warning text-dark">Non-Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>44</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/4.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP044</td>
-                                                <td>Sari Wulandari</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Foreman Finishing & Straightening</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>45</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/5.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP045</td>
-                                                <td>Tono Sugiarto</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Operator Finishing & Straightening</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>46</td>
-                                                <td>
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Foto">
-                                                    </div>
-                                                </td>
-                                                <td>EMP046</td>
-                                                <td>Uswatun Hasanah</td>
-                                                <td>Produksi & Development Engineering</td>
-                                                <td>Supervisor Machining</td>
-                                                <td><span class="badge bg-success">Aktif</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" title="Edit">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-karyawan" title="Hapus">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            {{-- Data loaded dynamically via AJAX from /api/employees --}}
                                         </tbody>
                                     </table>
                                 </div>
@@ -1457,13 +485,13 @@
                             <div class="mb-3">
                                 <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusAktif" value="Aktif">
+                                    <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusAktif" value="active">
                                     <label class="form-check-label" for="editStatusAktif">
                                         <span class="badge bg-success">Aktif</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusNonAktif" value="Non-Aktif">
+                                    <input class="form-check-input" type="radio" name="editStatusKaryawan" id="editStatusNonAktif" value="inactive">
                                     <label class="form-check-label" for="editStatusNonAktif">
                                         <span class="badge bg-warning text-dark">Non-Aktif</span>
                                     </label>
@@ -1588,11 +616,66 @@
                     url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
                 },
                 pageLength: 10,
+                serverSide: false,
+                ajax: {
+                    url: '/api/employees',
+                    dataSrc: function(json) {
+                        return json.data.map(function(emp, index) {
+                            return {
+                                'no': index + 1,
+                                'id': emp.id,
+                                'photo': emp.photo_path ? emp.photo_path : '<i class="bi bi-person-fill"></i>',
+                                'nik': emp.nik,
+                                'nama': emp.name,
+                                'departemen': emp.department.name,
+                                'jabatan': emp.position.name,
+                                'status': emp.status,
+                                'aksi': '<button class="btn btn-sm btn-warning btn-edit-karyawan" data-id="' + emp.id + '"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-danger btn-hapus-karyawan" data-id="' + emp.id + '"><i class="bi bi-trash"></i></button>'
+                            };
+                        });
+                    }
+                },
+                columnDefs: [
+                    {
+                        targets: 0,
+                        data: 'no',
+                        render: function(data, type, row, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    { targets: 1, data: 'photo' },
+                    { targets: 2, data: 'nik' },
+                    { targets: 3, data: 'nama' },
+                    { targets: 4, data: 'departemen' },
+                    { targets: 5, data: 'jabatan' },
+                    {
+                        targets: 6,
+                        data: 'status',
+                        render: function(data, type, row) {
+                            if (data === 'active') {
+                                return '<span class="badge bg-success">Aktif</span>';
+                            } else {
+                                return '<span class="badge bg-warning text-dark">Non-Aktif</span>';
+                            }
+                        }
+                    },
+                    {
+                        targets: 7,
+                        data: 'aksi',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
                 order: [[2, 'asc']],
                 drawCallback: function() {
-                    var api = this.api();
-                    api.column(0, {page: 'current'}).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1;
+                    // Attach edit/delete handlers after table render
+                    $('.btn-edit-karyawan').off('click').on('click', function() {
+                        var id = $(this).data('id');
+                        editKaryawan(id);
+                    });
+                    $('.btn-hapus-karyawan').off('click').on('click', function() {
+                        var id = $(this).data('id');
+                        hapusKaryawan(id);
                     });
                 }
             });
@@ -1602,6 +685,32 @@
                 var selectedDept = $(this).val();
                 tableKaryawan.column(4).search(selectedDept).draw();
             });
+
+            // Helper function to trigger edit modal for employee
+            function editKaryawan(id) {
+                $(document).trigger('click.edit-karyawan', [id]);
+            }
+
+            // Helper function to trigger delete confirmation for employee
+            function hapusKaryawan(id) {
+                if (confirm('Apakah Anda yakin ingin menghapus karyawan ini?')) {
+                    $.ajax({
+                        url: '/api/employees/' + id,
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            alert(response.message || 'Karyawan berhasil dihapus');
+                            tableKaryawan.ajax.reload();
+                        },
+                        error: function(xhr) {
+                            var message = xhr.responseJSON?.message || 'Gagal menghapus karyawan';
+                            alert(message);
+                        }
+                    });
+                }
+            }
 
             var tableDepartemen = $('#tableDepartemen').DataTable({
                 language: {
@@ -1822,41 +931,56 @@
 
             // Handle Edit Karyawan button click
             $(document).on('click', '.btn-edit-karyawan', function() {
-                var row = $(this).closest('tr');
-                var nik = row.find('td').eq(2).text(); // Column 2: NIK
-                var nama = row.find('td').eq(3).text(); // Column 3: Nama
-                var departemen = row.find('td').eq(4).text(); // Column 4: Departemen
-                var jabatan = row.find('td').eq(5).text(); // Column 5: Jabatan
-                var statusText = row.find('td').eq(6).text().trim(); // Column 6: Status
-                var fotoUrl = row.find('img').attr('src'); // Get foto from avatar image
-
-                // Populate edit modal with data
-                $('#editKaryawanId').val(nik);
-                $('#editNikKaryawan').val(nik);
-                $('#editNamaKaryawan').val(nama);
-                $('#editDepartemenKaryawan').val(departemen);
-                $('#editImageFotoLama').attr('src', fotoUrl);
-                $('#editImageFotoPreview').hide();
+                var employeeId = $(this).data('id');
                 
-                // Update jabatan dropdown based on departemen
-                var jabatanSelect = $('#editJabatanKaryawan');
-                jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
-                if (jabatanByDepartemen[departemen]) {
-                    jabatanByDepartemen[departemen].forEach(function(jab) {
-                        jabatanSelect.append('<option value="' + jab + '">' + jab + '</option>');
-                    });
-                    jabatanSelect.val(jabatan);
-                }
-                
-                // Set status radio button
-                if (statusText === 'Aktif') {
-                    $('#editStatusAktif').prop('checked', true);
-                } else {
-                    $('#editStatusNonAktif').prop('checked', true);
-                }
-
-                // Show modal
-                $('#modalEditKaryawan').modal('show');
+                // Fetch employee data from API
+                $.ajax({
+                    url: '/api/employees/' + employeeId,
+                    type: 'GET',
+                    success: function(response) {
+                        var emp = response.data;
+                        
+                        // Populate edit modal with data
+                        $('#editKaryawanId').val(emp.id);
+                        $('#editNikKaryawan').val(emp.nik);
+                        $('#editNamaKaryawan').val(emp.name);
+                        $('#editDepartemenKaryawan').val(emp.department_id);
+                        
+                        // Load positions for selected department and set the correct one
+                        $.ajax({
+                            url: '/api/positions?department_id=' + emp.department_id,
+                            success: function(positionResp) {
+                                var jabatanSelect = $('#editJabatanKaryawan');
+                                jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
+                                positionResp.data.forEach(function(pos) {
+                                    var selected = pos.id === emp.position_id ? 'selected' : '';
+                                    jabatanSelect.append('<option value="' + pos.id + '" ' + selected + '>' + pos.name + '</option>');
+                                });
+                            }
+                        });
+                        
+                        // Set status radio button
+                        if (emp.status === 'active') {
+                            $('#editStatusAktif').prop('checked', true);
+                        } else {
+                            $('#editStatusNonAktif').prop('checked', true);
+                        }
+                        
+                        // Set photo if exists
+                        if (emp.photo_path) {
+                            $('#editImageFotoLama').attr('src', emp.photo_path).show();
+                        } else {
+                            $('#editImageFotoLama').hide();
+                        }
+                        $('#editImageFotoPreview').hide();
+                        
+                        // Show modal
+                        $('#modalEditKaryawan').modal('show');
+                    },
+                    error: function(xhr) {
+                        alert('Gagal memuat data karyawan');
+                    }
+                });
             });
 
             // Handle Update Karyawan

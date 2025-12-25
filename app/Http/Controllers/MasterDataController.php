@@ -215,6 +215,58 @@ class MasterDataController extends Controller
     }
 
     /**
+     * Get single employee
+     * GET /api/employees/{id}
+     */
+    public function getEmployee($id)
+    {
+        try {
+            $employee = Employee::with(['department', 'position'])->find($id);
+
+            if (!$employee) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Karyawan tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $employee
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Get all departments for dropdown
+     * GET /api/departments/list
+     */
+    public function listDepartments()
+    {
+        try {
+            $departments = Department::select('id', 'name')
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $departments
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
      * Get positions by department
      * GET /api/positions?department_id={id}
      */
