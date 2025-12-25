@@ -982,18 +982,13 @@
                         $('#editNamaKaryawan').val(emp.name);
                         $('#editDepartemenKaryawan').val(emp.department_id);
                         
-                        // Load positions for selected department and set the correct one
-                        $.ajax({
-                            url: '/api/positions?department_id=' + emp.department_id,
-                            success: function(positionResp) {
-                                var jabatanSelect = $('#editJabatanKaryawan');
-                                jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
-                                positionResp.data.forEach(function(pos) {
-                                    var selected = pos.id === emp.position_id ? 'selected' : '';
-                                    jabatanSelect.append('<option value="' + pos.id + '" ' + selected + '>' + pos.name + '</option>');
-                                });
-                            }
-                        });
+                        // Trigger change event to load positions
+                        $('#editDepartemenKaryawan').trigger('change');
+                        
+                        // Also set the position after positions are loaded
+                        setTimeout(function() {
+                            $('#editJabatanKaryawan').val(emp.position_id);
+                        }, 500);
                         
                         // Set status radio button
                         if (emp.status === 'active') {
