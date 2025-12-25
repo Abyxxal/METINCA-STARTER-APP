@@ -11,21 +11,25 @@ class Employee extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'nik';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     protected $fillable = [
         'nik',
-        'name',
+        'nama_karyawan',
         'email',
+        'password',
         'department_id',
         'position_id',
-        'phone',
-        'address',
-        'photo_path',
-        'hire_date',
         'status',
     ];
 
+    protected $hidden = [
+        'password',
+    ];
+
     protected $casts = [
-        'hire_date' => 'date',
         'status' => 'string',
     ];
 

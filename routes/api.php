@@ -32,7 +32,9 @@ Route::middleware(['auth'])->group(function () {
     // ============================================
     // POSITION ROUTES
     // ============================================
+    Route::post('/positions', [MasterDataController::class, 'storePosition']);
     Route::get('/positions', [MasterDataController::class, 'getPositionsByDepartment']);
+    Route::delete('/positions/{id}', [MasterDataController::class, 'destroyPosition']);
 
 });
 

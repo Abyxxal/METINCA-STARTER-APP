@@ -22,11 +22,16 @@ class MasterDataController extends Controller
         try {
             $validated = $request->validate([
                 'nik' => 'required|unique:employees,nik',
-                'name' => 'required|string',
+                'nama_karyawan' => 'required|string',
+                'email' => 'required|email|unique:employees,email',
+                'password' => 'required|string|min:6',
                 'department_id' => 'required|exists:departments,id',
                 'position_id' => 'required|exists:positions,id',
                 'status' => 'required|in:active,inactive,resigned',
             ]);
+
+            // Hash password sebelum disimpan
+            $validated['password'] = bcrypt($validated['password']);
 
             $employee = Employee::create($validated);
 
@@ -53,12 +58,21 @@ class MasterDataController extends Controller
             $employee = Employee::findOrFail($id);
 
             $validated = $request->validate([
-                'nik' => 'required|unique:employees,nik,' . $id,
-                'name' => 'required|string',
+                'nik' => 'required|unique:employees,nik,' . $id . ',nik',
+                'nama_karyawan' => 'required|string',
+                'email' => 'required|email|unique:employees,email,' . $id . ',nik',
+                'password' => 'nullable|string|min:6',
                 'department_id' => 'required|exists:departments,id',
                 'position_id' => 'required|exists:positions,id',
                 'status' => 'required|in:active,inactive,resigned',
             ]);
+
+            // Hash password jika diubah
+            if (isset($validated['password']) && $validated['password']) {
+                $validated['password'] = bcrypt($validated['password']);
+            } else {
+                unset($validated['password']);
+            }
 
             $employee->update($validated);
 
@@ -83,7 +97,7 @@ class MasterDataController extends Controller
     {
         try {
             $employee = Employee::findOrFail($id);
-            $name = $employee->name;
+            $name = $employee->nama_karyawan;
             $employee->delete();
 
             return response()->json([
@@ -198,8 +212,8 @@ class MasterDataController extends Controller
     public function getEmployees()
     {
         try {
-            $employees = Employee::with(['department', 'position'])
-                ->select('id', 'nik', 'name', 'email', 'department_id', 'position_id', 'status')
+            $employees = Employee::with(['department:id,name', 'position:id,name,department_id'])
+                ->select('nik', 'nama_karyawan', 'email', 'department_id', 'position_id', 'status', 'created_at', 'updated_at')
                 ->get();
 
             return response()->json([
@@ -315,6 +329,63 @@ class MasterDataController extends Controller
                 'success' => true,
                 'data' => $positions
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Store position (Create new position for a department)
+     * POST /api/positions
+     */
+    public function storePosition(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string',
+                'department_id' => 'required|exists:departments,id',
+                'level' => 'nullable|integer|min:1',
+                'description' => 'nullable|string',
+                'status' => 'nullable|in:active,inactive'
+            ]);
+
+            // Set default values
+            if (!isset($validated['level'])) {
+                $validated['level'] = 1;
+            }
+            if (!isset($validated['status'])) {
+                $validated['status'] = 'active';
+            }
+
+            $position = Position::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Jabatan berhasil ditambahkan',
+                'data' => $position
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function destroyPosition($id)
+    {
+        try {
+            $position = Position::findOrFail($id);
+            $position->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Jabatan berhasil dihapus',
+                'data' => $position
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
