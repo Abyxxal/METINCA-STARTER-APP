@@ -649,7 +649,7 @@
                         targets: 0,
                         data: 'no',
                         render: function(data, type, row, meta) {
-                            return meta.row + 1;
+                            return data;
                         }
                     },
                     { targets: 1, data: 'photo' },
@@ -677,6 +677,11 @@
                 ],
                 order: [[2, 'asc']],
                 drawCallback: function() {
+                    // Update No column dynamically based on displayed rows
+                    tableKaryawan.cells(null, 0).nodes().to$().each(function(i) {
+                        $(this).text(i + 1);
+                    });
+                    
                     // Attach edit/delete handlers after table render
                     $('.btn-edit-karyawan').off('click').on('click', function() {
                         var id = $(this).data('id');
