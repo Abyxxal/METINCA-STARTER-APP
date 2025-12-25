@@ -916,7 +916,13 @@
                 });
 
                 if (!nik || !nama || !departemenId || !jabatanId) {
-                    alert('Semua field harus diisi!');
+                    // Show validation error inside modal
+                    var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
+                        '<strong><i class="bi bi-exclamation-triangle"></i> Perhatian!</strong> Semua field harus diisi!' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                        '</div>';
+                    var modalBody = $('#modalTambahKaryawan .modal-body');
+                    modalBody.prepend(errorHtml);
                     console.log('Validation failed - missing fields');
                     return;
                 }
@@ -941,20 +947,41 @@
                     success: function(response) {
                         console.log('Success Response:', response);
                         if (response.success) {
-                            alert('Data Karyawan berhasil disimpan!');
-                            $('#modalTambahKaryawan').modal('hide');
-                            $('#formTambahKaryawan')[0].reset();
-                            tableKaryawan.ajax.reload();
+                            // Show success message with custom styling
+                            var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                                '<strong><i class="bi bi-check-circle"></i> Berhasil!</strong> Data Karyawan berhasil disimpan.' +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                '</div>';
+                            
+                            // Insert alert at the top of modal body
+                            var modalBody = $('#modalTambahKaryawan .modal-body');
+                            modalBody.prepend(successHtml);
+                            
+                            // Auto-hide modal and reload table after 2 seconds
+                            setTimeout(function() {
+                                $('#modalTambahKaryawan').modal('hide');
+                                $('#formTambahKaryawan')[0].reset();
+                                tableKaryawan.ajax.reload();
+                            }, 2000);
                         }
                     },
                     error: function(xhr) {
                         console.log('Error Response:', xhr.responseJSON);
                         var errors = xhr.responseJSON.errors || {};
-                        var errorMsg = 'Terjadi kesalahan:\n';
+                        var errorMsg = 'Terjadi kesalahan: ';
                         for (let key in errors) {
-                            errorMsg += '- ' + key + ': ' + errors[key][0] + '\n';
+                            errorMsg += errors[key][0] + '\n';
                         }
-                        alert(errorMsg || 'Gagal menyimpan data: ' + xhr.responseJSON.message);
+                        
+                        // Show error message with custom styling
+                        var errorHtml = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                            '<strong><i class="bi bi-exclamation-circle"></i> Gagal!</strong> ' + (errorMsg || 'Gagal menyimpan data: ' + xhr.responseJSON.message) +
+                            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                            '</div>';
+                        
+                        // Insert alert at the top of modal body
+                        var modalBody = $('#modalTambahKaryawan .modal-body');
+                        modalBody.prepend(errorHtml);
                     },
                     complete: function() {
                         submitBtn.prop('disabled', false).html('<i class="bi bi-check-circle me-1"></i>Simpan');
