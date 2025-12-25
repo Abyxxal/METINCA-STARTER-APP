@@ -89,10 +89,6 @@
                                     <label for="filterDepartemenKaryawan" class="form-label">Filter Departemen:</label>
                                     <select id="filterDepartemenKaryawan" class="form-select" style="max-width: 400px;">
                                         <option value="">Semua Departemen</option>
-                                        <option value="Quality">Quality</option>
-                                        <option value="Maintenance">Maintenance</option>
-                                        <option value="Production Planning & Control">Production Planning & Control</option>
-                                        <option value="Produksi & Development Engineering">Produksi & Development Engineering</option>
                                     </select>
                                 </div>
 
@@ -131,10 +127,6 @@
                                         <h5 class="mb-0">Departemen</h5>
                                         <select class="form-select w-auto" id="filterDepartemenMaster">
                                             <option value="">Semua Departemen</option>
-                                            <option value="Quality">Quality</option>
-                                            <option value="Maintenance">Maintenance</option>
-                                            <option value="PPC">PPC</option>
-                                            <option value="Produksi & Dev Engineering">Produksi & Dev Engineering</option>
                                         </select>
                                     </div>
                                     <button type="button" class="btn btn-primary" id="btnTambahDepartemen">
@@ -376,10 +368,6 @@
                                         <label for="departemenKaryawan" class="form-label">Departemen <span class="text-danger">*</span></label>
                                         <select class="form-select" id="departemenKaryawan" required>
                                             <option value="">-- Pilih Departemen --</option>
-                                            <option value="1">Quality</option>
-                                            <option value="2">Maintenance</option>
-                                            <option value="3">PPC</option>
-                                            <option value="4">Produksi & Dev Engineering</option>
                                         </select>
                                     </div>
                                 </div>
@@ -465,10 +453,6 @@
                                         <label for="editDepartemenKaryawan" class="form-label">Departemen <span class="text-danger">*</span></label>
                                         <select class="form-select" id="editDepartemenKaryawan" required>
                                             <option value="">-- Pilih Departemen --</option>
-                                            <option value="1">Quality</option>
-                                            <option value="2">Maintenance</option>
-                                            <option value="3">Production Planning & Control</option>
-                                            <option value="4">Produksi & Development Engineering</option>
                                         </select>
                                     </div>
                                 </div>
@@ -608,6 +592,19 @@
             // Activate tab when hash changes (browser back/forward)
             $(window).on('hashchange', function() {
                 activateTabFromHash();
+            });
+
+            // Load departments into filter dropdowns
+            $.ajax({
+                url: '/api/departments/list',
+                success: function(response) {
+                    response.data.forEach(function(dept) {
+                        $('#filterDepartemenKaryawan').append('<option value="' + dept.name + '">' + dept.name + '</option>');
+                        $('#filterDepartemenMaster').append('<option value="' + dept.name + '">' + dept.name + '</option>');
+                        $('#departemenKaryawan').append('<option value="' + dept.id + '">' + dept.name + '</option>');
+                        $('#editDepartemenKaryawan').append('<option value="' + dept.id + '">' + dept.name + '</option>');
+                    });
+                }
             });
 
             // Initialize DataTables
