@@ -8,6 +8,45 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/table-datatable-jquery.css') }}">
+    <style>
+        /* Optimize table responsive behavior */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table-responsive table {
+            width: 100%;
+            min-width: 100%;
+        }
+        
+        /* Make DataTable columns auto-fit content */
+        table.dataTable thead th {
+            padding: 10px 8px;
+            font-size: 0.875rem;
+        }
+        
+        table.dataTable tbody td {
+            padding: 8px;
+            font-size: 0.875rem;
+        }
+        
+        /* Allow filter dropdowns to be more responsive */
+        .form-select {
+            min-width: 150px;
+            max-width: 100%;
+        }
+        
+        /* Tab content padding optimization */
+        .tab-pane {
+            padding: 0;
+        }
+        
+        .tab-pane > div {
+            width: 100%;
+            overflow-x: auto;
+        }
+    </style>
 @endpush
 
 {{-- Isi content --}}
@@ -69,7 +108,7 @@
                         <!-- Data Karyawan Tab -->
                         <div class="tab-pane fade show active" id="karyawan" role="tabpanel"
                             aria-labelledby="karyawan-tab">
-                            <div class="mt-4 px-5">
+                            <div class="mt-4 px-3">
                                 {{-- Header dengan tombol Tambah Karyawan dan Import Excel --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">Data Karyawan</h5>
@@ -84,7 +123,7 @@
                                 {{-- Filter Departemen --}}
                                 <div class="mb-3">
                                     <label for="filterDepartemenKaryawan" class="form-label">Filter Departemen:</label>
-                                    <select id="filterDepartemenKaryawan" class="form-select" style="max-width: 400px;">
+                                    <select id="filterDepartemenKaryawan" class="form-select">
                                         <option value="">Semua Departemen</option>
                                     </select>
                                 </div>
@@ -117,7 +156,7 @@
                         {{-- TAB CONTENT 2: Departemen Tab --}}
                         {{-- Fungsi: Mengelola struktur organisasi dengan departemen --}}
                         <div class="tab-pane fade" id="departemen" role="tabpanel" aria-labelledby="departemen-tab">
-                            <div class="mt-4 px-5">
+                            <div class="mt-4 px-3">
                                 {{-- Header dengan dropdown filter departemen dan tombol Tambah Departemen --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div class="d-flex align-items-center gap-2">

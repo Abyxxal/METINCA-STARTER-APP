@@ -88,6 +88,11 @@
                             </a>
                         </li>
 
+                        {{-- =====================================================
+                            ADMIN ONLY MENUS - Hanya visible untuk user dengan role 'admin'
+                            ===================================================== --}}
+                        @if(Auth::check() && Auth::user()->role === 'admin')
+
                         {{-- Menu Item 2: Master Data --}}
                         {{-- Fungsi: Manajemen data karyawan, departemen, dan posisi kerja --}}
                         {{-- Submenu: Employee Data, Department & Line --}}
@@ -234,6 +239,41 @@
                                 </li>
                             </ul>
                         </li>
+
+                        @else
+
+                        {{-- =====================================================
+                            USER MENUS - Hanya untuk user dengan role 'user'
+                            ===================================================== --}}
+
+                        {{-- Menu Item 2: My Training --}}
+                        {{-- Fungsi: Melihat training yang assigned untuk user tersebut --}}
+                        <li class="sidebar-item {{ request()->routeIs('user.my-training') ? 'active' : '' }}">
+                            <a href="{{ route('user.my-training') }}" class='sidebar-link'>
+                                <i class="bi bi-book-half"></i>
+                                <span>My Training</span>
+                            </a>
+                        </li>
+
+                        {{-- Menu Item 3: Training History --}}
+                        {{-- Fungsi: Melihat riwayat training dan assessment yang sudah selesai --}}
+                        <li class="sidebar-item {{ request()->routeIs('user.training-history') ? 'active' : '' }}">
+                            <a href="{{ route('user.training-history') }}" class='sidebar-link'>
+                                <i class="bi bi-clock-history"></i>
+                                <span>Training History</span>
+                            </a>
+                        </li>
+
+                        {{-- Menu Item 4: My Profile --}}
+                        {{-- Fungsi: Edit profil user, lihat informasi pribadi, dan change password --}}
+                        <li class="sidebar-item {{ request()->routeIs('user.my-profile') ? 'active' : '' }}">
+                            <a href="{{ route('user.my-profile') }}" class='sidebar-link'>
+                                <i class="bi bi-person-fill"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+
+                        @endif
                     </ul>
                 </div>
                 <!-- END SIDEBAR MENU -->
