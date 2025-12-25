@@ -1131,89 +1131,63 @@
             // Handle Hapus Karyawan button click
             $(document).on('click', '.btn-hapus-karyawan', function() {
                 var row = $(this).closest('tr');
+                var id = $(this).data('id');
                 var nik = row.find('td').eq(2).text(); // Column 2: NIK
                 var nama = row.find('td').eq(3).text(); // Column 3: Nama
-                var departemen = row.find('td').eq(4).text(); // Column 4: Departemen
-                var jabatan = row.find('td').eq(5).text(); // Column 5: Jabatan
-                var statusHtml = row.find('td').eq(6).html(); // Column 6: Status (as HTML for badge)
-                var fotoUrl = row.find('img').attr('src'); // Get foto from avatar image
 
-                // Populate delete confirmation modal
-                $('#hapusKaryawanId').val(nik);
-                $('#hapusNikKaryawan').text(nik);
-                $('#hapusNamaKaryawan').text(nama);
-                $('#hapusDepartemenKaryawan').text(departemen);
-                $('#hapusJabatanKaryawan').text(jabatan);
-                $('#hapusStatusKaryawan').html(statusHtml);
-                $('#hapusFotoKaryawan').attr('src', fotoUrl);
-
-                // Show modal
-                $('#modalHapusKaryawan').modal('show');
-            });
-
-            // Handle Konfirmasi Hapus Karyawan
-            $('#btnKonfirmasiHapusKaryawan').on('click', function() {
-                var id = $('#hapusKaryawanId').val();
-                var nama = $('#hapusNamaKaryawan').text();
-
-                // Show confirmation dialog before delete
-                var confirmHtml = '<div class="alert alert-danger" role="alert">' +
-                    '<h5 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> Peringatan Penghapusan!</h5>' +
-                    '<p><strong>Anda akan menghapus data karyawan:</strong></p>' +
-                    '<p class="mb-0"><strong>' + nama + '</strong></p>' +
-                    '<hr>' +
-                    '<p class="mb-0"><small>Tindakan ini tidak dapat dibatalkan. Data akan dihapus secara permanen dari database.</small></p>' +
-                    '</div>' +
-                    '<div class="d-flex gap-2 justify-content-end mt-3">' +
-                    '<button type="button" class="btn btn-secondary" id="btnBatalHapus">Batal</button>' +
-                    '<button type="button" class="btn btn-danger" id="btnYakinHapus"><i class="bi bi-trash"></i> Ya, Hapus Data</button>' +
-                    '</div>';
-
-                // Insert confirmation into modal body
-                var modalBody = $('#modalHapusKaryawan .modal-body');
-                var originalContent = modalBody.html();
-                modalBody.html(confirmHtml);
-
-                // Handle Batal button
-                $('#btnBatalHapus').on('click', function() {
-                    modalBody.html(originalContent);
-                });
-
-                // Handle actual delete
-                $('#btnYakinHapus').on('click', function() {
-                    $.ajax({
-                        url: '/api/employees/' + id,
-                        type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Show success message
-                                var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                                    '<strong><i class="bi bi-check-circle"></i> Berhasil!</strong> Karyawan ' + nama + ' berhasil dihapus.' +
-                                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                                    '</div>';
-                                
-                                modalBody.prepend(successHtml);
-                                
-                                // Auto-hide modal and reload table after 2 seconds
-                                setTimeout(function() {
-                                    $('#modalHapusKaryawan').modal('hide');
-                                    tableKaryawan.ajax.reload();
-                                }, 2000);
+                // Show SweetAlert confirmation dialog
+                Swal.fire({
+                    title: 'Hapus Karyawan?',
+                    html: '<strong>' + nama + '</strong><br><small class="text-muted">NIK: ' + nik + '</small>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading dialog
+                        Swal.fire({
+                            title: 'Menghapus...',
+                            html: 'Tunggu sebentar, data sedang dihapus...',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
-                        },
-                        error: function(xhr) {
-                            // Show error message
-                            var errorHtml = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                                '<strong><i class="bi bi-exclamation-circle"></i> Gagal!</strong> Gagal menghapus karyawan: ' + (xhr.responseJSON.message || 'Unknown error') +
-                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                                '</div>';
-                            
-                            modalBody.prepend(errorHtml);
-                        }
-                    });
+                        });
+
+                        // Delete the employee
+                        $.ajax({
+                            url: '/api/employees/' + id,
+                            type: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: 'Berhasil!',
+                                        text: 'Karyawan ' + nama + ' berhasil dihapus.',
+                                        icon: 'success',
+                                        confirmButtonColor: '#28a745'
+                                    }).then(() => {
+                                        tableKaryawan.ajax.reload();
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: 'Gagal menghapus karyawan: ' + (xhr.responseJSON.message || 'Unknown error'),
+                                    icon: 'error',
+                                    confirmButtonColor: '#dc3545'
+                                });
+                            }
+                        });
+                    }
                 });
             });
 
