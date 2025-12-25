@@ -907,23 +907,8 @@
                 var jabatanId = $('#jabatanKaryawan').val();
                 var status = $('input[name="statusKaryawan"]:checked').val();
 
-                console.log('Form Data:', {
-                    nik: nik,
-                    name: nama,
-                    department_id: departemenId,
-                    position_id: jabatanId,
-                    status: status
-                });
-
                 if (!nik || !nama || !departemenId || !jabatanId) {
-                    // Show validation error inside modal
-                    var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
-                        '<strong><i class="bi bi-exclamation-triangle"></i> Perhatian!</strong> Semua field harus diisi!' +
-                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                        '</div>';
-                    var modalBody = $('#modalTambahKaryawan .modal-body');
-                    modalBody.prepend(errorHtml);
-                    console.log('Validation failed - missing fields');
+                    alert('Semua field harus diisi!');
                     return;
                 }
 
@@ -945,7 +930,6 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        console.log('Success Response:', response);
                         if (response.success) {
                             // Show success message with custom styling
                             var successHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
@@ -966,7 +950,6 @@
                         }
                     },
                     error: function(xhr) {
-                        console.log('Error Response:', xhr.responseJSON);
                         var errors = xhr.responseJSON.errors || {};
                         var errorMsg = 'Terjadi kesalahan: ';
                         for (let key in errors) {
@@ -975,7 +958,7 @@
                         
                         // Show error message with custom styling
                         var errorHtml = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                            '<strong><i class="bi bi-exclamation-circle"></i> Gagal!</strong> ' + (errorMsg || 'Gagal menyimpan data: ' + xhr.responseJSON.message) +
+                            '<strong><i class="bi bi-exclamation-circle"></i> Gagal!</strong> ' + (errorMsg || 'Gagal menyimpan data') +
                             '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                             '</div>';
                         
