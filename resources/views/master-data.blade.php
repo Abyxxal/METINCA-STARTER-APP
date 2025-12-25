@@ -93,14 +93,14 @@
                                 </div>
 
                                 {{-- Tabel Data Karyawan --}}
-                                {{-- Kolom: No, Foto, ID, Nama Lengkap, Departemen, Jabatan, Status, Aksi --}}
+                                {{-- Kolom: No, Foto, ID Card, Nama Lengkap, Departemen, Jabatan, Status, Aksi --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableKaryawan">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
                                                 <th>Foto</th>
-                                                <th>ID</th>
+                                                <th>ID Card</th>
                                                 <th>Nama Lengkap</th>
                                                 <th>Departemen</th>
                                                 <th>Jabatan</th>
@@ -351,7 +351,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="idKaryawan" class="form-label">ID <span class="text-danger">*</span></label>
+                                        <label for="idKaryawan" class="form-label">ID Card <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="idKaryawan" placeholder="Contoh: EMP047" required>
                                     </div>
                                 </div>
@@ -436,7 +436,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="editIdKaryawan" class="form-label">ID <span class="text-danger">*</span></label>
+                                        <label for="editIdKaryawan" class="form-label">ID Card <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="editIdKaryawan" placeholder="Contoh: EMP047" required>
                                     </div>
                                 </div>
