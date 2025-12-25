@@ -613,7 +613,19 @@
             // Initialize DataTables
             var tableKaryawan = $('#tableKaryawan').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+                    "decimal": ",",
+                    "emptyTable": "Tidak ada data tersedia",
+                    "info": "Menampilkan _START_ ke _END_ dari _TOTAL_ entri",
+                    "infoEmpty": "Menampilkan 0 ke 0 dari 0 entri",
+                    "infoFiltered": "(disaring dari _MAX_ total entri)",
+                    "infoPostFix": "",
+                    "thousands": ".",
+                    "lengthMenu": "Tampilkan _MENU_ entri",
+                    "loadingRecords": "Memuat...",
+                    "processing": "Memproses...",
+                    "search": "Cari:",
+                    "zeroRecords": "Tidak ada entri yang cocok ditemukan"
                 },
                 pageLength: 10,
                 serverSide: false,
@@ -714,7 +726,19 @@
 
             var tableDepartemen = $('#tableDepartemen').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+                    "decimal": ",",
+                    "emptyTable": "Tidak ada data tersedia",
+                    "info": "Menampilkan _START_ ke _END_ dari _TOTAL_ entri",
+                    "infoEmpty": "Menampilkan 0 ke 0 dari 0 entri",
+                    "infoFiltered": "(disaring dari _MAX_ total entri)",
+                    "infoPostFix": "",
+                    "thousands": ".",
+                    "lengthMenu": "Tampilkan _MENU_ entri",
+                    "loadingRecords": "Memuat...",
+                    "processing": "Memproses...",
+                    "search": "Cari:",
+                    "zeroRecords": "Tidak ada entri yang cocok ditemukan"
                 },
                 pageLength: 10,
                 drawCallback: function() {
@@ -733,7 +757,19 @@
 
             $('#tableJabatan').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
+                    "decimal": ",",
+                    "emptyTable": "Tidak ada data tersedia",
+                    "info": "Menampilkan _START_ ke _END_ dari _TOTAL_ entri",
+                    "infoEmpty": "Menampilkan 0 ke 0 dari 0 entri",
+                    "infoFiltered": "(disaring dari _MAX_ total entri)",
+                    "infoPostFix": "",
+                    "thousands": ".",
+                    "lengthMenu": "Tampilkan _MENU_ entri",
+                    "loadingRecords": "Memuat...",
+                    "processing": "Memproses...",
+                    "search": "Cari:",
+                    "zeroRecords": "Tidak ada entri yang cocok ditemukan"
                 },
                 pageLength: 10
             });
