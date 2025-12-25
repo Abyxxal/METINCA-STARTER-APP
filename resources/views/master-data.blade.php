@@ -93,14 +93,14 @@
                                 </div>
 
                                 {{-- Tabel Data Karyawan --}}
-                                {{-- Kolom: No, Foto, ID Card, Nama Lengkap, Departemen, Jabatan, Status, Aksi --}}
+                                {{-- Kolom: No, Foto, NIK, Nama Lengkap, Departemen, Jabatan, Status, Aksi --}}
                                 <div class="table-responsive">
                                     <table class="table table-striped" id="tableKaryawan">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
                                                 <th>Foto</th>
-                                                <th>ID Card</th>
+                                                <th>NIK</th>
                                                 <th>Nama Lengkap</th>
                                                 <th>Departemen</th>
                                                 <th>Jabatan</th>
@@ -147,70 +147,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <!-- Departemen Quality - 10 karyawan -->
-                                            <tr>
-                                                <td>1</td>
-                                                <td>Quality</td>
-                                                <td>10</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-departemen" title="Edit"
-                                                        data-id="1" data-departemen="Quality" data-jumlah="10">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-departemen" title="Hapus"
-                                                        data-id="1" data-departemen="Quality">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <!-- Departemen Maintenance - 9 karyawan -->
-                                            <tr>
-                                                <td>2</td>
-                                                <td>Maintenance</td>
-                                                <td>9</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-departemen" title="Edit"
-                                                        data-id="2" data-departemen="Maintenance" data-jumlah="9">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-departemen" title="Hapus"
-                                                        data-id="2" data-departemen="Maintenance">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <!-- Departemen PPC - 8 karyawan -->
-                                            <tr>
-                                                <td>3</td>
-                                                <td>PPC</td>
-                                                <td>8</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-departemen" title="Edit"
-                                                        data-id="3" data-departemen="PPC" data-jumlah="8">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-departemen" title="Hapus"
-                                                        data-id="3" data-departemen="PPC">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <!-- Departemen Produksi & Dev Engineering - 19 karyawan -->
-                                            <tr>
-                                                <td>4</td>
-                                                <td>Produksi & Dev Engineering</td>
-                                                <td>19</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning me-1 btn-edit-departemen" title="Edit"
-                                                        data-id="4" data-departemen="Produksi & Dev Engineering" data-jumlah="19">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger btn-hapus-departemen" title="Hapus"
-                                                        data-id="4" data-departemen="Produksi & Dev Engineering">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            {{-- Data loaded dynamically via AJAX from /api/departments --}}
                                         </tbody>
                                     </table>
                                 </div>
@@ -351,7 +288,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="idKaryawan" class="form-label">ID Card <span class="text-danger">*</span></label>
+                                        <label for="idKaryawan" class="form-label">NIK <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="idKaryawan" placeholder="Contoh: EMP047" required>
                                     </div>
                                 </div>
@@ -436,7 +373,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="editIdKaryawan" class="form-label">ID Card <span class="text-danger">*</span></label>
+                                        <label for="editIdKaryawan" class="form-label">NIK <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="editIdKaryawan" placeholder="Contoh: EMP047" required>
                                     </div>
                                 </div>
@@ -648,7 +585,6 @@
                         targets: 0,
                         orderable: false,
                         render: function(data, type, row, meta) {
-                            // Nomor berdasarkan posisi row yang ditampilkan (dimulai dari 1 setiap kali render)
                             return meta.row + 1;
                         }
                     },
@@ -706,6 +642,19 @@
             }
 
             var tableDepartemen = $('#tableDepartemen').DataTable({
+                ajax: {
+                    url: '/api/departments',
+                    dataSrc: function(json) {
+                        return json.data.map(function(dept) {
+                            return {
+                                'id': dept.id,
+                                'nama': dept.name,
+                                'jumlah': dept.employees_count,
+                                'aksi': '<button class="btn btn-sm btn-warning btn-edit-departemen" data-id="' + dept.id + '" data-departemen="' + dept.name + '" data-jumlah="' + dept.employees_count + '"><i class="bi bi-pencil-square"></i></button> <button class="btn btn-sm btn-danger btn-hapus-departemen" data-id="' + dept.id + '" data-departemen="' + dept.name + '"><i class="bi bi-trash"></i></button>'
+                            };
+                        });
+                    }
+                },
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json',
                     "decimal": ",",
@@ -722,10 +671,33 @@
                     "zeroRecords": "Tidak ada entri yang cocok ditemukan"
                 },
                 pageLength: 10,
+                columnDefs: [
+                    {
+                        targets: 0,
+                        orderable: false,
+                        render: function(data, type, row, meta) {
+                            return meta.row + 1;
+                        }
+                    },
+                    { targets: 1, data: 'nama' },
+                    { targets: 2, data: 'jumlah' },
+                    {
+                        targets: 3,
+                        data: 'aksi',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                order: [],
                 drawCallback: function() {
-                    var api = this.api();
-                    api.column(0, {page: 'current'}).nodes().each(function(cell, i) {
-                        cell.innerHTML = i + 1;
+                    // Attach edit/delete handlers after table render
+                    $('.btn-edit-departemen').off('click').on('click', function() {
+                        var id = $(this).data('id');
+                        editDepartemen(id);
+                    });
+                    $('.btn-hapus-departemen').off('click').on('click', function() {
+                        var id = $(this).data('id');
+                        hapusDepartemen(id);
                     });
                 }
             });
@@ -942,6 +914,7 @@
                                 $('#modalTambahKaryawan').modal('hide');
                                 $('#formTambahKaryawan')[0].reset();
                                 tableKaryawan.ajax.reload();
+                                tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
                             }, 2000);
                         }
                     },
@@ -1071,6 +1044,7 @@
                             setTimeout(function() {
                                 $('#modalEditKaryawan').modal('hide');
                                 tableKaryawan.ajax.reload();
+                                tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
                             }, 2000);
                         }
                     },
@@ -1170,6 +1144,7 @@
                                         confirmButtonColor: '#28a745'
                                     }).then(() => {
                                         tableKaryawan.ajax.reload();
+                                        tableDepartemen.ajax.reload(); // Reload departemen table to update employee count
                                     });
                                 }
                             },

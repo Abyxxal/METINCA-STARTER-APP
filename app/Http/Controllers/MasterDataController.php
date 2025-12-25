@@ -267,6 +267,30 @@ class MasterDataController extends Controller
     }
 
     /**
+     * Get all departments for DataTable with employee count
+     * GET /api/departments
+     */
+    public function getDepartments()
+    {
+        try {
+            $departments = Department::where('status', 'active')
+                ->withCount('employees')
+                ->orderBy('name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $departments
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
      * Get positions by department
      * GET /api/positions?department_id={id}
      */
