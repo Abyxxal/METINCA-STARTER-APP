@@ -78,12 +78,12 @@
                                 <i class="bi bi-book-fill me-2"></i>Katalog Pelatihan
                             </button>
                         </li>
-                        {{-- TAB 2: Pustaka SOP/WI --}}
+                        {{-- TAB 2: Documents --}}
                         {{-- Isi: Dokumen SOP dan Work Instruction dengan tracking versi (Rev 1, Rev 2, dll), status (Active/Obsolete), tanggal berlaku --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="dokumen-tab" data-bs-toggle="tab" data-bs-target="#dokumen"
                                 type="button" role="tab" aria-controls="dokumen" aria-selected="false">
-                                <i class="bi bi-file-earmark-pdf-fill me-2"></i>Pustaka SOP/WI
+                                <i class="bi bi-file-earmark-pdf-fill me-2"></i>Documents
                             </button>
                         </li>
                         {{-- TAB 3: Media Library --}}
@@ -226,14 +226,14 @@
                             </div>
                         </div>
 
-                        <!-- Pustaka SOP/WI Tab -->
-                        {{-- TAB CONTENT 2: Pustaka SOP/WI Tab --}}
+                        <!-- Documents Tab -->
+                        {{-- TAB CONTENT 2: Documents Tab --}}
                         {{-- Fungsi: Manajemen dokumen SOP dan Work Instruction dengan version control untuk compliance audit --}}
                         <div class="tab-pane fade" id="dokumen" role="tabpanel" aria-labelledby="dokumen-tab">
                             <div class="mt-4">
                                 {{-- Header dengan tombol Upload Dokumen --}}
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="mb-0">Pustaka SOP/WI</h5>
+                                    <h5 class="mb-0">Documents</h5>
                                     <button type="button" class="btn btn-primary" id="btnTambahDokumen">
                                         <i class="bi bi-plus-circle me-1"></i>Upload Dokumen
                                     </button>

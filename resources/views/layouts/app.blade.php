@@ -132,7 +132,7 @@
                                 {{-- Submenu 2: SOP/WI Library --}}
                                 {{-- Isi: Dokumen SOP dan Work Instruction dengan tracking versi/revisi --}}
                                 <li class="submenu-item {{ request()->fullUrlIs('*material-management#dokumen*') ? 'active' : '' }}">
-                                    <a href="{{ route('material-management') }}#dokumen" class="submenu-link">SOP & Documents</a>
+                                    <a href="{{ route('material-management') }}#dokumen" class="submenu-link">Documents</a>
                                 </li>
                                 {{-- Submenu 3: Media Library --}}
                                 {{-- Isi: File video, image, dan dokumen multimedia untuk pembelajaran --}}

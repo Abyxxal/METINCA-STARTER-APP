@@ -205,6 +205,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Reset unsaved changes when clicking sidebar menu links
+    document.querySelectorAll('.sidebar-link, .sidebar-item > a').forEach(link => {
+        link.addEventListener('click', () => {
+            formChanged = false;
+        });
+    });
+    
     window.addEventListener('beforeunload', function(e) {
         if (formChanged) {
             e.preventDefault();
