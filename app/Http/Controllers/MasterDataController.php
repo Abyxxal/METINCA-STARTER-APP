@@ -10,19 +10,35 @@ use App\Models\Skill;
 use App\Models\EmployeeCompetency;
 use Illuminate\Http\Request;
 
+/**
+ * MasterDataController
+ * 
+ * Mengelola semua operasi CRUD untuk master data:
+ * - Karyawan (Employee)
+ * - Departemen (Department)
+ * - Divisi (Division)
+ * - Jabatan (Position)
+ * - Kompetensi & Skill
+ */
 class MasterDataController extends Controller
 {
     // ============================================
-    // EMPLOYEE CRUD
+    // EMPLOYEE - CREATE & UPDATE
     // ============================================
 
     /**
-     * Store employee
-     * POST /api/employees
+     * Menyimpan data karyawan baru ke database
+     * 
+     * Validasi: NIK, Email harus unik
+     * Password di-hash sebelum disimpan
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function storeEmployee(Request $request)
     {
         try {
+            // Validasi input
             $validated = $request->validate([
                 'nik' => 'required|unique:employees,nik',
                 'nama_karyawan' => 'required|string',
@@ -37,6 +53,7 @@ class MasterDataController extends Controller
             // Hash password sebelum disimpan
             $validated['password'] = bcrypt($validated['password']);
 
+            // Buat record karyawan baru
             $employee = Employee::create($validated);
 
             return response()->json([
@@ -53,14 +70,21 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Update employee
-     * PUT /api/employees/{id}
+     * Memperbarui data karyawan yang sudah ada
+     * 
+     * Validasi: NIK & Email harus unik (exclude record saat ini)
+     * Password opsional, jika tidak diisi password lama tetap dipertahankan
+     * 
+     * @param Request $request
+     * @param string $id NIK Karyawan
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateEmployee(Request $request, $id)
     {
         try {
             $employee = Employee::findOrFail($id);
 
+            // Validasi input
             $validated = $request->validate([
                 'nik' => 'required|unique:employees,nik,' . $id . ',nik',
                 'nama_karyawan' => 'required|string',
@@ -72,13 +96,14 @@ class MasterDataController extends Controller
                 'status' => 'required|in:active,inactive,resigned',
             ]);
 
-            // Hash password jika diubah
+            // Hash password hanya jika ada perubahan
             if (isset($validated['password']) && $validated['password']) {
                 $validated['password'] = bcrypt($validated['password']);
             } else {
                 unset($validated['password']);
             }
 
+            // Update record karyawan
             $employee->update($validated);
 
             return response()->json([
@@ -95,8 +120,10 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Delete employee
-     * DELETE /api/employees/{id}
+     * Menghapus data karyawan dari database
+     * 
+     * @param string $id NIK Karyawan
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroyEmployee($id)
     {
@@ -118,26 +145,34 @@ class MasterDataController extends Controller
     }
 
     // ============================================
-    // DEPARTMENT CRUD
+    // DEPARTMENT - CREATE & UPDATE
     // ============================================
 
     /**
-     * Store department
-     * POST /api/departments
+     * Menyimpan departemen baru ke database
+     * 
+     * Validasi: Nama departemen harus unik
+     * Status default = 'active'
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function storeDepartment(Request $request)
     {
         try {
+            // Validasi input
             $validated = $request->validate([
                 'name' => 'required|unique:departments,name|string',
                 'employee_count' => 'nullable|integer|min:0',
                 'status' => 'nullable|in:active,inactive',
             ]);
 
+            // Set status default
             if (!isset($validated['status'])) {
                 $validated['status'] = 'active';
             }
 
+            // Buat record departemen baru
             $department = Department::create($validated);
 
             return response()->json([
@@ -154,20 +189,25 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Update department
-     * PUT /api/departments/{id}
+     * Memperbarui data departemen
+     * 
+     * @param Request $request
+     * @param int $id ID Departemen
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateDepartment(Request $request, $id)
     {
         try {
             $department = Department::findOrFail($id);
 
+            // Validasi input
             $validated = $request->validate([
                 'name' => 'required|unique:departments,name,' . $id . '|string',
                 'employee_count' => 'nullable|integer|min:0',
                 'status' => 'nullable|in:active,inactive',
             ]);
 
+            // Update record departemen
             $department->update($validated);
 
             return response()->json([
@@ -184,8 +224,10 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Delete department
-     * DELETE /api/departments/{id}
+     * Menghapus departemen dari database
+     * 
+     * @param int $id ID Departemen
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroyDepartment($id)
     {
@@ -207,19 +249,26 @@ class MasterDataController extends Controller
     }
 
     // ============================================
-    // DATA FETCHING (for DataTables)
+    // FETCHING DATA - untuk dropdown & tabel
     // ============================================
 
     /**
-     * Get all employees for DataTable
-     * GET /api/employees
+     * Mengambil daftar semua karyawan dengan relasi department, division, position
+     * Digunakan untuk menampilkan tabel data karyawan
+     * 
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getEmployees()
     {
         try {
-            $employees = Employee::with(['department:id,name', 'division:id,name', 'position:id,name,department_id'])
-                ->select('nik', 'nama_karyawan', 'email', 'department_id', 'division_id', 'position_id', 'status', 'created_at', 'updated_at')
-                ->get();
+            // Query dengan eager loading relasi
+            $employees = Employee::with([
+                'department:id,name', 
+                'division:id,name', 
+                'position:id,name,department_id'
+            ])
+            ->select('nik', 'nama_karyawan', 'email', 'department_id', 'division_id', 'position_id', 'status', 'created_at', 'updated_at')
+            ->get();
 
             return response()->json([
                 'success' => true,
@@ -234,13 +283,15 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Get single employee
-     * GET /api/employees/{id}
+     * Mengambil detail karyawan single berdasarkan ID/NIK
+     * 
+     * @param string $id NIK Karyawan
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getEmployee($id)
     {
         try {
-            $employee = Employee::with(['department', 'position'])->find($id);
+            $employee = Employee::with(['department', 'division', 'position'])->find($id);
 
             if (!$employee) {
                 return response()->json([
@@ -262,12 +313,15 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Get all departments for dropdown
-     * GET /api/departments/list
+     * Mengambil daftar departemen yang aktif untuk dropdown
+     * Digunakan saat add/edit karyawan
+     * 
+     * @return \Illuminate\Http\JsonResponse
      */
     public function listDepartments()
     {
         try {
+            // Query hanya departemen aktif, urutkan abjad
             $departments = Department::select('id', 'name')
                 ->where('status', 'active')
                 ->orderBy('name')
@@ -286,12 +340,15 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Get all departments for DataTable with employee count
-     * GET /api/departments
+     * Mengambil daftar departemen dengan jumlah karyawan
+     * Digunakan untuk menampilkan tabel departemen
+     * 
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getDepartments()
     {
         try {
+            // Query dengan count relasi employees
             $departments = Department::where('status', 'active')
                 ->withCount('employees')
                 ->orderBy('name')
@@ -310,8 +367,11 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Get positions by department
-     * GET /api/positions?department_id={id}
+     * Mengambil daftar jabatan berdasarkan departemen
+     * Query parameter: department_id (required)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getPositionsByDepartment(Request $request)
     {
@@ -325,6 +385,7 @@ class MasterDataController extends Controller
                 ], 400);
             }
 
+            // Query jabatan yang sesuai departemen
             $positions = Position::where('department_id', $departmentId)
                 ->select('id', 'name')
                 ->orderBy('name')
@@ -343,12 +404,15 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Store position (Create new position for a department)
-     * POST /api/positions
+     * Menyimpan jabatan baru untuk departemen
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function storePosition(Request $request)
     {
         try {
+            // Validasi input
             $validated = $request->validate([
                 'name' => 'required|string',
                 'department_id' => 'required|exists:departments,id',
@@ -357,7 +421,7 @@ class MasterDataController extends Controller
                 'status' => 'nullable|in:active,inactive'
             ]);
 
-            // Set default values
+            // Set nilai default
             if (!isset($validated['level'])) {
                 $validated['level'] = 1;
             }
@@ -365,6 +429,7 @@ class MasterDataController extends Controller
                 $validated['status'] = 'active';
             }
 
+            // Buat record jabatan baru
             $position = Position::create($validated);
 
             return response()->json([
@@ -380,6 +445,12 @@ class MasterDataController extends Controller
         }
     }
 
+    /**
+     * Menghapus jabatan dari database
+     * 
+     * @param int $id ID Jabatan
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroyPosition($id)
     {
         try {
@@ -404,8 +475,11 @@ class MasterDataController extends Controller
     // ============================================
 
     /**
-     * Get competency data with employee details
-     * GET /api/competencies?department_id=X
+     * Mengambil data kompetensi karyawan dengan filter departemen/NIK
+     * Query parameter: department_id, nik (opsional)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getCompetencies(Request $request)
     {
@@ -413,6 +487,7 @@ class MasterDataController extends Controller
             $departmentId = $request->query('department_id');
             $nik = $request->query('nik');
 
+            // Build query dengan join untuk mendapatkan data lengkap
             $query = Employee::query()
                 ->join('departments', 'employees.department_id', '=', 'departments.id')
                 ->join('positions', 'employees.position_id', '=', 'positions.id')
@@ -428,12 +503,11 @@ class MasterDataController extends Controller
                     'employee_competencies.level'
                 ]);
 
-            // Filter by department if provided
+            // Apply filter jika diberikan
             if ($departmentId) {
                 $query->where('employees.department_id', $departmentId);
             }
 
-            // Filter by NIK if provided
             if ($nik) {
                 $query->where('employees.nik', $nik);
             }
@@ -466,17 +540,21 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Update employee competency level
-     * POST /api/competencies
+     * Menyimpan atau memperbarui level kompetensi karyawan
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function storeCompetency(Request $request)
     {
         try {
+            // Validasi input
             $validated = $request->validate([
                 'nik' => 'required|exists:employees,nik',
                 'level' => 'required|integer|in:1,2,3,4'
             ]);
 
+            // Update atau create record kompetensi
             $competency = EmployeeCompetency::updateOrCreate(
                 ['nik' => $validated['nik']],
                 ['level' => $validated['level']]
@@ -495,18 +573,20 @@ class MasterDataController extends Controller
         }
     }
 
-    /**
-     * ============================================
-     * DIVISIONS & SKILLS MANAGEMENT
-     * ============================================
-     */
+    // ============================================
+    // DIVISION & SKILL MANAGEMENT
+    // ============================================
 
+    /**
+     * Menyimpan divisi baru untuk departemen
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function storeDivision(Request $request)
     {
         try {
-            \Log::info('=== STORE DIVISION REQUEST ===');
-            \Log::info('Request data:', $request->all());
-            
+            // Validasi input
             $validated = $request->validate([
                 'department_id' => 'required|integer|exists:departments,id',
                 'name' => 'required|string|max:255',
@@ -514,80 +594,127 @@ class MasterDataController extends Controller
                 'status' => 'nullable|in:active,inactive',
             ]);
 
-            // Set default status if not provided
+            // Set status default jika tidak diberikan
             if (!isset($validated['status']) || empty($validated['status'])) {
                 $validated['status'] = 'active';
             }
 
-            \Log::info('Validated data:', $validated);
-            
+            // Buat record divisi baru
             $division = Division::create($validated);
-            
-            \Log::info('Division created successfully:', $division->toArray());
-            
-            return response()->json(['success' => true, 'data' => $division], 201);
+
+            return response()->json([
+                'success' => true, 
+                'data' => $division
+            ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation error creating division:', ['errors' => $e->errors()]);
             return response()->json([
                 'success' => false, 
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Error creating division:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
+    /**
+     * Menghapus divisi dari database
+     * 
+     * @param int $id ID Divisi
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroyDivision($id)
     {
         try {
             $division = Division::findOrFail($id);
             $division->delete();
-            return response()->json(['success' => true, 'message' => 'Division deleted successfully']);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Divisi berhasil dihapus'
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
+    /**
+     * Mengambil daftar divisi berdasarkan departemen
+     * Query parameter: department_id (opsional - jika tidak ada, return semua divisi aktif)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDivisions(Request $request)
     {
         try {
             $departmentId = $request->query('department_id');
-            \Log::info('=== GET DIVISIONS REQUEST ===', ['department_id' => $departmentId]);
             
+            // Build query
             $query = Division::where('status', 'active');
             
+            // Apply filter department jika diberikan
             if ($departmentId) {
                 $query->where('department_id', $departmentId);
             }
 
+            // Get data
             $divisions = $query->get();
-            \Log::info('Divisions found:', ['count' => $divisions->count(), 'data' => $divisions->toArray()]);
-            
-            return response()->json(['success' => true, 'data' => $divisions]);
+
+            return response()->json([
+                'success' => true, 
+                'data' => $divisions
+            ]);
         } catch (\Exception $e) {
-            \Log::error('Error getting divisions:', ['message' => $e->getMessage()]);
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
+    /**
+     * Mengambil daftar skill untuk divisi tertentu
+     * 
+     * @param int $divisionId ID Divisi
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getSkillsByDivision($divisionId)
     {
         try {
+            // Query skill aktif untuk divisi
             $skills = Skill::where('division_id', $divisionId)
                 ->where('status', 'active')
                 ->get();
             
-            return response()->json(['success' => true, 'data' => $skills]);
+            return response()->json([
+                'success' => true, 
+                'data' => $skills
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
+    /**
+     * Menyimpan skill baru untuk divisi
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function storeSkill(Request $request)
     {
         try {
+            // Validasi input
             $validated = $request->validate([
                 'division_id' => 'required|exists:divisions,id',
                 'code' => 'required|string',
@@ -595,45 +722,80 @@ class MasterDataController extends Controller
                 'description' => 'nullable|string',
             ]);
 
+            // Buat record skill baru
             $skill = Skill::create($validated);
-            return response()->json(['success' => true, 'data' => $skill], 201);
+
+            return response()->json([
+                'success' => true, 
+                'data' => $skill
+            ], 201);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
+    /**
+     * Menghapus skill dari database
+     * 
+     * @param int $id ID Skill
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroySkill($id)
     {
         try {
+            // Delete skill
             Skill::findOrFail($id)->delete();
-            return response()->json(['success' => true, 'message' => 'Skill berhasil dihapus']);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Skill berhasil dihapus'
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
+    /**
+     * Mengambil data kompetensi karyawan berdasarkan skill untuk membuat matrix
+     * Query parameter: department_id, division_id (opsional)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getSkillBasedCompetencies(Request $request)
     {
         try {
             $departmentId = $request->query('department_id');
             $divisionId = $request->query('division_id');
             
-            $query = Employee::with(['department', 'position', 'competencies.skill.division'])
-                ->where('status', 'active');
+            // Query karyawan aktif dengan relasi
+            $query = Employee::with([
+                'department', 
+                'position', 
+                'competencies.skill.division'
+            ])->where('status', 'active');
             
+            // Filter berdasarkan departemen jika diberikan
             if ($departmentId) {
                 $query->where('department_id', $departmentId);
             }
 
             $employees = $query->get();
             
-            // Get skills for the division(s)
+            // Query skill berdasarkan divisi/departemen
             $skillsQuery = Skill::where('status', 'active')->with('division');
             
             if ($divisionId) {
+                // Jika divisi dipilih, ambil skill dari divisi itu saja
                 $skillsQuery->where('division_id', $divisionId);
             } elseif ($departmentId) {
-                // If department is selected but no division, get skills from divisions in that department
+                // Jika departemen dipilih, ambil skill dari divisi dalam departemen itu
                 $skillsQuery->whereHas('division', function($q) use ($departmentId) {
                     $q->where('department_id', $departmentId);
                 });
@@ -641,7 +803,7 @@ class MasterDataController extends Controller
             
             $skills = $skillsQuery->get();
 
-            // Build matrix
+            // Build matrix data
             $matrix = [];
             foreach ($employees as $emp) {
                 $empData = [
@@ -653,6 +815,7 @@ class MasterDataController extends Controller
                     'skills' => []
                 ];
 
+                // Untuk setiap skill, ambil level kompetensi karyawan (jika ada)
                 foreach ($skills as $skill) {
                     $competency = $emp->competencies()
                         ->where('skill_id', $skill->id)
@@ -675,27 +838,44 @@ class MasterDataController extends Controller
                 'skills' => $skills
             ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
+    /**
+     * Menyimpan atau memperbarui kompetensi skill karyawan
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function storeSkillCompetency(Request $request)
     {
         try {
+            // Validasi input
             $validated = $request->validate([
                 'nik' => 'required|exists:employees,nik',
                 'skill_id' => 'required|exists:skills,id',
                 'level' => 'required|integer|min:0|max:4',
             ]);
 
+            // Update atau create record kompetensi skill
             $competency = EmployeeCompetency::updateOrCreate(
                 ['nik' => $validated['nik'], 'skill_id' => $validated['skill_id']],
                 ['level' => $validated['level']]
             );
 
-            return response()->json(['success' => true, 'data' => $competency], 201);
+            return response()->json([
+                'success' => true, 
+                'data' => $competency
+            ], 201);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 }
