@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
+use App\Models\Division;
+use App\Models\Skill;
 use App\Models\EmployeeCompetency;
 use Illuminate\Http\Request;
 
@@ -27,6 +29,7 @@ class MasterDataController extends Controller
                 'email' => 'required|email|unique:employees,email',
                 'password' => 'required|string|min:6',
                 'department_id' => 'required|exists:departments,id',
+                'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
                 'status' => 'required|in:active,inactive,resigned',
             ]);
@@ -64,6 +67,7 @@ class MasterDataController extends Controller
                 'email' => 'required|email|unique:employees,email,' . $id . ',nik',
                 'password' => 'nullable|string|min:6',
                 'department_id' => 'required|exists:departments,id',
+                'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
                 'status' => 'required|in:active,inactive,resigned',
             ]);
@@ -213,8 +217,8 @@ class MasterDataController extends Controller
     public function getEmployees()
     {
         try {
-            $employees = Employee::with(['department:id,name', 'position:id,name,department_id'])
-                ->select('nik', 'nama_karyawan', 'email', 'department_id', 'position_id', 'status', 'created_at', 'updated_at')
+            $employees = Employee::with(['department:id,name', 'division:id,name', 'position:id,name,department_id'])
+                ->select('nik', 'nama_karyawan', 'email', 'department_id', 'division_id', 'position_id', 'status', 'created_at', 'updated_at')
                 ->get();
 
             return response()->json([
@@ -488,6 +492,210 @@ class MasterDataController extends Controller
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * ============================================
+     * DIVISIONS & SKILLS MANAGEMENT
+     * ============================================
+     */
+
+    public function storeDivision(Request $request)
+    {
+        try {
+            \Log::info('=== STORE DIVISION REQUEST ===');
+            \Log::info('Request data:', $request->all());
+            
+            $validated = $request->validate([
+                'department_id' => 'required|integer|exists:departments,id',
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string|max:500',
+                'status' => 'nullable|in:active,inactive',
+            ]);
+
+            // Set default status if not provided
+            if (!isset($validated['status']) || empty($validated['status'])) {
+                $validated['status'] = 'active';
+            }
+
+            \Log::info('Validated data:', $validated);
+            
+            $division = Division::create($validated);
+            
+            \Log::info('Division created successfully:', $division->toArray());
+            
+            return response()->json(['success' => true, 'data' => $division], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error creating division:', ['errors' => $e->errors()]);
+            return response()->json([
+                'success' => false, 
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error creating division:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function destroyDivision($id)
+    {
+        try {
+            $division = Division::findOrFail($id);
+            $division->delete();
+            return response()->json(['success' => true, 'message' => 'Division deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function getDivisions(Request $request)
+    {
+        try {
+            $departmentId = $request->query('department_id');
+            \Log::info('=== GET DIVISIONS REQUEST ===', ['department_id' => $departmentId]);
+            
+            $query = Division::where('status', 'active');
+            
+            if ($departmentId) {
+                $query->where('department_id', $departmentId);
+            }
+
+            $divisions = $query->get();
+            \Log::info('Divisions found:', ['count' => $divisions->count(), 'data' => $divisions->toArray()]);
+            
+            return response()->json(['success' => true, 'data' => $divisions]);
+        } catch (\Exception $e) {
+            \Log::error('Error getting divisions:', ['message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function getSkillsByDivision($divisionId)
+    {
+        try {
+            $skills = Skill::where('division_id', $divisionId)
+                ->where('status', 'active')
+                ->get();
+            
+            return response()->json(['success' => true, 'data' => $skills]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function storeSkill(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'division_id' => 'required|exists:divisions,id',
+                'code' => 'required|string',
+                'name' => 'required|string',
+                'description' => 'nullable|string',
+            ]);
+
+            $skill = Skill::create($validated);
+            return response()->json(['success' => true, 'data' => $skill], 201);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function destroySkill($id)
+    {
+        try {
+            Skill::findOrFail($id)->delete();
+            return response()->json(['success' => true, 'message' => 'Skill berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function getSkillBasedCompetencies(Request $request)
+    {
+        try {
+            $departmentId = $request->query('department_id');
+            $divisionId = $request->query('division_id');
+            
+            $query = Employee::with(['department', 'position', 'competencies.skill.division'])
+                ->where('status', 'active');
+            
+            if ($departmentId) {
+                $query->where('department_id', $departmentId);
+            }
+
+            $employees = $query->get();
+            
+            // Get skills for the division(s)
+            $skillsQuery = Skill::where('status', 'active')->with('division');
+            
+            if ($divisionId) {
+                $skillsQuery->where('division_id', $divisionId);
+            } elseif ($departmentId) {
+                // If department is selected but no division, get skills from divisions in that department
+                $skillsQuery->whereHas('division', function($q) use ($departmentId) {
+                    $q->where('department_id', $departmentId);
+                });
+            }
+            
+            $skills = $skillsQuery->get();
+
+            // Build matrix
+            $matrix = [];
+            foreach ($employees as $emp) {
+                $empData = [
+                    'nik' => $emp->nik,
+                    'nama' => $emp->nama_karyawan,
+                    'departemen' => $emp->department->name,
+                    'jabatan' => $emp->position->name,
+                    'status' => $emp->status,
+                    'skills' => []
+                ];
+
+                foreach ($skills as $skill) {
+                    $competency = $emp->competencies()
+                        ->where('skill_id', $skill->id)
+                        ->first();
+                    
+                    $empData['skills'][$skill->id] = [
+                        'skill_id' => $skill->id,
+                        'skill_code' => $skill->code,
+                        'skill_name' => $skill->name,
+                        'level' => $competency ? $competency->level : 0
+                    ];
+                }
+
+                $matrix[] = $empData;
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $matrix,
+                'skills' => $skills
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function storeSkillCompetency(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nik' => 'required|exists:employees,nik',
+                'skill_id' => 'required|exists:skills,id',
+                'level' => 'required|integer|min:0|max:4',
+            ]);
+
+            $competency = EmployeeCompetency::updateOrCreate(
+                ['nik' => $validated['nik'], 'skill_id' => $validated['skill_id']],
+                ['level' => $validated['level']]
+            );
+
+            return response()->json(['success' => true, 'data' => $competency], 201);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
     }
 }

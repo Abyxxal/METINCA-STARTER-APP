@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('employee_id')->nullable()->after('profile_photo_url')->constrained('employees')->onDelete('set null')->comment('Link ke data employee');
+            $table->string('employee_nik', 50)->nullable()->after('profile_photo_url')->comment('Link ke data employee (NIK)');
+            $table->foreign('employee_nik')->references('nik')->on('employees')->onDelete('set null');
         });
     }
 
@@ -22,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeignKeyIfExists(['employee_id']);
-            $table->dropColumn('employee_id');
+            $table->dropForeignKeyIfExists(['employee_nik']);
+            $table->dropColumn('employee_nik');
         });
     }
 };

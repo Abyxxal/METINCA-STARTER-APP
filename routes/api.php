@@ -42,5 +42,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/competencies', [MasterDataController::class, 'getCompetencies']);
     Route::post('/competencies', [MasterDataController::class, 'storeCompetency']);
 
+    // ============================================
+    // DIVISION ROUTES
+    // ============================================
+    Route::get('/divisions', [MasterDataController::class, 'getDivisions']);
+    Route::post('/divisions', [MasterDataController::class, 'storeDivision']);
+    Route::delete('/divisions/{id}', [MasterDataController::class, 'destroyDivision']);
+    Route::get('/divisions/{id}/skills', [MasterDataController::class, 'getSkillsByDivision']);
+
+    // ============================================
+    // SKILL ROUTES
+    // ============================================
+    Route::post('/skills', [MasterDataController::class, 'storeSkill']);
+    Route::delete('/skills/{id}', [MasterDataController::class, 'destroySkill']);
+
+    // ============================================
+    // SKILL-BASED COMPETENCY ROUTES
+    // ============================================
+    Route::get('/competencies/skills', [MasterDataController::class, 'getSkillBasedCompetencies']);
+    Route::post('/competencies/skills', [MasterDataController::class, 'storeSkillCompetency']);
+
 });
 

@@ -120,16 +120,24 @@
                                     </div>
                                 </div>
 
-                                {{-- Filter Departemen --}}
-                                <div class="mb-3">
-                                    <label for="filterDepartemenKaryawan" class="form-label">Filter Departemen:</label>
-                                    <select id="filterDepartemenKaryawan" class="form-select">
-                                        <option value="">Semua Departemen</option>
-                                    </select>
+                                {{-- Filter Departemen dan Divisi --}}
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="filterDepartemenKaryawan" class="form-label">Filter Departemen:</label>
+                                        <select id="filterDepartemenKaryawan" class="form-select">
+                                            <option value="">Semua Departemen</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="filterDivisiKaryawan" class="form-label">Filter Divisi:</label>
+                                        <select id="filterDivisiKaryawan" class="form-select">
+                                            <option value="">Semua Divisi</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 {{-- Tabel Data Karyawan --}}
-                                {{-- Kolom: No, Foto, NIK, Nama Lengkap, Departemen, Jabatan, Status, Aksi --}}
+                                {{-- Kolom: No, Foto, NIK, Nama Lengkap, Departemen, Divisi, Jabatan, Status, Aksi --}}
                                 <div class="table-responsive mt-3">
                                     <table class="table table-striped" id="tableKaryawan">
                                         <thead>
@@ -139,6 +147,7 @@
                                                 <th style="width: 80px; text-align: center;">NIK</th>
                                                 <th style="width: auto; text-align: left;">Nama Lengkap</th>
                                                 <th style="width: auto; text-align: left;">Departemen</th>
+                                                <th style="width: auto; text-align: left;">Divisi</th>
                                                 <th style="width: auto; text-align: left;">Jabatan</th>
                                                 <th style="width: 100px; text-align: center;">Status</th>
                                                 <th style="width: 100px; text-align: center;">Aksi</th>
@@ -209,6 +218,20 @@
                                 <input type="text" class="form-control" id="namaDepartemen" placeholder="Masukkan nama departemen baru" required>
                                 <small class="text-muted">Contoh: Quality, Maintenance, PPC, Produksi & Dev Engineering, dll.</small>
                             </div>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <label class="form-label">Daftar Divisi <span class="text-danger">*</span></label>
+                                <div id="divisiContainer">
+                                    <!-- Divisi items ditambah di sini -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-info mt-2" id="btnAddDivisiItem">
+                                    <i class="bi bi-plus me-1"></i>Tambah Divisi
+                                </button>
+                            </div>
+
+                            <hr>
                             
                             <div class="mb-3">
                                 <label class="form-label">Daftar Jabatan <span class="text-danger">*</span></label>
@@ -255,6 +278,20 @@
                                 <label for="editNamaDepartemen" class="form-label">Nama Departemen</label>
                                 <input type="text" class="form-control" id="editNamaDepartemen" placeholder="Masukkan nama departemen" required>
                             </div>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <label class="form-label">Daftar Divisi</label>
+                                <div id="editContainerDivisi">
+                                    <!-- Divisions akan dimuat via AJAX -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-info mt-2" id="btnTambahDivisiEdit">
+                                    <i class="bi bi-plus me-1"></i>Tambah Divisi Baru
+                                </button>
+                            </div>
+
+                            <hr>
                             
                             <div class="mb-3">
                                 <label class="form-label">Daftar Jabatan</label>
@@ -382,6 +419,17 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
+                                        <label for="divisiKaryawan" class="form-label">Divisi <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="divisiKaryawan" required>
+                                            <option value="">-- Pilih Divisi --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
                                         <label for="jabatanKaryawan" class="form-label">Jabatan <span class="text-danger">*</span></label>
                                         <select class="form-select" id="jabatanKaryawan" required>
                                             <option value="">-- Pilih Jabatan --</option>
@@ -497,6 +545,17 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editDivisiKaryawan" class="form-label">Divisi <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="editDivisiKaryawan" required>
+                                            <option value="">-- Pilih Divisi --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="editJabatanKaryawan" class="form-label">Jabatan <span class="text-danger">*</span></label>
                                         <select class="form-select" id="editJabatanKaryawan" required>
@@ -696,6 +755,47 @@
                 });
             }
             
+            // Function to reload division dropdown by department
+            function loadDivisiByDepartemen(departmentName) {
+                // Clear existing options (keep placeholder)
+                $('#filterDivisiKaryawan').find('option:not(:first)').remove();
+                
+                // If no department selected, don't load divisions
+                if (!departmentName) {
+                    return;
+                }
+                
+                // Get department ID from department name
+                $.ajax({
+                    url: '/api/departments/list',
+                    success: function(response) {
+                        var deptId = null;
+                        response.data.forEach(function(dept) {
+                            if (dept.name === departmentName) {
+                                deptId = dept.id;
+                            }
+                        });
+                        
+                        if (!deptId) return;
+                        
+                        // Load divisions for this department
+                        $.ajax({
+                            url: '/api/divisions?department_id=' + deptId,
+                            success: function(divResponse) {
+                                if (divResponse.success && divResponse.data) {
+                                    divResponse.data.forEach(function(div) {
+                                        $('#filterDivisiKaryawan').append('<option value="' + div.name + '">' + div.name + '</option>');
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error('Error loading divisions:', xhr);
+                            }
+                        });
+                    }
+                });
+            }
+
             // Function to reload position dropdown by department
             function loadPositionsByDepartment(deptId) {
                 if (!deptId) {
@@ -718,13 +818,14 @@
                 });
             }
 
-            // Load departments into filter dropdowns on page load
+            // Load departments into filter dropdown on page load
             loadDepartemenDropdown();
 
             // Load and render karyawan table manually (same style as matrix)
             function loadKaryawanTable() {
                 const tableBody = document.getElementById('tableKaryawanBody');
                 const filterDepartemen = document.getElementById('filterDepartemenKaryawan').value;
+                const filterDivisi = document.getElementById('filterDivisiKaryawan').value;
                 
                 $.ajax({
                     url: '/api/employees',
@@ -734,18 +835,23 @@
                     },
                     success: function(response) {
                         if (response.success && response.data) {
-                            // Filter data berdasarkan department name jika ada filter
+                            // Filter data berdasarkan department dan divisi
                             let filteredData = response.data;
                             if (filterDepartemen) {
-                                filteredData = response.data.filter(emp => {
+                                filteredData = filteredData.filter(emp => {
                                     return emp.department && emp.department.name === filterDepartemen;
+                                });
+                            }
+                            if (filterDivisi) {
+                                filteredData = filteredData.filter(emp => {
+                                    return emp.division && emp.division.name === filterDivisi;
                                 });
                             }
                             renderKaryawanTable(filteredData, tableBody);
                         }
                     },
                     error: function(xhr) {
-                        tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Gagal memuat data</td></tr>';
                     }
                 });
             }
@@ -755,7 +861,7 @@
                 tableBody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Tidak ada data karyawan</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Tidak ada data karyawan</td></tr>';
                     return;
                 }
 
@@ -776,6 +882,7 @@
                             <td style="text-align: center; vertical-align: middle;">${item.nik}</td>
                             <td style="text-align: left;">${item.nama_karyawan}</td>
                             <td style="text-align: left;">${item.department ? item.department.name : '-'}</td>
+                            <td style="text-align: left;">${item.division ? item.division.name : '-'}</td>
                             <td style="text-align: left;">${item.position ? item.position.name : '-'}</td>
                             <td style="text-align: center;">${statusBadge}</td>
                             <td style="text-align: center;">
@@ -814,7 +921,23 @@
 
             // Filter departemen karyawan dropdown
             $('#filterDepartemenKaryawan').on('change', function() {
+                const selectedDept = $(this).val();
+                
+                // Load divisions for selected department
+                if (selectedDept) {
+                    loadDivisiByDepartemen(selectedDept);
+                } else {
+                    // Clear division filter if no department selected
+                    $('#filterDivisiKaryawan').find('option:not(:first)').remove();
+                }
+                
                 // Reload table when department filter changes
+                loadKaryawanTable();
+            });
+
+            // Filter divisi karyawan dropdown
+            $('#filterDivisiKaryawan').on('change', function() {
+                // Reload table when division filter changes
                 loadKaryawanTable();
             });
 
@@ -994,13 +1117,15 @@
             $('#departemenKaryawan').on('change', function() {
                 var departmentId = $(this).val();
                 var jabatanSelect = $('#jabatanKaryawan');
+                var divisiSelect = $('#divisiKaryawan');
 
                 if (!departmentId) {
                     jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
+                    divisiSelect.html('<option value="">-- Pilih Divisi --</option>');
                     return;
                 }
 
-                // Load position dari API berdasarkan department_id
+                // Load positions dari API berdasarkan department_id
                 $.ajax({
                     url: '/api/positions?department_id=' + departmentId,
                     type: 'GET',
@@ -1011,12 +1136,10 @@
                         jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
                         
                         if (response.success && response.data && response.data.length > 0) {
-                            // Populate dropdown dari API data
                             response.data.forEach(function(position) {
                                 jabatanSelect.append('<option value="' + position.id + '">' + position.name + '</option>');
                             });
                         } else {
-                            // Jika API tidak return data, tampilkan pesan
                             jabatanSelect.html('<option value="">-- Tidak ada Jabatan --</option>');
                         }
                     },
@@ -1025,11 +1148,64 @@
                         jabatanSelect.html('<option value="">-- Error loading Jabatan --</option>');
                     }
                 });
+
+                // Load divisions dari API berdasarkan department_id
+                $.ajax({
+                    url: '/api/divisions?department_id=' + departmentId,
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        divisiSelect.html('<option value="">-- Pilih Divisi --</option>');
+                        
+                        if (response.success && response.data && response.data.length > 0) {
+                            response.data.forEach(function(division) {
+                                divisiSelect.append('<option value="' + division.id + '">' + division.name + '</option>');
+                            });
+                        } else {
+                            divisiSelect.html('<option value="">-- Tidak ada Divisi --</option>');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error loading divisions:', xhr);
+                        divisiSelect.html('<option value="">-- Error loading Divisi --</option>');
+                    }
+                });
             });
 
             // Button handlers
             $('#btnTambahDepartemen').on('click', function() {
                 $('#formTambahDepartemen')[0].reset();
+                
+                // Reset divisi container with 1 empty input
+                $('#divisiContainer').html(`
+                    <div class="row mb-2 divisi-item">
+                        <div class="col-10">
+                            <input type="text" class="form-control divisi-name" placeholder="Masukkan nama divisi" required>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-divisi" style="display: none;">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                
+                // Reset jabatan container
+                $('#containerJabatan').html(`
+                    <div class="row mb-2 jabatan-item">
+                        <div class="col-10">
+                            <input type="text" class="form-control input-jabatan" placeholder="Masukkan nama jabatan (contoh: Manager, Supervisor, Staff)" required>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-hapus-jabatan" style="display: none;">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                
                 $('#modalTambahDepartemen').modal('show');
             });
 
@@ -1039,11 +1215,12 @@
                 var email = $('#emailKaryawan').val();
                 var password = $('#passwordKaryawan').val();
                 var departemenId = $('#departemenKaryawan').val();
+                var divisiId = $('#divisiKaryawan').val();
                 var jabatanId = $('#jabatanKaryawan').val();
                 var levelKompetensi = $('#levelKompetensi').val();
                 var status = $('input[name="statusKaryawan"]:checked').val();
 
-                if (!id || !nama || !email || !password || !departemenId || !jabatanId || !levelKompetensi) {
+                if (!id || !nama || !email || !password || !departemenId || !divisiId || !jabatanId || !levelKompetensi) {
                     Swal.fire({
                         title: 'Validasi!',
                         text: 'Semua field harus diisi!',
@@ -1067,6 +1244,7 @@
                         email: email,
                         password: password,
                         department_id: parseInt(departemenId),
+                        division_id: parseInt(divisiId),
                         position_id: parseInt(jabatanId),
                         status: status || 'active'
                     }),
@@ -1157,12 +1335,13 @@
                         $('#editPasswordKaryawan').val(''); // Clear password field
                         $('#editDepartemenKaryawan').val(emp.department_id);
                         
-                        // Trigger change event to load positions
+                        // Trigger change event to load positions and divisions
                         $('#editDepartemenKaryawan').trigger('change');
                         
-                        // Also set the position after positions are loaded
+                        // Also set the position and division after they are loaded
                         setTimeout(function() {
                             $('#editJabatanKaryawan').val(emp.position_id);
+                            $('#editDivisiKaryawan').val(emp.division_id);
                         }, 500);
                         
                         // Set status radio button
@@ -1221,11 +1400,12 @@
                 var email = $('#editEmailKaryawan').val();
                 var password = $('#editPasswordKaryawan').val();
                 var departemenId = $('#editDepartemenKaryawan').val();
+                var divisiId = $('#editDivisiKaryawan').val();
                 var jabatanId = $('#editJabatanKaryawan').val();
                 var editLevelKompetensi = $('#editLevelKompetensi').val();
                 var status = $('input[name="editStatusKaryawan"]:checked').val();
 
-                if (!nik || !nama || !email || !departemenId || !jabatanId || !editLevelKompetensi) {
+                if (!nik || !nama || !email || !departemenId || !divisiId || !jabatanId || !editLevelKompetensi) {
                     // Show validation error with custom styling
                     var errorHtml = '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
                         '<strong><i class="bi bi-exclamation-triangle"></i> Perhatian!</strong> Semua field harus diisi!' +
@@ -1241,6 +1421,7 @@
                     nama_karyawan: nama,
                     email: email,
                     department_id: departemenId,
+                    division_id: divisiId,
                     position_id: jabatanId,
                     status: status || 'active'
                 };
@@ -1249,6 +1430,8 @@
                 if (password && password.length > 0) {
                     submitData.password = password;
                 }
+
+                console.log('📤 Updating employee with data:', submitData);
 
                 $.ajax({
                     url: '/api/employees/' + id,
@@ -1331,19 +1514,41 @@
                 }
             });
 
-            // Update Jabatan dropdown pada edit modal ketika Departemen berubah
+            // Update Jabatan dan Divisi dropdown pada edit modal ketika Departemen berubah
             $('#editDepartemenKaryawan').on('change', function() {
                 var departemenId = $(this).val();
-                if (!departemenId) return;
-                var jabatanSelect = $('#editJabatanKaryawan');
+                if (!departemenId) {
+                    $('#editJabatanKaryawan').html('<option value="">-- Pilih Jabatan --</option>');
+                    $('#editDivisiKaryawan').html('<option value="">-- Pilih Divisi --</option>');
+                    return;
+                }
                 
+                var jabatanSelect = $('#editJabatanKaryawan');
+                var divisiSelect = $('#editDivisiKaryawan');
+                
+                // Load positions
                 $.ajax({
                     url: '/api/positions?department_id=' + departemenId,
                     success: function(response) {
                         jabatanSelect.html('<option value="">-- Pilih Jabatan --</option>');
-                        response.data.forEach(function(pos) {
-                            jabatanSelect.append('<option value="' + pos.id + '">' + pos.name + '</option>');
-                        });
+                        if (response.data && response.data.length > 0) {
+                            response.data.forEach(function(pos) {
+                                jabatanSelect.append('<option value="' + pos.id + '">' + pos.name + '</option>');
+                            });
+                        }
+                    }
+                });
+                
+                // Load divisions
+                $.ajax({
+                    url: '/api/divisions?department_id=' + departemenId,
+                    success: function(response) {
+                        divisiSelect.html('<option value="">-- Pilih Divisi --</option>');
+                        if (response.data && response.data.length > 0) {
+                            response.data.forEach(function(div) {
+                                divisiSelect.append('<option value="' + div.id + '">' + div.name + '</option>');
+                            });
+                        }
                     }
                 });
             });
@@ -1455,7 +1660,14 @@
             $('#btnSimpanDepartemen').on('click', function() {
                 var namaDept = $('#namaDepartemen').val();
                 var jabatanInputs = $('#containerJabatan .input-jabatan');
+                var divisiInputs = $('#divisiContainer .divisi-name');
                 var jabatanList = [];
+                var divisiList = [];
+
+                console.log('=== SIMPAN DEPARTEMEN ===');
+                console.log('📝 Nama Dept:', namaDept);
+                console.log('🔍 Jabatan inputs found:', jabatanInputs.length);
+                console.log('🔍 Divisi inputs found:', divisiInputs.length);
 
                 if (!namaDept) {
                     Swal.fire({
@@ -1473,6 +1685,19 @@
                     var value = $(this).val().trim();
                     if (value) {
                         jabatanList.push(value);
+                        console.log('  ✅ Jabatan:', value);
+                    }
+                });
+
+                // Collect all divisions
+                divisiInputs.each(function() {
+                    var nilai = $(this).val().trim();
+                    if (nilai) {
+                        divisiList.push({
+                            name: nilai,
+                            description: ''
+                        });
+                        console.log('  ✅ Divisi:', nilai);
                     }
                 });
 
@@ -1486,6 +1711,20 @@
                     });
                     return;
                 }
+
+                if (divisiList.length === 0) {
+                    Swal.fire({
+                        title: 'Validasi!',
+                        text: 'Minimal 1 divisi harus diisi!',
+                        icon: 'warning',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                console.log('📊 Total Jabatan:', jabatanList.length);
+                console.log('📊 Total Divisi:', divisiList.length);
 
                 var submitBtn = $(this);
                 submitBtn.prop('disabled', true).html('<i class="bi bi-hourglass me-1"></i>Menyimpan...');
@@ -1502,17 +1741,21 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(deptResponse) {
+                        console.log('✅ Department created:', deptResponse.data);
                         if (deptResponse.success) {
+                            var deptId = deptResponse.data.id;
+                            var allRequests = [];
+
                             // Create all positions for this department
-                            var positionRequests = [];
                             jabatanList.forEach(function(jabatan) {
-                                positionRequests.push(
+                                console.log('📤 POST /api/positions:', jabatan);
+                                allRequests.push(
                                     $.ajax({
                                         url: '/api/positions',
                                         type: 'POST',
                                         data: {
                                             name: jabatan,
-                                            department_id: deptResponse.data.id,
+                                            department_id: deptId,
                                             level: 1,
                                             status: 'active'
                                         },
@@ -1523,13 +1766,44 @@
                                 );
                             });
 
-                            // Wait for all position requests to complete
-                            $.when.apply($, positionRequests).done(function() {
+                            // Create all divisions for this department
+                            console.log('=== CREATING DIVISIONS ===');
+                            divisiList.forEach(function(divisi) {
+                                console.log('📤 POST /api/divisions:', divisi.name);
+                                allRequests.push(
+                                    $.ajax({
+                                        url: '/api/divisions',
+                                        type: 'POST',
+                                        data: {
+                                            department_id: deptId,
+                                            name: divisi.name,
+                                            description: divisi.description,
+                                            status: 'active'
+                                        },
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                        dataType: 'json',
+                                        success: function(resp) {
+                                            console.log('✅ Division created:', divisi.name, 'ID:', resp.data.id);
+                                        },
+                                        error: function(err) {
+                                            console.error('❌ Division creation failed:', divisi.name);
+                                            console.error('Response:', err.responseJSON);
+                                        }
+                                    })
+                                );
+                            });
+
+                            // Wait for all requests to complete
+                            $.when.apply($, allRequests).done(function() {
                                 submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Simpan');
+                                
+                                console.log('✅ ALL REQUESTS COMPLETED');
                                 
                                 Swal.fire({
                                     title: 'Berhasil!',
-                                    text: 'Departemen dan ' + jabatanList.length + ' Jabatan berhasil ditambahkan!',
+                                    text: 'Departemen, ' + jabatanList.length + ' Jabatan, dan ' + divisiList.length + ' Divisi berhasil ditambahkan!',
                                     icon: 'success',
                                     confirmButtonColor: '#28a745'
                                 }).then(() => {
@@ -1548,20 +1822,22 @@
                                             </div>
                                         </div>
                                     `);
+                                    initDivisiContainer();
                                     tableDepartemen.ajax.reload();
                                     
                                     // Reload department dropdowns in modals
                                     loadDepartemenDropdown();
                                     // Wait a moment then load positions for newly created department
                                     setTimeout(function() {
-                                        loadPositionsByDepartment(deptResponse.data.id);
+                                        loadPositionsByDepartment(deptId);
                                     }, 300);
                                 });
                             }).fail(function(error) {
                                 submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Simpan');
+                                console.error('❌ Some requests failed');
                                 Swal.fire({
                                     title: 'Gagal!',
-                                    text: 'Gagal menambahkan beberapa jabatan',
+                                    text: 'Gagal menambahkan beberapa item',
                                     icon: 'error',
                                     confirmButtonColor: '#dc3545'
                                 });
@@ -1575,6 +1851,7 @@
                         for (let key in errors) {
                             errorMsg += errors[key][0] + '\n';
                         }
+                        console.error('❌ Department creation failed:', errorMsg);
                         Swal.fire({
                             title: 'Gagal!',
                             text: errorMsg || 'Gagal menambahkan departemen',
@@ -1589,13 +1866,17 @@
             $(document).on('click', '.btn-edit-departemen', function() {
                 var id = $(this).data('id');
                 var departemen = $(this).data('departemen');
+                
+                console.log('📝 Edit Departemen clicked:', {id: id, name: departemen});
 
                 // Populate modal with data
                 $('#editDepartemenId').val(id);
                 $('#editNamaDepartemen').val(departemen);
 
-                // Load existing positions for this department
+                // Load existing positions and divisions for this department
+                console.log('⏳ Loading positions and divisions for department', id);
                 loadExistingPositions(id);
+                loadExistingDivisions(id);
 
                 // Show modal
                 $('#modalEditDepartemen').modal('show');
@@ -1636,8 +1917,8 @@
                 });
             }
 
-            // Handle tambah jabatan baru button in edit mode
-            $('#btnTambahJabatanEdit').on('click', function() {
+            // Handle tambah jabatan baru button in edit mode - USE EVENT DELEGATION
+            $(document).on('click', '#btnTambahJabatanEdit', function() {
                 var container = $('#editContainerJabatan');
                 
                 // If container has "Belum ada jabatan" text, replace it
@@ -1723,121 +2004,7 @@
                 $(this).closest('.edit-jabatan-item-new').remove();
             });
 
-            // Handle Update Departemen
-            $('#btnUpdateDepartemen').on('click', function() {
-                var id = $('#editDepartemenId').val();
-                var namaDept = $('#editNamaDepartemen').val();
-                var newJabatanInputs = $('#editContainerJabatan .input-new-jabatan');
-                var newJabatanList = [];
-
-                if (!namaDept) {
-                    Swal.fire({
-                        title: 'Validasi!',
-                        text: 'Nama departemen harus diisi!',
-                        icon: 'warning',
-                        confirmButtonColor: '#ffc107',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                // Collect new positions
-                newJabatanInputs.each(function() {
-                    var value = $(this).val().trim();
-                    if (value) {
-                        newJabatanList.push(value);
-                    }
-                });
-
-                var submitBtn = $(this);
-                submitBtn.prop('disabled', true).html('<i class="bi bi-hourglass me-1"></i>Menyimpan...');
-
-                // First update department name
-                $.ajax({
-                    url: '/api/departments/' + id,
-                    type: 'PUT',
-                    data: {
-                        name: namaDept,
-                        status: 'active'
-                    },
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // If there are new positions to add
-                            if (newJabatanList.length > 0) {
-                                var positionRequests = [];
-                                newJabatanList.forEach(function(jabatan) {
-                                    positionRequests.push(
-                                        $.ajax({
-                                            url: '/api/positions',
-                                            type: 'POST',
-                                            data: {
-                                                name: jabatan,
-                                                department_id: id,
-                                                level: 1,
-                                                status: 'active'
-                                            },
-                                            headers: {
-                                                'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
-                                            }
-                                        })
-                                    );
-                                });
-
-                                $.when.apply($, positionRequests).done(function() {
-                                    submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
-                                    Swal.fire({
-                                        title: 'Berhasil!',
-                                        text: 'Departemen dan ' + newJabatanList.length + ' jabatan baru berhasil disimpan!',
-                                        icon: 'success',
-                                        confirmButtonColor: '#28a745'
-                                    }).then(() => {
-                                        $('#modalEditDepartemen').modal('hide');
-                                        tableDepartemen.ajax.reload();
-                                        loadDepartemenDropdown();
-                                        loadPositionsByDepartment(id);
-                                    });
-                                }).fail(function() {
-                                    submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
-                                    Swal.fire({
-                                        title: 'Berhasil Sebagian!',
-                                        text: 'Departemen diupdate tapi beberapa jabatan gagal ditambahkan',
-                                        icon: 'warning',
-                                        confirmButtonColor: '#ffc107'
-                                    });
-                                });
-                            } else {
-                                submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: 'Departemen berhasil diperbarui!',
-                                    icon: 'success',
-                                    confirmButtonColor: '#28a745'
-                                }).then(() => {
-                                    $('#modalEditDepartemen').modal('hide');
-                                    tableDepartemen.ajax.reload();
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr) {
-                        submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
-                        var errors = xhr.responseJSON.errors || {};
-                        var errorMsg = 'Terjadi kesalahan: ';
-                        for (let key in errors) {
-                            errorMsg += errors[key][0] + '\n';
-                        }
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: errorMsg || 'Gagal memperbarui departemen',
-                            icon: 'error',
-                            confirmButtonColor: '#dc3545'
-                        });
-                    }
-                });
-            });
+            // Handle Update Departemen - REMOVED (using new event delegated handler instead)
 
             // Handle Hapus Departemen button click
             $(document).on('click', '.btn-hapus-departemen', function() {
@@ -1904,6 +2071,366 @@
                         });
                     }
                 });
+            });
+
+            // ===== DIVISI HANDLERS =====
+
+            // Tambah Divisi Item
+            $(document).on('click', '#btnAddDivisiItem', function(e) {
+                e.preventDefault();
+                console.log('➕ Add divisi item clicked');
+                var container = $('#divisiContainer');
+                
+                var newItem = $(`
+                    <div class="row mb-2 divisi-item">
+                        <div class="col-10">
+                            <input type="text" class="form-control divisi-name" placeholder="Masukkan nama divisi" required>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-divisi">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                container.append(newItem);
+                updateDivisiButtons();
+            });
+
+            // Hapus Divisi Item
+            $(document).on('click', '.btn-remove-divisi', function(e) {
+                e.preventDefault();
+                console.log('❌ Remove divisi item clicked');
+                $(this).closest('.divisi-item').remove();
+                updateDivisiButtons();
+            });
+
+            // Update visibility dari delete button
+            function updateDivisiButtons() {
+                var items = $('#divisiContainer .divisi-item');
+                if (items.length > 1) {
+                    items.find('.btn-remove-divisi').show();
+                } else {
+                    items.find('.btn-remove-divisi').hide();
+                }
+            }
+
+            // Initialize divisi container with default item
+            function initDivisiContainer() {
+                console.log('🔄 initDivisiContainer called');
+                $('#divisiContainer').html(`
+                    <div class="row mb-2 divisi-item">
+                        <div class="col-10">
+                            <input type="text" class="form-control divisi-name" placeholder="Masukkan nama divisi" required>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-divisi" style="display: none;">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                updateDivisiButtons();
+            }
+
+            // ===== DIVISION MANAGEMENT IN EDIT MODE =====
+
+            function loadExistingDivisions(departmentId) {
+                console.log('🔍 loadExistingDivisions called with department ID:', departmentId);
+                $.ajax({
+                    url: '/api/divisions?department_id=' + departmentId,
+                    success: function(response) {
+                        console.log('✅ Division API response:', response);
+                        var container = $('#editContainerDivisi');
+                        container.html('');
+
+                        if (response.success && response.data && response.data.length > 0) {
+                            console.log('📋 Found', response.data.length, 'divisions');
+                            response.data.forEach(function(division) {
+                                console.log('  - Division:', division.id, division.name);
+                                var item = $(`
+                                    <div class="row mb-2 edit-divisi-item" data-division-id="${division.id}">
+                                        <div class="col-10">
+                                            <input type="text" class="form-control input-edit-divisi" value="${division.name}" readonly style="background-color: #f8f9fa;">
+                                        </div>
+                                        <div class="col-2 d-flex justify-content-end">
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-hapus-divisi-edit">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `);
+                                container.append(item);
+                            });
+                        } else {
+                            console.log('⚠️ No divisions found or empty response');
+                            container.html('<p class="text-muted">Belum ada divisi untuk departemen ini</p>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('❌ Error loading divisions:', status, error);
+                        console.error('❌ XHR:', xhr.status, xhr.responseText);
+                        $('#editContainerDivisi').html('<p class="text-danger">Gagal memuat divisi (Error: ' + xhr.status + ')</p>');
+                    }
+                });
+            }
+
+            // Handle tambah divisi baru button in edit mode
+            $(document).on('click', '#btnTambahDivisiEdit', function() {
+                console.log('🔘 Tambah Divisi Edit button clicked');
+                var container = $('#editContainerDivisi');
+                
+                // If container has "Belum ada divisi" text, replace it
+                if (container.find('p').length > 0) {
+                    container.html('');
+                }
+
+                var newItem = $(`
+                    <div class="row mb-2 edit-divisi-item-new">
+                        <div class="col-10">
+                            <input type="text" class="form-control input-new-divisi" placeholder="Masukkan nama divisi baru" required>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-cancel-divisi-baru">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                container.append(newItem);
+            });
+
+            // Handle delete existing division button
+            $(document).on('click', '.btn-hapus-divisi-edit', function(e) {
+                e.preventDefault();
+                var item = $(this).closest('.edit-divisi-item');
+                var divisionId = item.data('division-id');
+                var namaDivisi = item.find('.input-edit-divisi').val();
+
+                Swal.fire({
+                    title: 'Hapus Divisi?',
+                    html: '<strong>' + namaDivisi + '</strong>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/api/divisions/' + divisionId,
+                            type: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: 'Berhasil!',
+                                        text: 'Divisi berhasil dihapus!',
+                                        icon: 'success',
+                                        confirmButtonColor: '#28a745'
+                                    });
+                                    item.remove();
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: 'Gagal menghapus divisi',
+                                    icon: 'error',
+                                    confirmButtonColor: '#dc3545'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Handle cancel add new division
+            $(document).on('click', '.btn-cancel-divisi-baru', function(e) {
+                e.preventDefault();
+                $(this).closest('.edit-divisi-item-new').remove();
+            });
+
+            // Update handler untuk mencakup divisions
+            $(document).on('click', '#btnUpdateDepartemen', function(e) {
+                e.preventDefault();
+                console.log('Update departemen button clicked');
+                
+                var id = $('#editDepartemenId').val();
+                var namaDept = $('#editNamaDepartemen').val();
+                var newJabatanInputs = $('#editContainerJabatan .input-new-jabatan');
+                var newJabatanList = [];
+                var newDivisiInputs = $('#editContainerDivisi .input-new-divisi');
+                var newDivisiList = [];
+
+                if (!namaDept) {
+                    Swal.fire({
+                        title: 'Validasi!',
+                        text: 'Nama departemen harus diisi!',
+                        icon: 'warning',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                // Collect new positions
+                newJabatanInputs.each(function() {
+                    var value = $(this).val().trim();
+                    if (value) {
+                        newJabatanList.push(value);
+                    }
+                });
+
+                // Collect new divisions (unsaved)
+                newDivisiInputs.each(function() {
+                    var nilai = $(this).val().trim();
+                    if (nilai) {
+                        newDivisiList.push({
+                            name: nilai,
+                            description: ''
+                        });
+                    }
+                });
+
+                var submitBtn = $(this);
+                submitBtn.prop('disabled', true).html('<i class="bi bi-hourglass me-1"></i>Menyimpan...');
+
+                // First update department name
+                $.ajax({
+                    url: '/api/departments/' + id,
+                    type: 'PUT',
+                    data: {
+                        name: namaDept,
+                        status: 'active'
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        console.log('Department updated:', response);
+                        if (response.success) {
+                            var allRequests = [];
+
+                            // Create new positions
+                            newJabatanList.forEach(function(jabatan) {
+                                allRequests.push(
+                                    $.ajax({
+                                        url: '/api/positions',
+                                        type: 'POST',
+                                        data: {
+                                            name: jabatan,
+                                            department_id: id,
+                                            level: 1,
+                                            status: 'active'
+                                        },
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        }
+                                    })
+                                );
+                            });
+
+                            // Create new divisions
+                            newDivisiList.forEach(function(divisi) {
+                                allRequests.push(
+                                    $.ajax({
+                                        url: '/api/divisions',
+                                        type: 'POST',
+                                        data: {
+                                            department_id: id,
+                                            name: divisi.name,
+                                            description: divisi.description,
+                                            status: 'active'
+                                        },
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        }
+                                    })
+                                );
+                            });
+
+                            if (allRequests.length > 0) {
+                                $.when.apply($, allRequests).done(function() {
+                                    console.log('All items created successfully');
+                                    submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
+                                    var msg = 'Departemen berhasil diperbarui';
+                                    if (newJabatanList.length > 0) msg += ' dan ' + newJabatanList.length + ' jabatan ditambahkan';
+                                    if (newDivisiList.length > 0) msg += ' dan ' + newDivisiList.length + ' divisi ditambahkan';
+                                    
+                                    Swal.fire({
+                                        title: 'Berhasil!',
+                                        text: msg,
+                                        icon: 'success',
+                                        confirmButtonColor: '#28a745'
+                                    }).then(() => {
+                                        $('#modalEditDepartemen').modal('hide');
+                                        tableDepartemen.ajax.reload();
+                                        loadDepartemenDropdown();
+                                        loadPositionsByDepartment(id);
+                                    });
+                                }).fail(function() {
+                                    console.log('Some items failed to create');
+                                    submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
+                                    Swal.fire({
+                                        title: 'Berhasil Sebagian!',
+                                        text: 'Departemen diupdate tapi beberapa item gagal ditambahkan',
+                                        icon: 'warning',
+                                        confirmButtonColor: '#ffc107'
+                                    });
+                                });
+                            } else {
+                                console.log('No new items to create');
+                                submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Departemen berhasil diperbarui!',
+                                    icon: 'success',
+                                    confirmButtonColor: '#28a745'
+                                }).then(() => {
+                                    $('#modalEditDepartemen').modal('hide');
+                                    tableDepartemen.ajax.reload();
+                                });
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).html('<i class="bi bi-save me-1"></i>Update');
+                        var errors = xhr.responseJSON.errors || {};
+                        var errorMsg = 'Terjadi kesalahan: ';
+                        for (let key in errors) {
+                            errorMsg += errors[key][0] + '\n';
+                        }
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: errorMsg || 'Gagal mengupdate departemen',
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    }
+                });
+            });
+
+            // Update edit modal opening to load divisions
+            $(document).on('click', '.btn-edit-departemen', function() {
+                var id = $(this).data('id');
+                var departemen = $(this).data('departemen');
+
+                // Populate modal with data
+                $('#editDepartemenId').val(id);
+                $('#editNamaDepartemen').val(departemen);
+
+                // Load existing positions for this department
+                loadExistingPositions(id);
+                
+                // Load existing divisions for this department
+                loadExistingDivisions(id);
+
+                // Show modal
+                $('#modalEditDepartemen').modal('show');
             });
         });
     </script>

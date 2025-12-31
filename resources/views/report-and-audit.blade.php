@@ -155,73 +155,82 @@
                         <div class="tab-pane fade show active" id="matrikskompetensi" role="tabpanel"
                             aria-labelledby="matrikskompetensi-tab">
                             <div class="mt-4">
-                                {{-- Header dengan Filter Departemen --}}
+                                {{-- Header dengan Filter Departemen dan Divisi --}}
                                 <div class="row mb-4">
                                     <div class="col-md-4">
                                         <label for="filterDepartemen" class="form-label"><strong>Pilih Departemen:</strong></label>
                                         <select class="form-select" id="filterDepartemen">
                                             <option value="">-- Semua Departemen --</option>
-                                            <option value="quality">Quality</option>
-                                            <option value="maintenance">Maintenance</option>
-                                            <option value="ppc">PPC</option>
-                                            <option value="production">Produksi & Dev Engineering</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="filterDivisi" class="form-label"><strong>Pilih Divisi:</strong></label>
+                                        <select class="form-select" id="filterDivisi">
+                                            <option value="">-- Semua Divisi --</option>
                                         </select>
                                     </div>
                                 </div>
 
                                 {{-- Dashboard Stats --}}
                                 <div class="row mb-4" id="dashboardStats">
-                                    <div class="col-md-3 mb-3">
+                                    <div class="col-md-2 mb-3">
+                                        <div style="background-color: #f8f9fa; border-left: 4px solid #6c757d; padding: 15px; border-radius: 4px;">
+                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-0-count">0</div>
+                                            <small style="color: #666;">Level 0 (Belum Training)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
                                         <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
                                             <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-1-count">0</div>
-                                            <small style="color: #666;">Level 1 (Perlu Training)</small>
+                                            <small style="color: #666;">Level 1 (Sedang Belajar)</small>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 mb-3">
+                                    <div class="col-md-2 mb-3">
                                         <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
                                             <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-2-count">0</div>
-                                            <small style="color: #666;">Level 2 (Mandiri)</small>
+                                            <small style="color: #666;">Level 2 (Mulai Mandiri)</small>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 mb-3">
+                                    <div class="col-md-2 mb-3">
                                         <div style="background-color: #f8f9fa; border-left: 4px solid #0dcaf0; padding: 15px; border-radius: 4px;">
                                             <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-3-count">0</div>
-                                            <small style="color: #666;">Level 3 (Supervisor)</small>
+                                            <small style="color: #666;">Level 3 (Mandiri Penuh)</small>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 mb-3">
+                                    <div class="col-md-2 mb-3">
                                         <div style="background-color: #f8f9fa; border-left: 4px solid #198754; padding: 15px; border-radius: 4px;">
                                             <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-4-count">0</div>
-                                            <small style="color: #666;">Level 4 (Expert/Manager)</small>
+                                            <small style="color: #666;">Level 4 (Expert/Instruktur)</small>
                                         </div>
                                     </div>
                                 </div>
 
                                 {{-- Panduan Matriks Level --}}
                                 <div style="background-color: #f8f9fa; padding: 12px; border-left: 4px solid #3d7c2a; margin-bottom: 20px; border-radius: 4px;">
-                                    <strong style="font-size: 0.95rem;">Panduan Matriks Level:</strong>
+                                    <strong style="font-size: 0.95rem;">Panduan Level Kompetensi (Per Skill):</strong>
                                     <div style="font-size: 0.85rem; color: #666; margin-top: 8px; line-height: 1.6;">
-                                        <div><span style="color: #dc3545;">●</span> <strong>L1:</strong> Masih perlu dibimbing | <span style="color: #ffc107;">●</span> <strong>L2:</strong> Mulai bisa dilepas | <span style="color: #0dcaf0;">●</span> <strong>L3:</strong> Bisa mengerjakan sendiri | <span style="color: #198754;">●</span> <strong>L4:</strong> Bisa mengajarkan</div>
+                                        <div><span style="color: #6c757d;">●</span> <strong>L0:</strong> Belum melakukan training | <span style="color: #dc3545;">●</span> <strong>L1:</strong> Sedang dalam proses pembelajaran</div>
+                                        <div><span style="color: #ffc107;">●</span> <strong>L2:</strong> Mulai dapat dikerjakan dengan supervisi | <span style="color: #0dcaf0;">●</span> <strong>L3:</strong> Dapat dikerjakan mandiri dengan baik</div>
+                                        <div><span style="color: #198754;">●</span> <strong>L4:</strong> Mahir dan dapat mengajarkan ke karyawan lain</div>
                                     </div>
                                 </div>
 
-                                {{-- Tabel Kompetensi --}}
+                                {{-- Tabel Kompetensi Skill-Based --}}
+
                                 <div class="table-responsive">
-                                    <table class="table table-striped" id="competencyTable">
-                                        <thead>
+                                    <table class="table table-striped table-sm" id="skillMatrixTable">
+                                        <thead id="skillTableHead" style="background-color: #f8f9fa;">
                                             <tr>
                                                 <th style="width: 50px; text-align: center;">No</th>
-                                                <th style="width: 18%; text-align: left;">Nama & NIK</th>
-                                                <th style="width: 13%; text-align: left;">Departemen</th>
-                                                <th style="width: 16%; text-align: left;">Jabatan Saat Ini</th>
-                                                <th style="width: 12%; text-align: center;">Level Kompetensi</th>
-                                                <th style="width: 18%; text-align: left;">Wewenang / Status</th>
-                                                <th style="width: 10%; text-align: center;">Status Karyawan</th>
-                                                <th style="width: 9%; text-align: center;">History</th>
+                                                <th style="width: 14%; text-align: left;">Nama & NIK</th>
+                                                <th style="width: 12%; text-align: left;">Departemen</th>
+                                                <th style="width: 12%; text-align: left;">Jabatan</th>
+                                                <th style="width: 10%; text-align: center;">Status</th>
+                                                <!-- Skill columns akan diisi dynamically -->
                                             </tr>
                                         </thead>
-                                        <tbody id="tableBody" style="background-color: white;">
-                                            <!-- Data akan dimuat via JavaScript -->
+                                        <tbody id="skillTableBody" style="background-color: white;">
+                                            <tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -702,188 +711,204 @@
     <script src="{{ asset('assets/extensions/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
     <script>
-        // Competency level descriptions and colors
-        const levelDescriptions = {
-            1: 'Masih perlu dibimbing',
-            2: 'Mulai bisa dilepas',
-            3: 'Bisa mengerjakan sendiri dgn baik',
-            4: 'Bisa mengajarkan ke level rendah'
-        };
-
+        // Skill-based competency level colors
         const levelColors = {
-            1: '#dc3545',
-            2: '#ffc107',
-            3: '#0dcaf0',
-            4: '#198754'
-        };
-
-        // Department mapping for API filter (will be populated dynamically)
-        let departemenMap = {
-            '': null
+            0: '#6c757d',  // Grey - Belum training
+            1: '#dc3545',  // Red - Sedang belajar
+            2: '#ffc107',  // Yellow - Mulai mandiri
+            3: '#0dcaf0',  // Blue - Mandiri penuh
+            4: '#198754'   // Green - Expert/Instruktur
         };
 
         // Load department dropdown dynamically
-        function loadDepartemenFilterDynamis() {
-            const filterDepartemen = document.getElementById('filterDepartemen');
-            
+        function loadDepartemenDynamic() {
             $.ajax({
                 url: '/api/departments/list',
                 type: 'GET',
                 success: function(response) {
                     if (response.success && response.data) {
-                        // Clear existing options except first
-                        filterDepartemen.innerHTML = '<option value="">-- Semua Departemen --</option>';
+                        const filterDept = document.getElementById('filterDepartemen');
+                        filterDept.innerHTML = '<option value="">-- Semua Departemen --</option>';
                         
-                        // Rebuild departemenMap
-                        departemenMap = { '': null };
-                        
-                        // Add departments from API
                         response.data.forEach(function(dept) {
                             const option = document.createElement('option');
                             option.value = dept.id;
                             option.textContent = dept.name;
-                            filterDepartemen.appendChild(option);
-                            
-                            // Map department ID for API filter
-                            departemenMap[dept.id] = dept.id;
+                            filterDept.appendChild(option);
                         });
+                    }
+                }
+            });
+        }
+
+        // Load divisions based on selected department
+        function loadDivisiByDepartemen(departmentId) {
+            const filterDiv = document.getElementById('filterDivisi');
+            filterDiv.innerHTML = '<option value="">-- Semua Divisi --</option>';
+            
+            if (!departmentId) return;
+            
+            $.ajax({
+                url: '/api/divisions?department_id=' + departmentId,
+                type: 'GET',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        response.data.forEach(function(div) {
+                            const option = document.createElement('option');
+                            option.value = div.id;
+                            option.textContent = div.name;
+                            filterDiv.appendChild(option);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Load skill-based competency matrix
+        function loadSkillMatrixData() {
+            const deptId = document.getElementById('filterDepartemen').value;
+            const divId = document.getElementById('filterDivisi').value;
+            const tableBody = document.getElementById('skillTableBody');
+            const tableHead = document.getElementById('skillTableHead');
+            
+            let url = '/api/competencies/skills';
+            let params = [];
+            if (deptId) params.push('department_id=' + deptId);
+            if (divId) params.push('division_id=' + divId);
+            if (params.length > 0) url += '?' + params.join('&');
+            
+            console.log('Loading skill matrix from:', url);
+            
+            $.ajax({
+                url: url,
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log('Skill matrix response:', response);
+                    if (response.success) {
+                        renderSkillMatrix(response.data, response.skills, tableHead, tableBody);
+                    } else {
+                        tableBody.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Error: ' + response.message + '</td></tr>';
                     }
                 },
                 error: function(xhr) {
-                    console.error('Error loading departments:', xhr);
+                    console.error('Error loading skill matrix:', xhr);
+                    tableBody.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Gagal memuat data: ' + xhr.status + '</td></tr>';
                 }
             });
         }
 
-        // Initialize Competency Matrix
-        function initCompetencyMatrix() {
-            const filterDepartemen = document.getElementById('filterDepartemen');
-            const tableBody = document.getElementById('tableBody');
-
-            // Load initial data
-            loadCompetencyDataFromAPI('', tableBody);
-
-            // Filter on dropdown change
-            filterDepartemen.addEventListener('change', function() {
-                loadCompetencyDataFromAPI(this.value, tableBody);
-            });
-        }
-
-        // Load competency data from API
-        function loadCompetencyDataFromAPI(departemenFilter, tableBody) {
-            const departmentId = departemenMap[departemenFilter] || null;
-            let url = '/api/competencies';
+        // Render skill-based matrix
+        function renderSkillMatrix(employees, skills, tableHead, tableBody) {
+            console.log('renderSkillMatrix called with:', {employees, skills});
             
-            if (departmentId) {
-                url += '?department_id=' + departmentId;
-            }
-
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    renderCompetencyTable(result.data, tableBody);
-                } else {
-                    console.error('Failed to load competencies:', result.message);
-                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Gagal memuat data</td></tr>';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching competencies:', error);
-                tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error: ' + error.message + '</td></tr>';
-            });
-        }
-
-        // Render competency table
-        function renderCompetencyTable(data, tableBody) {
-            tableBody.innerHTML = '';
-
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Tidak ada data karyawan</td></tr>';
-                updateCompetencyStats({1: 0, 2: 0, 3: 0, 4: 0});
+            if (!employees || employees.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="' + (5 + skills.length) + '" class="text-center text-muted">Tidak ada data</td></tr>';
+                updateSkillStats({});
                 return;
             }
 
+            // Update header dengan skill columns
+            let headerHtml = `
+                <th style="width: 50px; text-align: center;">No</th>
+                <th style="width: 14%; text-align: left;">Nama & NIK</th>
+                <th style="width: 12%; text-align: left;">Departemen</th>
+                <th style="width: 12%; text-align: left;">Jabatan</th>
+                <th style="width: 10%; text-align: center;">Status</th>
+            `;
+            
+            skills.forEach(skill => {
+                headerHtml += `<th style="width: 8%; text-align: center; font-size: 0.85rem;" data-skill-id="${skill.id}">${escapeHtml(skill.code)}</th>`;
+            });
+            
+            tableHead.innerHTML = '<tr>' + headerHtml + '</tr>';
+
             // Calculate stats
-            const stats = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            const stats = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
 
-            // Render rows - renumber based on filtered data
-            data.forEach((item, index) => {
-                const level = item.level || 1;
-                stats[level]++;
-
-                const badgeColor = levelColors[level];
-                const wewenang = levelDescriptions[level];
-                
-                // Determine status badge
-                const statusBadge = item.status === 'active' 
+            // Render rows
+            let bodyHtml = '';
+            employees.forEach((emp, index) => {
+                const statusBadge = emp.status === 'active' 
                     ? '<span class="badge bg-success">Aktif</span>'
                     : '<span class="badge bg-warning text-dark">Non-Aktif</span>';
 
-                const row = `
+                let rowHtml = `
                     <tr>
                         <td style="text-align: center; vertical-align: middle;">${index + 1}</td>
                         <td style="text-align: left;">
-                            <div style="font-weight: 600; color: #333;">${item.nama}</div>
-                            <div style="font-size: 0.85rem; color: #666;">NIK: ${item.nik}</div>
+                            <div style="font-weight: 600; color: #333;">${escapeHtml(emp.nama)}</div>
+                            <div style="font-size: 0.85rem; color: #666;">NIK: ${escapeHtml(emp.nik)}</div>
                         </td>
-                        <td style="text-align: left; font-size: 0.9rem;">${item.departemen}</td>
-                        <td style="text-align: left; font-size: 0.95rem;">${item.jabatan}</td>
-                        <td style="text-align: center;">
-                            <span style="display: inline-block; padding: 8px 16px; background-color: ${badgeColor}; color: white; border-radius: 6px; font-weight: 600; font-size: 0.95rem;">
-                                Level ${level}
-                            </span>
-                        </td>
-                        <td style="text-align: left; font-size: 0.9rem; color: #555; line-height: 1.4;">
-                            ${wewenang}
-                        </td>
-                        <td style="text-align: center;">
-                            ${statusBadge}
-                        </td>
-                        <td style="text-align: center;">
-                            <button class="btn btn-sm" style="background-color: #3d7c2a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;" onclick="showCompetencyHistory('${item.nik}', '${item.nama}', ${level}, '${wewenang}')">
-                                <i class="bi bi-clock-history"></i> History
-                            </button>
-                        </td>
-                    </tr>
+                        <td style="text-align: left; font-size: 0.9rem;">${escapeHtml(emp.departemen)}</td>
+                        <td style="text-align: left; font-size: 0.9rem;">${escapeHtml(emp.jabatan)}</td>
+                        <td style="text-align: center;">${statusBadge}</td>
                 `;
 
-                tableBody.innerHTML += row;
+                // Add skill level cells
+                skills.forEach(skill => {
+                    const skillData = emp.skills[skill.id];
+                    const level = skillData ? skillData.level : 0;
+                    const badgeColor = levelColors[level];
+                    
+                    stats[level]++;
+                    
+                    rowHtml += `
+                        <td style="text-align: center; vertical-align: middle;">
+                            <span style="display: inline-block; padding: 6px 8px; background-color: ${badgeColor}; color: white; border-radius: 4px; font-weight: 600; font-size: 0.8rem;">
+                                L${level}
+                            </span>
+                        </td>
+                    `;
+                });
+
+                rowHtml += '</tr>';
+                bodyHtml += rowHtml;
             });
 
-            // Update stats
-            updateCompetencyStats(stats);
+            tableBody.innerHTML = bodyHtml;
+            updateSkillStats(stats);
         }
 
-        // Update competency dashboard stats
-        function updateCompetencyStats(stats) {
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Update dashboard stats
+        function updateSkillStats(stats) {
+            // Default to 0 for all levels if stats is empty
+            stats = stats || {};
+            document.querySelector('.level-0-count').textContent = stats[0] || 0;
             document.querySelector('.level-1-count').textContent = stats[1] || 0;
             document.querySelector('.level-2-count').textContent = stats[2] || 0;
             document.querySelector('.level-3-count').textContent = stats[3] || 0;
             document.querySelector('.level-4-count').textContent = stats[4] || 0;
         }
 
-        // Show competency history (demo for now)
-        function showCompetencyHistory(nik, nama, level, wewenang) {
-            const historyData = [
-                { tanggal: '2025-01-15', level: level, catatan: 'Evaluasi terbaru' },
-                { tanggal: '2024-12-01', level: Math.max(1, level - 1), catatan: 'Promosi' }
-            ];
-
-            alert(`Riwayat Kompetensi ${nama} (NIK: ${nik}):\n\n${historyData.map(h => `Level ${h.level} - ${h.catatan} (${h.tanggal})`).join('\n')}\n\nWewenang: ${wewenang}`);
-        }
-
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            loadDepartemenFilterDynamis();
-            initCompetencyMatrix();
+            loadDepartemenDynamic();
+            loadSkillMatrixData();
+
+            // Filter event listeners
+            document.getElementById('filterDepartemen').addEventListener('change', function() {
+                loadDivisiByDepartemen(this.value);
+                loadSkillMatrixData();
+            });
+
+            document.getElementById('filterDivisi').addEventListener('change', function() {
+                loadSkillMatrixData();
+            });
         });
     </script>
 @endpush
