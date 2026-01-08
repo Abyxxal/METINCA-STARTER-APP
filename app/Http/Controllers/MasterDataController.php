@@ -9,6 +9,7 @@ use App\Models\Division;
 use App\Models\Skill;
 use App\Models\EmployeeCompetency;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * MasterDataController
@@ -84,17 +85,32 @@ class MasterDataController extends Controller
         try {
             $employee = Employee::findOrFail($id);
 
-            // Validasi input
-            $validated = $request->validate([
-                'nik' => 'required|unique:employees,nik,' . $id . ',nik',
+            // Build validation rules dynamically
+            $rules = [
                 'nama_karyawan' => 'required|string',
-                'email' => 'required|email|unique:employees,email,' . $id . ',nik',
                 'password' => 'nullable|string|min:6',
                 'department_id' => 'required|exists:departments,id',
                 'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
                 'status' => 'required|in:active,inactive,resigned',
-            ]);
+            ];
+
+            // Only validate NIK uniqueness if it changed
+            $newNik = $request->input('nik');
+            if ($newNik !== $employee->nik) {
+                // NIK changed, validate uniqueness
+                $rules['nik'] = ['required', Rule::unique('employees', 'nik')];
+            } else {
+                // NIK didn't change, just require it
+                $rules['nik'] = 'required';
+            }
+
+            // Always validate email uniqueness but exclude current record
+            $rules['email'] = ['required', 'email', Rule::unique('employees', 'email')->where(function ($query) use ($id) {
+                return $query->where('nik', '!=', $id);
+            })];
+
+            $validated = $request->validate($rules);
 
             // Hash password hanya jika ada perubahan
             if (isset($validated['password']) && $validated['password']) {
@@ -876,6 +892,53 @@ class MasterDataController extends Controller
                 'success' => false, 
                 'message' => $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * Reset password karyawan ke password default
+     * 
+     * @param string $id (NIK atau Employee ID)
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetEmployeePassword($id)
+    {
+        try {
+            // Find employee by NIK or ID
+            $employee = Employee::where('nik', $id)->orWhere('id', $id)->first();
+
+            if (!$employee) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Karyawan tidak ditemukan'
+                ], 404);
+            }
+
+            // Get associated user
+            $user = $employee->user;
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User terkait tidak ditemukan'
+                ], 404);
+            }
+
+            // Set default password (use NIK as default password)
+            $defaultPassword = $employee->nik;
+            $user->update([
+                'password' => bcrypt($defaultPassword)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password karyawan berhasil direset ke NIK: ' . $employee->nik
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

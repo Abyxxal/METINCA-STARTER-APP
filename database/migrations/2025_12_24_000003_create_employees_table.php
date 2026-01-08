@@ -18,12 +18,14 @@ return new class extends Migration
             $table->string('password')->comment('Password Karyawan');
             $table->foreignId('department_id')->constrained('departments')->onDelete('restrict')->comment('ID Departemen');
             $table->foreignId('position_id')->constrained('positions')->onDelete('restrict')->comment('ID Jabatan');
+            $table->foreignId('division_id')->nullable()->constrained('divisions')->onDelete('set null')->comment('ID Divisi');
             $table->enum('status', ['active', 'inactive', 'resigned'])->default('active')->comment('Status Karyawan');
             $table->timestamps();
 
             // Indexes untuk performa
             $table->index('department_id');
             $table->index('position_id');
+            $table->index('division_id');
             $table->index('status');
         });
     }

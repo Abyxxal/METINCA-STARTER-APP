@@ -19,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/employees/{id}', [MasterDataController::class, 'destroyEmployee']);
     Route::get('/employees/{id}', [MasterDataController::class, 'getEmployee']); // Fetch single employee
     Route::get('/employees', [MasterDataController::class, 'getEmployees']);
+    Route::post('/employees/{id}/reset-password', [MasterDataController::class, 'resetEmployeePassword']); // Reset employee password
 
     // ============================================
     // DEPARTMENT ROUTES

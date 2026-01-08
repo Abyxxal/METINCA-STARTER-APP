@@ -138,6 +138,12 @@ Route::middleware(['auth'])->group(function(){
             return view('master-data');
         })->name('master-data');
 
+        // GET /departments/{id} - Halaman Detail Departemen
+        // Fungsi: Melihat dan mengelola divisi & jabatan dalam departemen
+        Route::get('/departments/{id}', function($id){
+            return view('departments.show');
+        })->name('departments.show');
+
         // ============================================
         // EMPLOYEE IMPORT ROUTES
         // ============================================
