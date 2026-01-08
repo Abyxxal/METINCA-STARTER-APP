@@ -13,14 +13,9 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique()->comment('Nama Departemen');
-            $table->text('description')->nullable()->comment('Deskripsi Departemen');
-            $table->integer('employee_count')->default(0)->comment('Jumlah Karyawan');
-            $table->enum('status', ['active', 'inactive'])->default('active')->comment('Status Departemen');
+            $table->string('name')->unique();
+            $table->text('description')->nullable();
             $table->timestamps();
-
-            // Index untuk performa query
-            $table->index('status');
         });
     }
 

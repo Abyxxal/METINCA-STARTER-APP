@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Employee Model
+ * 
+ * Merepresentasikan karyawan dalam organisasi.
+ * Employee terasign ke Department, Division, dan Position.
+ * 
+ * Hierarchy Path: Department > Division > Position > Employee
+ */
 class Employee extends Model
 {
     use HasFactory;
@@ -18,13 +26,14 @@ class Employee extends Model
 
     protected $fillable = [
         'nik',
-        'nama_karyawan',
+        'name',
         'email',
-        'password',
+        'phone',
         'department_id',
         'division_id',
         'position_id',
         'status',
+        'join_date',
     ];
 
     protected $hidden = [
@@ -33,10 +42,17 @@ class Employee extends Model
 
     protected $casts = [
         'status' => 'string',
+        'join_date' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
+    // ============================================
+    // RELATIONSHIPS
+    // ============================================
+
     /**
-     * Relation: Employee dimiliki oleh satu Department
+     * Relation: Employee belongs to Department
      */
     public function department(): BelongsTo
     {
@@ -44,7 +60,7 @@ class Employee extends Model
     }
 
     /**
-     * Relation: Employee dimiliki oleh satu Division
+     * Relation: Employee belongs to Division
      */
     public function division(): BelongsTo
     {
@@ -52,7 +68,7 @@ class Employee extends Model
     }
 
     /**
-     * Relation: Employee dimiliki oleh satu Position
+     * Relation: Employee belongs to Position
      */
     public function position(): BelongsTo
     {

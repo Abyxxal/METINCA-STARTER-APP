@@ -15,14 +15,13 @@
                 <form id="formEditDepartment">
                     <!-- Section 1: Department Info -->
                     <div class="mb-4">
-                        <label for="inputNamaDepartemen" class="form-label fw-bold mb-2">
+                        <label for="inputEditNamaDepartemen" class="form-label fw-bold mb-2">
                             <i class="bi bi-building me-2"></i>Nama Departemen
                         </label>
                         <input 
                             type="text" 
                             class="form-control" 
-                            id="inputNamaDepartemen" 
-                            value="Information Technology"
+                            id="inputEditNamaDepartemen" 
                             placeholder="Masukkan nama departemen"
                         >
                     </div>

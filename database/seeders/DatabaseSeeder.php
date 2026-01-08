@@ -7,6 +7,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * DatabaseSeeder - Users
+ */
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -16,13 +19,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Run seeders
-        $this->call([
-            DepartmentAndPositionSeeder::class,
-            EmployeeSeeder::class,
-            EmployeeCompetencySeeder::class,
-        ]);
-
+        // ============================================
+        // CREATE ADMIN & USER ACCOUNTS
+        // ============================================
+        
         // Create Admin User
         User::factory()->create([
             'name' => 'Admin User',

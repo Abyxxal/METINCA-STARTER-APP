@@ -42,17 +42,15 @@ class MasterDataController extends Controller
             // Validasi input
             $validated = $request->validate([
                 'nik' => 'required|unique:employees,nik',
-                'nama_karyawan' => 'required|string',
+                'name' => 'required|string',
                 'email' => 'required|email|unique:employees,email',
-                'password' => 'required|string|min:6',
+                'phone' => 'nullable|string',
                 'department_id' => 'required|exists:departments,id',
                 'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
-                'status' => 'required|in:active,inactive,resigned',
+                'status' => 'required|in:Aktif,Non-Aktif,Cuti',
+                'join_date' => 'nullable|date',
             ]);
-
-            // Hash password sebelum disimpan
-            $validated['password'] = bcrypt($validated['password']);
 
             // Buat record karyawan baru
             $employee = Employee::create($validated);
@@ -87,12 +85,13 @@ class MasterDataController extends Controller
 
             // Build validation rules dynamically
             $rules = [
-                'nama_karyawan' => 'required|string',
-                'password' => 'nullable|string|min:6',
+                'name' => 'required|string',
+                'phone' => 'nullable|string',
                 'department_id' => 'required|exists:departments,id',
                 'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
-                'status' => 'required|in:active,inactive,resigned',
+                'status' => 'required|in:Aktif,Non-Aktif,Cuti',
+                'join_date' => 'nullable|date',
             ];
 
             // Only validate NIK uniqueness if it changed
@@ -111,13 +110,6 @@ class MasterDataController extends Controller
             })];
 
             $validated = $request->validate($rules);
-
-            // Hash password hanya jika ada perubahan
-            if (isset($validated['password']) && $validated['password']) {
-                $validated['password'] = bcrypt($validated['password']);
-            } else {
-                unset($validated['password']);
-            }
 
             // Update record karyawan
             $employee->update($validated);
@@ -145,7 +137,7 @@ class MasterDataController extends Controller
     {
         try {
             $employee = Employee::findOrFail($id);
-            $name = $employee->nama_karyawan;
+            $name = $employee->name;
             $employee->delete();
 
             return response()->json([
@@ -281,9 +273,9 @@ class MasterDataController extends Controller
             $employees = Employee::with([
                 'department:id,name', 
                 'division:id,name', 
-                'position:id,name,department_id'
+                'position:id,name,division_id'
             ])
-            ->select('nik', 'nama_karyawan', 'email', 'department_id', 'division_id', 'position_id', 'status', 'created_at', 'updated_at')
+            ->select('nik', 'name', 'email', 'department_id', 'division_id', 'position_id', 'status', 'created_at', 'updated_at')
             ->get();
 
             return response()->json([
@@ -383,26 +375,27 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Mengambil daftar jabatan berdasarkan departemen
-     * Query parameter: department_id (required)
+     * Mengambil daftar jabatan berdasarkan divisi
+     * Query parameter: division_id (required)
+     * IMPORTANT: Positions sekarang child dari Divisions, bukan Departments
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getPositionsByDepartment(Request $request)
+    public function getPositionsByDivision(Request $request)
     {
         try {
-            $departmentId = $request->get('department_id');
+            $divisionId = $request->get('division_id');
             
-            if (!$departmentId) {
+            if (!$divisionId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'department_id required'
+                    'message' => 'division_id required'
                 ], 400);
             }
 
-            // Query jabatan yang sesuai departemen
-            $positions = Position::where('department_id', $departmentId)
+            // Query jabatan yang sesuai divisi
+            $positions = Position::where('division_id', $divisionId)
                 ->select('id', 'name')
                 ->orderBy('name')
                 ->get();
@@ -420,7 +413,8 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Menyimpan jabatan baru untuk departemen
+     * Menyimpan jabatan baru untuk divisi
+     * IMPORTANT: Position sekarang child dari Division, bukan Department
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -431,19 +425,8 @@ class MasterDataController extends Controller
             // Validasi input
             $validated = $request->validate([
                 'name' => 'required|string',
-                'department_id' => 'required|exists:departments,id',
-                'level' => 'nullable|integer|min:1',
-                'description' => 'nullable|string',
-                'status' => 'nullable|in:active,inactive'
+                'division_id' => 'required|exists:divisions,id',
             ]);
-
-            // Set nilai default
-            if (!isset($validated['level'])) {
-                $validated['level'] = 1;
-            }
-            if (!isset($validated['status'])) {
-                $validated['status'] = 'active';
-            }
 
             // Buat record jabatan baru
             $position = Position::create($validated);
@@ -510,7 +493,7 @@ class MasterDataController extends Controller
                 ->leftJoin('employee_competencies', 'employees.nik', '=', 'employee_competencies.nik')
                 ->select([
                     'employees.nik',
-                    'employees.nama_karyawan',
+                    'employees.name',
                     'employees.department_id',
                     'employees.position_id',
                     'employees.status',
@@ -535,7 +518,7 @@ class MasterDataController extends Controller
                 return [
                     'id' => $employee->nik,
                     'nik' => $employee->nik,
-                    'nama' => $employee->nama_karyawan,
+                    'nama' => $employee->name,
                     'jabatan' => $employee->nama_jabatan ?? 'N/A',
                     'departemen' => $employee->nama_departemen ?? 'N/A',
                     'level' => $employee->level ?? 1,
@@ -824,7 +807,7 @@ class MasterDataController extends Controller
             foreach ($employees as $emp) {
                 $empData = [
                     'nik' => $emp->nik,
-                    'nama' => $emp->nama_karyawan,
+                    'nama' => $emp->name,
                     'departemen' => $emp->department->name,
                     'jabatan' => $emp->position->name,
                     'status' => $emp->status,

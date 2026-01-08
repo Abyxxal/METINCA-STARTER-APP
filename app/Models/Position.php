@@ -7,29 +7,39 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Position Model
+ * 
+ * Merepresentasikan posisi/jabatan dalam divisi.
+ * IMPORTANT CHANGE: Position sekarang adalah child dari Division (bukan Department).
+ * 
+ * Hierarchy: Department > Division > Position > Employee
+ */
 class Position extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'division_id',
         'name',
-        'department_id',
-        'level',
-        'description',
-        'status',
     ];
 
     protected $casts = [
-        'level' => 'integer',
-        'status' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
+    // ============================================
+    // RELATIONSHIPS
+    // ============================================
+
     /**
-     * Relation: Position dimiliki oleh satu Department
+     * Relation: Position belongs to Division (parent)
+     * IMPORTANT: Changed from department_id to division_id
      */
-    public function department(): BelongsTo
+    public function division(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Division::class);
     }
 
     /**

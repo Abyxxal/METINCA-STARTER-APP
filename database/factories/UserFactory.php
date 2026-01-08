@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'role' => 'user',
             'profile_photo_url' => null,
-            'employee_id' => null,
+            'employee_nik' => null,
         ];
     }
 
