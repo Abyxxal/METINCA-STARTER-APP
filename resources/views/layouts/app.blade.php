@@ -406,11 +406,11 @@
                                 </div>
                                 <div class="topbar-user-avatar">
                                     @if(auth()->user()->employee && auth()->user()->employee->profile_photo_url)
-                                        <img src="{{ asset('storage/' . auth()->user()->employee->profile_photo_url) }}" alt="{{ auth()->user()->name }}">
+                                        <img src="{{ asset('storage/' . auth()->user()->employee->profile_photo_url) }}" alt="{{ auth()->user()->name }}" loading="lazy">
                                     @elseif(auth()->user()->profile_photo_url)
-                                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_url) }}" alt="{{ auth()->user()->name }}">
+                                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_url) }}" alt="{{ auth()->user()->name }}" loading="lazy">
                                     @else
-                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Avatar">
+                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Avatar" loading="lazy">
                                     @endif
                                 </div>
                             </button>

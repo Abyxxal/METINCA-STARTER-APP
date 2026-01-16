@@ -12,6 +12,7 @@ use App\Models\EmployeeCompetency;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * MasterDataController
@@ -245,6 +246,10 @@ class MasterDataController extends Controller
             // Buat record departemen baru
             $department = Department::create($validated);
 
+            // Clear cache setelah create
+            Cache::forget('departments_list');
+            Cache::forget('departments_with_counts');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Departemen berhasil ditambahkan',
@@ -450,11 +455,13 @@ class MasterDataController extends Controller
     public function listDepartments()
     {
         try {
-            // Query hanya departemen aktif, urutkan abjad
-            $departments = Department::select('id', 'name')
-                ->where('status', 'active')
-                ->orderBy('name')
-                ->get();
+            // Cache selama 1 jam (3600 detik)
+            $departments = Cache::remember('departments_list', 3600, function() {
+                return Department::select('id', 'name')
+                    ->where('status', 'active')
+                    ->orderBy('name')
+                    ->get();
+            });
 
             return response()->json([
                 'success' => true,
@@ -477,11 +484,13 @@ class MasterDataController extends Controller
     public function getDepartments()
     {
         try {
-            // Query dengan count relasi employees dan divisions
-            $departments = Department::withCount('employees')
-                ->withCount('divisions')
-                ->orderBy('name')
-                ->get();
+            // Cache selama 30 menit (1800 detik) karena include counts
+            $departments = Cache::remember('departments_with_counts', 1800, function() {
+                return Department::withCount('employees')
+                    ->withCount('divisions')
+                    ->orderBy('name')
+                    ->get();
+            });
 
             return response()->json([
                 'success' => true,
@@ -515,11 +524,13 @@ class MasterDataController extends Controller
                 ], 400);
             }
 
-            // Query jabatan yang sesuai divisi
-            $positions = Position::where('division_id', $divisionId)
-                ->select('id', 'name')
-                ->orderBy('name')
-                ->get();
+            // Cache per division selama 1 jam
+            $positions = Cache::remember("positions_division_{$divisionId}", 3600, function() use ($divisionId) {
+                return Position::where('division_id', $divisionId)
+                    ->select('id', 'name')
+                    ->orderBy('name')
+                    ->get();
+            });
 
             return response()->json([
                 'success' => true,

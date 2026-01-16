@@ -29,7 +29,7 @@
                     <div class="card-body text-center">
                         <div class="mb-3">
                             @if(Auth::user()->photo)
-                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="{{ Auth::user()->name }}" 
+                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="{{ Auth::user()->name }}" loading="lazy" 
                                      class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
                             @else
                                 <div class="rounded-circle bg-light-primary d-inline-flex align-items-center justify-content-center" 

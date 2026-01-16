@@ -232,8 +232,18 @@ document.addEventListener('DOMContentLoaded', function() {
         filteredCountSpan.textContent = `(${visibleCount} karyawan ditampilkan)`;
     }
 
-    // Search employees
-    searchInput.addEventListener('input', filterEmployees);
+    // Debounce utility function
+    function debounce(func, delay = 500) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Search employees with debounce
+    const debouncedFilter = debounce(filterEmployees, 500);
+    searchInput.addEventListener('input', debouncedFilter);
     divisionFilter.addEventListener('change', filterEmployees);
 
     // Initial filter

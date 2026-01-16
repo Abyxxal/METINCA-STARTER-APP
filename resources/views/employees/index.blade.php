@@ -620,6 +620,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Debounce utility function
+        function debounce(func, delay = 500) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
         // Reset Filter Function
         function resetFilters() {
             document.getElementById('filterDepartemen').value = '';
@@ -665,10 +674,14 @@
             });
         });
 
-        // Search Function
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            console.log('Search:', this.value);
+        // Search Function with Debounce
+        const handleSearch = debounce(function(searchValue) {
+            console.log('Search:', searchValue);
             // Filter logic would go here
+        }, 500);
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            handleSearch(this.value);
         });
 
         // Filter Change Events

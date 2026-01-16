@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\Skill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * ExamController
@@ -27,7 +28,9 @@ class ExamController extends Controller
             ->latest()
             ->get();
 
-        $skills = Skill::where('is_active', true)->get();
+        $skills = Cache::remember('active_skills', 3600, function() {
+            return Skill::where('is_active', true)->get();
+        });
 
         return view('cbt.admin.exams.index', compact('exams', 'skills'));
     }
@@ -127,7 +130,9 @@ class ExamController extends Controller
             $query->orderBy('exam_question.order');
         }]);
 
-        $skills = Skill::where('is_active', true)->get();
+        $skills = Cache::remember('active_skills', 3600, function() {
+            return Skill::where('is_active', true)->get();
+        });
         $availableQuestions = Question::where('status', 'active')
             ->where('skill_id', $exam->skill_id)
             ->where('for_level', '<=', $exam->target_level)

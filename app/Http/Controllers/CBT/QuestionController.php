@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\Skill;
 use App\Models\Division;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * QuestionController
@@ -55,15 +56,21 @@ class QuestionController extends Controller
         }
 
         $questionSets = $query->latest('created_at')->paginate(20);
-        $divisions = Division::with('department')->orderBy('name')->get();
+        $divisions = Cache::remember('divisions_with_dept', 3600, function() {
+            return Division::with('department')->orderBy('name')->get();
+        });
         
         // Get skills - if division selected, only show skills from that division
         if ($request->division_id) {
-            $skills = Skill::where('is_active', true)
-                ->where('division_id', $request->division_id)
-                ->get();
+            $skills = Cache::remember("skills_division_{$request->division_id}", 3600, function() use ($request) {
+                return Skill::where('is_active', true)
+                    ->where('division_id', $request->division_id)
+                    ->get();
+            });
         } else {
-            $skills = Skill::where('is_active', true)->get();
+            $skills = Cache::remember('active_skills', 3600, function() {
+                return Skill::where('is_active', true)->get();
+            });
         }
 
         return view('cbt.admin.questions.index', compact('questionSets', 'skills', 'divisions'));

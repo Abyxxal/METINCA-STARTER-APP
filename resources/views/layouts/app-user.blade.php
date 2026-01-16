@@ -170,7 +170,7 @@
                                     <div class="topbar-user-role">Karyawan</div>
                                 </div>
                                 <div class="topbar-user-avatar">
-                                    <img src="{{ Auth::user()->profile_photo_url ?? asset('assets/compiled/jpg/1.jpg') }}" alt="Avatar">
+                                    <img src="{{ Auth::user()->profile_photo_url ?? asset('assets/compiled/jpg/1.jpg') }}" alt="Avatar" loading="lazy">
                                 </div>
                             </button>
                             
