@@ -1,142 +1,159 @@
 @extends('layouts.app-user')
 
+@section('title', 'Pelatihan Saya')
+
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3">Pelatihan Saya</h1>
-            <p class="text-muted">Daftar pelatihan yang ditugaskan untuk Anda</p>
-        </div>
-    </div>
-
-    <!-- Filter & Search -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Cari pelatihan...">
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select">
-                                <option value="">Semua Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="in_progress">Dalam Proses</option>
-                                <option value="completed">Selesai</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select">
-                                <option value="">Semua Level</option>
-                                <option value="1">Level 1 - Basic</option>
-                                <option value="2">Level 2 - Intermediate</option>
-                                <option value="3">Level 3 - Advanced</option>
-                                <option value="4">Level 4 - Expert</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Daftar Pelatihan</h3>
+                <p class="text-subtitle text-muted">Pelatihan yang belum atau sedang Anda kerjakan</p>
             </div>
-        </div>
-    </div>
-
-    <!-- Training List -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light border-bottom">
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Pelatihan</th>
-                                <th>Kategori</th>
-                                <th>Level</th>
-                                <th>Status</th>
-                                <th>Deadline</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><strong>Safety Training - Level 1</strong></td>
-                                <td><span class="badge bg-secondary">Safety</span></td>
-                                <td><span class="badge bg-info">Level 1</span></td>
-                                <td><span class="badge bg-warning">Pending</span></td>
-                                <td>31 Des 2025</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Mulai Pelatihan">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td><strong>Quality Control Basics</strong></td>
-                                <td><span class="badge bg-primary">Quality</span></td>
-                                <td><span class="badge bg-info">Level 1</span></td>
-                                <td><span class="badge bg-info">In Progress</span></td>
-                                <td>15 Jan 2026</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Lanjutkan">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td><strong>Machine Operation - Advanced</strong></td>
-                                <td><span class="badge bg-success">Operation</span></td>
-                                <td><span class="badge bg-danger">Level 3</span></td>
-                                <td><span class="badge bg-success">Completed</span></td>
-                                <td>20 Jan 2026</td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Lihat Sertifikat">
-                                        <i class="fas fa-certificate"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td><strong>ISO 9001 Implementation</strong></td>
-                                <td><span class="badge bg-warning text-dark">Management</span></td>
-                                <td><span class="badge bg-warning">Level 2</span></td>
-                                <td><span class="badge bg-warning">Pending</span></td>
-                                <td>28 Feb 2026</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Mulai Pelatihan">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td><strong>Emergency Response Team</strong></td>
-                                <td><span class="badge bg-danger">Safety</span></td>
-                                <td><span class="badge bg-danger">Level 4</span></td>
-                                <td><span class="badge bg-info">In Progress</span></td>
-                                <td>15 Mar 2026</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Lanjutkan">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Pelatihan Saya</li>
+                    </ol>
+                </nav>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    // Enable tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-</script>
+<section class="section">
+    <!-- Filter & Search -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input type="text" name="search" class="form-control" placeholder="Cari pelatihan..." value="{{ request('search') }}" onchange="window.autoSubmitForm(this.form)">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-select" onchange="window.autoSubmitForm(this.form)">
+                            <option value="">Semua Status</option>
+                            <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>Belum Dimulai</option>
+                            <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>Sedang Dikerjakan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="level" class="form-select" onchange="window.autoSubmitForm(this.form)">
+                            <option value="">Semua Level</option>
+                            <option value="1" {{ request('level') == '1' ? 'selected' : '' }}>Level 1</option>
+                            <option value="2" {{ request('level') == '2' ? 'selected' : '' }}>Level 2</option>
+                            <option value="3" {{ request('level') == '3' ? 'selected' : '' }}>Level 3</option>
+                            <option value="4" {{ request('level') == '4' ? 'selected' : '' }}>Level 4</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Training List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Pelatihan</th>
+                            <th>Kategori</th>
+                            <th>Level</th>
+                            <th>Status</th>
+                            <th>Deadline</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($sessions as $i => $session)
+                            <tr>
+                                <td>{{ $sessions->firstItem() + $i }}</td>
+                                <td>
+                                    <strong>{{ $session->exam->title }}</strong>
+                                    @if($session->exam->description)
+                                        <br><small class="text-muted">{{ Str::limit($session->exam->description, 50) }}</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ $session->exam->skill->name ?? '-' }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">Level {{ $session->exam->target_level }}</span>
+                                </td>
+                                <td>
+                                    @if($session->status === 'assigned')
+                                        <span class="badge bg-warning">
+                                            <i class="bi bi-clock"></i> Belum Dimulai
+                                        </span>
+                                    @elseif($session->status === 'started')
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-play-circle"></i> Sedang Dikerjakan
+                                        </span>
+                                    @elseif($session->status === 'submitted')
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-hourglass-split"></i> Menunggu Verifikasi
+                                        </span>
+                                    @elseif($session->status === 'verified_pass')
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Lulus ({{ $session->score }}%)
+                                        </span>
+                                    @elseif($session->status === 'verified_fail')
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-x-circle"></i> Tidak Lulus ({{ $session->score }}%)
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($session->created_at)
+                                        {{ $session->created_at->addDays(30)->format('d M Y') }}
+                                        <br>
+                                        <small class="text-muted">{{ $session->created_at->addDays(30)->diffForHumans() }}</small>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($session->status === 'assigned')
+                                        <a href="{{ route('cbt.employee.show', $session->id) }}" class="btn btn-sm btn-primary" title="Mulai Pelatihan">
+                                            <i class="bi bi-play-circle"></i> Mulai
+                                        </a>
+                                    @elseif($session->status === 'started')
+                                        <a href="{{ route('cbt.employee.take', $session->id) }}" class="btn btn-sm btn-warning" title="Lanjutkan Mengerjakan">
+                                            <i class="bi bi-arrow-clockwise"></i> Lanjutkan
+                                        </a>
+                                    @elseif($session->status === 'submitted')
+                                        <a href="{{ route('cbt.employee.result', $session->id) }}" class="btn btn-sm btn-secondary" title="Lihat Status Verifikasi">
+                                            <i class="bi bi-hourglass-split"></i> Lihat Status
+                                        </a>
+                                    @else
+                                        <a href="{{ route('cbt.employee.result', $session->id) }}" class="btn btn-sm btn-info" title="Lihat Hasil Ujian">
+                                            <i class="bi bi-eye"></i> Lihat Hasil
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    <p class="mb-0">Belum ada pelatihan yang ditugaskan.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if($sessions->hasPages())
+                <div class="d-flex justify-content-end mt-3">
+                    {{ $sessions->withQueryString()->links() }}
+                </div>
+            @endif
+        </div>
+    </div>
+</section>
 @endsection

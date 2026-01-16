@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('nik')->unique();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
             
             // Foreign keys to the hierarchy
             $table->foreignId('department_id')
@@ -30,7 +29,7 @@ return new class extends Migration
                 ->onDelete('restrict');
             
             // Employee status
-            $table->enum('status', ['Aktif', 'Non-Aktif', 'Cuti'])->default('Aktif');
+            $table->enum('status', ['Aktif', 'Non-Aktif'])->default('Aktif');
             
             // Additional employee info
             $table->date('join_date')->nullable();

@@ -27,13 +27,25 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email_or_nik' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
 
     /**
+     * Get custom validation messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'email_or_nik.required' => 'Email atau NIK harus diisi',
+            'password.required' => 'Password harus diisi',
+        ];
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
+     * Support login dengan Email ATAU NIK
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -41,15 +53,30 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $emailOrNik = $this->input('email_or_nik');
+        $password = $this->input('password');
 
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
+        // ===== TRY LOGIN DENGAN EMAIL DULU (untuk admin & user) =====
+        if (Auth::attempt(['email' => $emailOrNik, 'password' => $password], $this->boolean('remember'))) {
+            RateLimiter::clear($this->throttleKey());
+            return;
         }
 
-        RateLimiter::clear($this->throttleKey());
+        // ===== JIKA GAGAL, TRY LOGIN DENGAN NIK (untuk user) =====
+        // Cek apakah input adalah NIK (bukan email format)
+        if (!filter_var($emailOrNik, FILTER_VALIDATE_EMAIL)) {
+            if (Auth::attempt(['nik' => $emailOrNik, 'password' => $password], $this->boolean('remember'))) {
+                RateLimiter::clear($this->throttleKey());
+                return;
+            }
+        }
+
+        // ===== KEDUA-DUANYA GAGAL =====
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email_or_nik' => 'Email/NIK atau password salah',
+        ]);
     }
 
     /**
@@ -80,6 +107,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('email_or_nik')).'|'.$this->ip());
     }
 }

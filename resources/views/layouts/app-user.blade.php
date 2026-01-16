@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/iconly.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <style>
         .logo img {
             width: 50px !important;
@@ -79,25 +80,31 @@
                             </a>
                         </li>
 
-                        {{-- Menu Item 2: My Training --}}
-                        <li class="sidebar-item {{ request()->is('my-training*') ? 'active' : '' }}">
-                            <a href="{{ route('my-training') }}" class='sidebar-link'>
+                        {{-- Menu Item 2: Pelatihan dengan submenu --}}
+                        <li class="sidebar-item has-sub {{ request()->is('my-training*') || request()->is('training-history*') || request()->is('my-competencies*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
                                 <i class="bi bi-book-fill"></i>
                                 <span>Pelatihan Saya</span>
                             </a>
+                            <ul class="submenu">
+                                {{-- Submenu 1: Daftar Pelatihan --}}
+                                <li class="submenu-item {{ request()->is('my-training*') ? 'active' : '' }}">
+                                    <a href="{{ route('user.my-training') }}" class="submenu-link">Daftar Pelatihan</a>
+                                </li>
+                                {{-- Submenu 2: Riwayat Pelatihan --}}
+                                <li class="submenu-item {{ request()->is('training-history*') ? 'active' : '' }}">
+                                    <a href="{{ route('user.training-history') }}" class="submenu-link">Riwayat Pelatihan</a>
+                                </li>
+                                {{-- Submenu 3: Kompetensi Saya --}}
+                                <li class="submenu-item {{ request()->is('my-competencies*') ? 'active' : '' }}">
+                                    <a href="{{ route('user.my-competencies') }}" class="submenu-link">Kompetensi Saya</a>
+                                </li>
+                            </ul>
                         </li>
 
-                        {{-- Menu Item 3: Training History --}}
-                        <li class="sidebar-item {{ request()->is('training-history*') ? 'active' : '' }}">
-                            <a href="{{ route('training-history') }}" class='sidebar-link'>
-                                <i class="bi bi-clock-history"></i>
-                                <span>Riwayat Pelatihan</span>
-                            </a>
-                        </li>
-
-                        {{-- Menu Item 4: My Profile --}}
+                        {{-- Menu Item 3: My Profile --}}
                         <li class="sidebar-item {{ request()->is('my-profile*') ? 'active' : '' }}">
-                            <a href="{{ route('my-profile') }}" class='sidebar-link'>
+                            <a href="{{ route('user.my-profile') }}" class='sidebar-link'>
                                 <i class="bi bi-person-fill"></i>
                                 <span>Profil Saya</span>
                             </a>
@@ -108,59 +115,84 @@
         </div>
 
         <div id="main">
-            <header class="mb-3">
-                <a href="#" class="burger-btn d-block d-xl-none">
-                    <i class="bi bi-justify fs-3"></i>
-                </a>
-            </header>
+            {{-- TOPBAR --}}
+            <div class="topbar">
+                <div class="topbar-container">
+                    {{-- Burger Button --}}
+                    <button class="topbar-burger" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
 
-            <nav class="navbar navbar-expand-lg navbar-light mb-3 rounded-lg sticky-top" data-bs-theme="dark">
-                <div class="container-fluid">
-                    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
-                        <div class="offcanvas-header">
-                            <h5 class="offcanvas-title">Metinca Training</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-                        </div>
-                        <div class="offcanvas-body ms-auto">
-                            <ul class="navbar-nav">
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                        data-bs-toggle="dropdown">
-                                        <img src="{{ Auth::user()->profile_photo_url ?? asset('assets/compiled/jpg/1.jpg') }}" alt="User Avatar"
-                                            class="rounded-circle" width="32" height="32">
-                                        <span class="ms-2">{{ Auth::user()->name ?? 'User' }}</span>
+                    {{-- Right Side Items --}}
+                    <div class="topbar-items">
+                        {{-- Notification Dropdown --}}
+                        <div class="topbar-item">
+                            <button class="topbar-btn" id="notificationBtn" onclick="toggleDropdown('notificationDropdown')">
+                                <i class="bi bi-bell" style="font-size: 1.25rem;"></i>
+                                <span class="topbar-badge">3</span>
+                            </button>
+                            
+                            <div class="topbar-dropdown" id="notificationDropdown">
+                                <div class="topbar-dropdown-header">
+                                    <h6>Notifikasi</h6>
+                                </div>
+                                <div class="topbar-dropdown-body">
+                                    <a href="#" class="topbar-dropdown-item">
+                                        <div class="topbar-dropdown-icon bg-primary">
+                                            <i class="bi bi-bell-fill"></i>
+                                        </div>
+                                        <div class="topbar-dropdown-content">
+                                            <div class="topbar-dropdown-title">Pelatihan Baru Tersedia</div>
+                                            <div class="topbar-dropdown-text">2 jam yang lalu</div>
+                                        </div>
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('my-profile') }}">
-                                                <i class="icon-mid bi bi-person me-2"></i> Profil
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#">
-                                                <i class="icon-mid bi bi-gear me-2"></i> Pengaturan
-                                            </a>
-                                        </li>
-                                        <hr class="dropdown-divider" />
-                                        <li>
-                                            <form id="formLogout">
-                                                @csrf
-                                                <button type="submit" class="dropdown-item">
-                                                    <i class="icon-mid bi bi-box-arrow-left me-2"></i> Logout
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
+                                    <a href="#" class="topbar-dropdown-item">
+                                        <div class="topbar-dropdown-icon bg-success">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        </div>
+                                        <div class="topbar-dropdown-content">
+                                            <div class="topbar-dropdown-title">Ujian Telah Diverifikasi</div>
+                                            <div class="topbar-dropdown-text">5 jam yang lalu</div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="topbar-dropdown-footer">
+                                    <a href="#">Lihat Semua Notifikasi</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- User Menu Dropdown --}}
+                        <div class="topbar-item">
+                            <button class="topbar-btn topbar-user-btn" onclick="toggleDropdown('userDropdown')">
+                                <div class="topbar-user-info">
+                                    <div class="topbar-user-name">{{ Auth::user()->name ?? 'User' }}</div>
+                                    <div class="topbar-user-role">Karyawan</div>
+                                </div>
+                                <div class="topbar-user-avatar">
+                                    <img src="{{ Auth::user()->profile_photo_url ?? asset('assets/compiled/jpg/1.jpg') }}" alt="Avatar">
+                                </div>
+                            </button>
+                            
+                            <div class="topbar-dropdown topbar-dropdown-user" id="userDropdown">
+                                <a href="{{ route('user.my-profile') }}" class="topbar-dropdown-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>Profil Saya</span>
+                                </a>
+                                <a href="#" class="topbar-dropdown-item">
+                                    <i class="bi bi-gear"></i>
+                                    <span>Pengaturan</span>
+                                </a>
+                                <div class="topbar-dropdown-divider"></div>
+                                <a href="#" class="topbar-dropdown-item" onclick="event.preventDefault(); handleLogout();">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
-                        data-bs-target="#offcanvasNavbar">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
                 </div>
-            </nav>
+            </div>
 
             <div class="main-content">
                 @yield('content')
@@ -185,15 +217,77 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/compiled/js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
     <script>
-        document.getElementById('formLogout').addEventListener('submit', function(e){
-            e.preventDefault();
+        // Toggle Dropdown (Notification & User Menu)
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('.topbar-dropdown');
+            
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.remove('show');
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdown.classList.toggle('show');
+            
+            // Hapus badge jika dropdown notifikasi
+            if (dropdownId === 'notificationDropdown') {
+                const badge = document.querySelector('#notificationBtn .topbar-badge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.topbar-item')) {
+                document.querySelectorAll('.topbar-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
+        // Sidebar Toggle for Mobile/Desktop
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const main = document.getElementById('main');
+            
+            sidebar.classList.toggle('active');
+            sidebar.classList.toggle('inactive');
+            
+            // Optional: Add backdrop for mobile
+            if (window.innerWidth < 1200) {
+                let backdrop = document.querySelector('.sidebar-backdrop');
+                if (!backdrop) {
+                    backdrop = document.createElement('div');
+                    backdrop.className = 'sidebar-backdrop';
+                    backdrop.onclick = function() {
+                        sidebar.classList.remove('active');
+                        sidebar.classList.add('inactive');
+                        backdrop.remove();
+                    };
+                    document.body.appendChild(backdrop);
+                } else {
+                    backdrop.remove();
+                }
+            }
+        });
+
+        // Logout Handler
+        function handleLogout() {
             Swal.fire({
                 title: 'Yakin ingin logout?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Logout',
-                cancelButtonText: 'Batal'
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#435ebe',
+                cancelButtonColor: '#6c757d'
             }).then((result) => {
                 if (result.isConfirmed) {
                     axios.post('{{ route('logout') }}', {
@@ -214,7 +308,7 @@
                     });
                 }
             });
-        });
+        }
     </script>
     @stack('scripts')
 </body>

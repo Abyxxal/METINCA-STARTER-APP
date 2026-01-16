@@ -29,14 +29,14 @@
 
             <!-- Login Form -->
             <form id="loginForm">
-                <!-- Username/Email -->
+                <!-- Email/NIK -->
                 @csrf
                 <div class="mb-3">
                     <label for="username" class="form-label">
-                        <i class="bi bi-person-fill me-1"></i>Username atau Email
+                        <i class="bi bi-person-fill me-1"></i>Email atau NIK
                     </label>
                     <div class="input-group">
-                        <input type="text" name="email" class="form-control with-icon" id="username" placeholder="Masukkan username atau email" required>
+                        <input type="text" name="email_or_nik" class="form-control with-icon" id="username" placeholder="Masukkan email atau NIK" required>
                         <span class="input-icon">
                             <i class="bi bi-person"></i>
                         </span>

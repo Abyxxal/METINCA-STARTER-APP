@@ -7,9 +7,11 @@ use App\Models\Department;
 use App\Models\Position;
 use App\Models\Division;
 use App\Models\Skill;
+use App\Models\User;
 use App\Models\EmployeeCompetency;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 /**
  * MasterDataController
@@ -43,17 +45,60 @@ class MasterDataController extends Controller
             $validated = $request->validate([
                 'nik' => 'required|unique:employees,nik',
                 'name' => 'required|string',
-                'email' => 'required|email|unique:employees,email',
-                'phone' => 'nullable|string',
+                'email' => 'required|email|unique:users,email|unique:employees,email',
+                'password' => 'required|string|min:6',
                 'department_id' => 'required|exists:departments,id',
                 'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
-                'status' => 'required|in:Aktif,Non-Aktif,Cuti',
+                'status' => 'required|in:Aktif,Non-Aktif',
                 'join_date' => 'nullable|date',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
-            // Buat record karyawan baru
-            $employee = Employee::create($validated);
+            // Reset auto-increment jika tabel kosong
+            $this->ensureAutoIncrementReset('employees');
+            $this->ensureAutoIncrementReset('users');
+
+            // Handle foto upload
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $file = $request->file('photo');
+                $photoPath = $file->store('employees', 'public');
+            }
+
+            // Buat record karyawan
+            $employeeData = [
+                'nik' => $validated['nik'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'department_id' => $validated['department_id'],
+                'division_id' => $validated['division_id'],
+                'position_id' => $validated['position_id'],
+                'join_date' => $validated['join_date'] ?? null,
+                'status' => $validated['status'],
+                'photo' => $photoPath,
+            ];
+            
+            $employee = Employee::create($employeeData);
+
+            // Create User account untuk login
+            try {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'nik' => $validated['nik'],
+                    'password' => bcrypt($validated['password']),
+                    'role' => 'user',
+                    'employee_nik' => $employee->nik,  // ✅ FIXED: employee_id → employee_nik
+                ]);
+                
+                \Log::info('✅ User account created for employee: ' . $employee->nik . ' (' . $employee->name . ')');
+            } catch (\Exception $userError) {
+                \Log::error('❌ Failed to create user account: ' . $userError->getMessage());
+                // Delete employee jika user creation gagal (rollback)
+                $employee->delete();
+                throw new \Exception('Gagal membuat user account: ' . $userError->getMessage());
+            }
 
             return response()->json([
                 'success' => true,
@@ -86,12 +131,12 @@ class MasterDataController extends Controller
             // Build validation rules dynamically
             $rules = [
                 'name' => 'required|string',
-                'phone' => 'nullable|string',
                 'department_id' => 'required|exists:departments,id',
                 'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
-                'status' => 'required|in:Aktif,Non-Aktif,Cuti',
+                'status' => 'required|in:Aktif,Non-Aktif',
                 'join_date' => 'nullable|date',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ];
 
             // Only validate NIK uniqueness if it changed
@@ -111,6 +156,17 @@ class MasterDataController extends Controller
 
             $validated = $request->validate($rules);
 
+            // Handle foto update
+            if ($request->hasFile('photo')) {
+                // Delete old photo jika ada
+                if ($employee->photo) {
+                    \Storage::disk('public')->delete($employee->photo);
+                }
+                // Store foto baru
+                $photoPath = $request->file('photo')->store('employees', 'public');
+                $validated['photo'] = $photoPath;
+            }
+
             // Update record karyawan
             $employee->update($validated);
 
@@ -129,6 +185,7 @@ class MasterDataController extends Controller
 
     /**
      * Menghapus data karyawan dari database
+     * Cascade: Hapus employee → hapus user account yang terkait juga
      * 
      * @param string $id NIK Karyawan
      * @return \Illuminate\Http\JsonResponse
@@ -138,11 +195,20 @@ class MasterDataController extends Controller
         try {
             $employee = Employee::findOrFail($id);
             $name = $employee->name;
+            
+            // Hapus user account yang terkait jika ada
+            User::where('nik', $id)->delete();
+            
+            // Hapus employee
             $employee->delete();
+
+            // Renumber IDs di employees dan users table
+            $this->renumberTableIds('users');
+            $this->renumberTableIds('employees');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Karyawan ' . $name . ' berhasil dihapus'
+                'message' => 'Karyawan ' . $name . ' dan user account-nya berhasil dihapus'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -171,14 +237,10 @@ class MasterDataController extends Controller
             // Validasi input
             $validated = $request->validate([
                 'name' => 'required|unique:departments,name|string',
-                'employee_count' => 'nullable|integer|min:0',
-                'status' => 'nullable|in:active,inactive',
             ]);
 
-            // Set status default
-            if (!isset($validated['status'])) {
-                $validated['status'] = 'active';
-            }
+            // Reset auto-increment jika tabel kosong
+            $this->ensureAutoIncrementReset('departments');
 
             // Buat record departemen baru
             $department = Department::create($validated);
@@ -244,6 +306,9 @@ class MasterDataController extends Controller
             $name = $department->name;
             $department->delete();
 
+            // Reindex ID setelah delete
+            $this->reindexDepartmentIds();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Departemen ' . $name . ' berhasil dihapus'
@@ -253,6 +318,62 @@ class MasterDataController extends Controller
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * Reindex Department IDs untuk sequential 1, 2, 3, ...
+     * Dipanggil setelah delete departemen
+     */
+    private function reindexDepartmentIds()
+    {
+        try {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            // Ambil semua departments, sorted by created_at
+            $departments = DB::table('departments')
+                ->orderBy('created_at')
+                ->select('id', 'name', 'description', 'created_at', 'updated_at')
+                ->get();
+
+            if ($departments->count() > 0) {
+                // Mapping old ID ke new ID
+                $idMapping = [];
+                $newId = 1;
+                foreach ($departments as $dept) {
+                    $idMapping[$dept->id] = $newId;
+                    $newId++;
+                }
+                
+                // Update divisions dengan ID mapping (before updating departments)
+                foreach ($idMapping as $oldId => $newIdVal) {
+                    DB::statement('UPDATE divisions SET department_id = ? WHERE department_id = ?', [$newIdVal, $oldId]);
+                }
+                
+                // Truncate dan rebuild departments dengan ID baru
+                DB::table('departments')->truncate();
+                DB::statement('ALTER TABLE departments AUTO_INCREMENT = 1');
+                
+                // Insert kembali dengan ID sequential
+                $newId = 1;
+                foreach ($departments as $dept) {
+                    DB::table('departments')->insert([
+                        'id' => $newId,
+                        'name' => $dept->name,
+                        'description' => $dept->description,
+                        'created_at' => $dept->created_at,
+                        'updated_at' => $dept->updated_at,
+                    ]);
+                    $newId++;
+                }
+                
+                DB::statement('ALTER TABLE departments AUTO_INCREMENT = ' . $newId);
+            }
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        } catch (\Exception $e) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            \Log::error('Error reindexing departments: ' . $e->getMessage());
         }
     }
 
@@ -356,9 +477,9 @@ class MasterDataController extends Controller
     public function getDepartments()
     {
         try {
-            // Query dengan count relasi employees
-            $departments = Department::where('status', 'active')
-                ->withCount('employees')
+            // Query dengan count relasi employees dan divisions
+            $departments = Department::withCount('employees')
+                ->withCount('divisions')
                 ->orderBy('name')
                 ->get();
 
@@ -428,6 +549,9 @@ class MasterDataController extends Controller
                 'division_id' => 'required|exists:divisions,id',
             ]);
 
+            // Reset auto-increment jika tabel kosong
+            $this->ensureAutoIncrementReset('positions');
+
             // Buat record jabatan baru
             $position = Position::create($validated);
 
@@ -456,6 +580,9 @@ class MasterDataController extends Controller
             $position = Position::findOrFail($id);
             $position->delete();
 
+            // Reindex positions untuk sequential IDs
+            $this->reindexPositionIds();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Jabatan berhasil dihapus',
@@ -466,6 +593,53 @@ class MasterDataController extends Controller
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * Reindex ALL Position IDs untuk sequential 1, 2, 3, ... globally
+     * Dipanggil setelah delete position
+     */
+    private function reindexPositionIds()
+    {
+        try {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            // Ambil SEMUA positions, sorted by division_id, then created_at
+            $allPositions = DB::table('positions')
+                ->orderBy('division_id')
+                ->orderBy('created_at')
+                ->select('id', 'division_id', 'name', 'created_at', 'updated_at')
+                ->get();
+
+            if ($allPositions->count() > 0) {
+                // Delete semua positions lama
+                DB::statement('DELETE FROM positions');
+                
+                // Reset auto-increment
+                DB::statement('ALTER TABLE positions AUTO_INCREMENT = 1');
+                
+                // Insert kembali dengan ID sequential global
+                $newId = 1;
+                foreach ($allPositions as $pos) {
+                    DB::table('positions')->insert([
+                        'id' => $newId,
+                        'division_id' => $pos->division_id,
+                        'name' => $pos->name,
+                        'created_at' => $pos->created_at,
+                        'updated_at' => $pos->updated_at,
+                    ]);
+                    $newId++;
+                }
+                
+                // Set auto-increment ke nomor berikutnya
+                DB::statement('ALTER TABLE positions AUTO_INCREMENT = ' . $newId);
+            }
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        } catch (\Exception $e) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            \Log::error('Error reindexing positions: ' . $e->getMessage());
         }
     }
 
@@ -590,13 +764,10 @@ class MasterDataController extends Controller
                 'department_id' => 'required|integer|exists:departments,id',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string|max:500',
-                'status' => 'nullable|in:active,inactive',
             ]);
 
-            // Set status default jika tidak diberikan
-            if (!isset($validated['status']) || empty($validated['status'])) {
-                $validated['status'] = 'active';
-            }
+            // Reset auto-increment jika tabel kosong
+            $this->ensureAutoIncrementReset('divisions');
 
             // Buat record divisi baru
             $division = Division::create($validated);
@@ -629,7 +800,11 @@ class MasterDataController extends Controller
     {
         try {
             $division = Division::findOrFail($id);
+            $departmentId = $division->department_id;
             $division->delete();
+
+            // Reindex divisions untuk department ini
+            $this->reindexDivisionIds($departmentId);
 
             return response()->json([
                 'success' => true, 
@@ -640,6 +815,71 @@ class MasterDataController extends Controller
                 'success' => false, 
                 'message' => $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * Reindex ALL Division IDs untuk sequential 1, 2, 3, ... globally
+     * Dipanggil setelah delete divisi
+     */
+    private function reindexDivisionIds($departmentId)
+    {
+        try {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            // Ambil SEMUA divisions, sorted by department_id, then created_at
+            $allDivisions = DB::table('divisions')
+                ->orderBy('department_id')
+                ->orderBy('created_at')
+                ->select('id', 'department_id', 'name', 'created_at', 'updated_at')
+                ->get();
+
+            if ($allDivisions->count() > 0) {
+                // Map old ID ke new ID
+                $idMapping = [];
+                $newId = 1;
+                foreach ($allDivisions as $div) {
+                    $idMapping[$div->id] = $newId;
+                    $newId++;
+                }
+                
+                // Update positions dengan ID mapping (sebelum update divisions)
+                foreach ($idMapping as $oldId => $newIdVal) {
+                    if ($oldId != $newIdVal) {
+                        DB::statement('UPDATE positions SET division_id = ? WHERE division_id = ?', [$newIdVal, $oldId]);
+                    }
+                }
+                
+                // Delete semua divisions lama
+                DB::statement('DELETE FROM divisions');
+                
+                // Reset auto-increment
+                DB::statement('ALTER TABLE divisions AUTO_INCREMENT = 1');
+                
+                // Insert kembali dengan ID sequential global
+                $newId = 1;
+                foreach ($allDivisions as $div) {
+                    DB::table('divisions')->insert([
+                        'id' => $newId,
+                        'department_id' => $div->department_id,
+                        'name' => $div->name,
+                        'created_at' => $div->created_at,
+                        'updated_at' => $div->updated_at,
+                    ]);
+                    $newId++;
+                }
+                
+                // Set auto-increment ke nomor berikutnya
+                DB::statement('ALTER TABLE divisions AUTO_INCREMENT = ' . $newId);
+            }
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            
+            // Juga reindex positions setelah divisions di-reindex
+            $this->reindexPositionIds();
+        } catch (\Exception $e) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            \Log::error('Error reindexing divisions: ' . $e->getMessage());
         }
     }
 
@@ -656,7 +896,7 @@ class MasterDataController extends Controller
             $departmentId = $request->query('department_id');
             
             // Build query
-            $query = Division::where('status', 'active');
+            $query = Division::query();
             
             // Apply filter department jika diberikan
             if ($departmentId) {
@@ -689,17 +929,18 @@ class MasterDataController extends Controller
         try {
             // Query skill aktif untuk divisi
             $skills = Skill::where('division_id', $divisionId)
-                ->where('status', 'active')
-                ->get();
+                ->where('is_active', true)
+                ->get(['id', 'name', 'code']);
             
             return response()->json([
                 'success' => true, 
-                'data' => $skills
+                'skills' => $skills
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false, 
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'skills' => []
             ], 400);
         }
     }
@@ -922,6 +1163,80 @@ class MasterDataController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    // ============================================
+    // HELPER METHODS
+    // ============================================
+
+    /**
+     * Memastikan auto-increment direset ke 1 jika tabel kosong
+     * Dipanggil sebelum create record baru
+     * Mengatasi masalah: ketika semua data dihapus, auto-increment tidak reset
+     * 
+     * @param string $tableName Nama tabel (departments, divisions, positions)
+     */
+    private function ensureAutoIncrementReset($tableName)
+    {
+        try {
+            $count = DB::table($tableName)->count();
+            
+            // Jika tabel kosong, reset auto-increment ke 1
+            if ($count === 0) {
+                DB::statement("ALTER TABLE {$tableName} AUTO_INCREMENT = 1");
+            }
+        } catch (\Exception $e) {
+            \Log::warning("Could not reset auto-increment for {$tableName}: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Renumber semua ID di tabel (fill gaps setelah delete)
+     * Menyalin data lama ke table baru dengan ID baru, hapus yang lama, rename
+     */
+    private function renumberTableIds($tableName)
+    {
+        try {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            $count = DB::table($tableName)->count();
+            $maxId = DB::table($tableName)->max('id');
+            
+            // Jika tabel kosong atau tidak ada gaps, tidak perlu renumber
+            if (!$maxId || $count === $maxId) {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                return;
+            }
+
+            // Ambil semua records, sorted by id (untuk maintain order)
+            $records = DB::table($tableName)->orderBy('id')->get();
+
+            if ($records->count() > 0) {
+                // Get semua columns kecuali ID
+                $columns = DB::getSchemaBuilder()->getColumnListing($tableName);
+                $columnsWithoutId = array_diff($columns, ['id']);
+                
+                // Truncate dan reset auto-increment
+                DB::table($tableName)->truncate();
+                DB::statement("ALTER TABLE {$tableName} AUTO_INCREMENT = 1");
+                
+                // Insert kembali dengan ID sequential
+                $newId = 1;
+                foreach ($records as $record) {
+                    $data = (array) $record;
+                    unset($data['id']); // Remove old ID
+                    DB::table($tableName)->insert($data);
+                    $newId++;
+                }
+                
+                \Log::info("✅ Table {$tableName} renumbered successfully");
+            }
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        } catch (\Exception $e) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            \Log::error("❌ Error renumbering {$tableName}: " . $e->getMessage());
         }
     }
 }

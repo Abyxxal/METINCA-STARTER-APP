@@ -10,16 +10,17 @@ return new class extends Migration
     {
         Schema::create('skills', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('division_id');
+            $table->unsignedBigInteger('division_id')->nullable();
             $table->string('code')->comment('Kode Skill (CMM, PT, MPL, RT, UT, US, DIM)');
             $table->string('name')->comment('Nama Skill');
+            $table->string('category')->default('Technical')->comment('Skill category: Technical, Soft Skill, etc.');
             $table->text('description')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->foreign('division_id')->references('id')->on('divisions')->onDelete('cascade');
+            $table->foreign('division_id')->references('id')->on('divisions')->onDelete('set null');
             $table->index('division_id');
-            $table->unique(['division_id', 'code']);
+            $table->unique(['code']);
         });
     }
 

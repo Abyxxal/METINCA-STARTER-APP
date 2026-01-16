@@ -1,48 +1,67 @@
 @extends('layouts.app-user')
 
+@section('title', 'Profil Saya')
+
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3">Profil Saya</h1>
-            <p class="text-muted">Kelola informasi profil dan akun Anda</p>
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Profil Saya</h3>
+                <p class="text-subtitle text-muted">Kelola informasi profil dan akun Anda</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Profil Saya</li>
+                    </ol>
+                </nav>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Profile Card -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+    <section class="section">
+        <div class="row">
+            <!-- Profile Card -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            @if(Auth::user()->photo)
+                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="{{ Auth::user()->name }}" 
+                                     class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                            @else
+                                <div class="rounded-circle bg-light-primary d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 120px; height: 120px;">
+                                    <i class="bi bi-person fs-1 text-primary"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <h5 class="mb-1">{{ Auth::user()->name }}</h5>
+                        <p class="text-muted mb-3">{{ Auth::user()->employee->position->name ?? '-' }}</p>
+                        
+                        <div class="list-group list-group-flush text-start">
+                            <div class="list-group-item border-0 px-0">
+                                <small class="text-muted d-block">Email</small>
+                                <p class="mb-0 fw-semibold">{{ Auth::user()->email }}</p>
+                            </div>
+                            <div class="list-group-item border-0 px-0">
+                                <small class="text-muted d-block">NIK</small>
+                                <p class="mb-0 fw-semibold">{{ Auth::user()->employee->nik ?? '-' }}</p>
+                            </div>
+                            <div class="list-group-item border-0 px-0">
+                                <small class="text-muted d-block">Departemen</small>
+                                <p class="mb-0 fw-semibold">{{ Auth::user()->employee->department->name ?? '-' }}</p>
+                            </div>
+                            <div class="list-group-item border-0 px-0">
+                                <small class="text-muted d-block">Divisi</small>
+                                <p class="mb-0 fw-semibold">{{ Auth::user()->employee->division->name ?? '-' }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <h5 class="mb-1">{{ Auth::user()->name }}</h5>
-                    <p class="text-muted mb-3">-</p>
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item">
-                            <small class="text-muted">Email</small>
-                            <p class="mb-0">{{ Auth::user()->email }}</p>
-                        </div>
-                        <div class="list-group-item">
-                            <small class="text-muted">NIK</small>
-                            <p class="mb-0">-</p>
-                        </div>
-                        <div class="list-group-item">
-                            <small class="text-muted">Departemen</small>
-                            <p class="mb-0">-</p>
-                        </div>
-                        <div class="list-group-item">
-                            <small class="text-muted">Jabatan</small>
-                            <p class="mb-0">-</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm mt-3" data-bs-toggle="modal" data-bs-target="#editPhotoModal">
-                        <i class="fas fa-camera me-2"></i>Ganti Foto
-                    </button>
                 </div>
             </div>
-        </div>
 
         <!-- Profile Form -->
         <div class="col-lg-8">
@@ -69,21 +88,28 @@
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">NIK</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" placeholder="Nomor Induk Karyawan" disabled>
+                                <input type="text" class="form-control" value="{{ Auth::user()->employee->nik ?? '-' }}" disabled>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">Departemen</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" placeholder="Departemen" disabled>
+                                <input type="text" class="form-control" value="{{ Auth::user()->employee->department->name ?? '-' }}" disabled>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label">Divisi</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" value="{{ Auth::user()->employee->division->name ?? '-' }}" disabled>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">Jabatan</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" placeholder="Jabatan" disabled>
+                                <input type="text" class="form-control" value="{{ Auth::user()->employee->position->name ?? '-' }}" disabled>
                             </div>
                         </div>
 

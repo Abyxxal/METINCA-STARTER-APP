@@ -1,207 +1,169 @@
 @extends('layouts.app-user')
 
-@section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3">Riwayat Pelatihan</h1>
-            <p class="text-muted">Daftar pelatihan yang telah Anda selesaikan</p>
-        </div>
-    </div>
+@section('title', 'Riwayat Pelatihan')
 
-    <!-- Filter & Search -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Cari pelatihan...">
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select">
-                                <option value="">Semua Tahun</option>
-                                <option value="2025">2025</option>
-                                <option value="2024">2024</option>
-                                <option value="2023">2023</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select">
-                                <option value="">Semua Kategori</option>
-                                <option value="safety">Safety</option>
-                                <option value="quality">Quality</option>
-                                <option value="operation">Operation</option>
-                                <option value="management">Management</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+@section('content')
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Riwayat Pelatihan</h3>
+                <p class="text-subtitle text-muted">Daftar pelatihan yang telah Anda selesaikan</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Riwayat Pelatihan</li>
+                    </ol>
+                </nav>
             </div>
         </div>
     </div>
 
+    <!-- Filter & Search -->
+    <section class="section">
+        <div class="card">
+            <div class="card-body">
+                <form action="{{ route('user.training-history') }}" method="GET" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="search" class="form-control" placeholder="Cari pelatihan..." 
+                                   value="{{ request('search') }}" onchange="window.autoSubmitForm(this.form)">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="year" class="form-select" onchange="window.autoSubmitForm(this.form)">
+                                <option value="">Semua Tahun</option>
+                                <option value="2026" {{ request('year') == '2026' ? 'selected' : '' }}>2026</option>
+                                <option value="2025" {{ request('year') == '2025' ? 'selected' : '' }}>2025</option>
+                                <option value="2024" {{ request('year') == '2024' ? 'selected' : '' }}>2024</option>
+                                <option value="2023" {{ request('year') == '2023' ? 'selected' : '' }}>2023</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="level" class="form-select" onchange="window.autoSubmitForm(this.form)">
+                                <option value="">Semua Level</option>
+                                <option value="1" {{ request('level') == '1' ? 'selected' : '' }}>Level 1</option>
+                                <option value="2" {{ request('level') == '2' ? 'selected' : '' }}>Level 2</option>
+                                <option value="3" {{ request('level') == '3' ? 'selected' : '' }}>Level 3</option>
+                                <option value="4" {{ request('level') == '4' ? 'selected' : '' }}>Level 4</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
     <!-- Training History List -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
+    <section class="section">
+        <div class="card">
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light border-bottom">
+                    <table class="table table-hover">
+                        <thead>
                             <tr>
                                 <th>No</th>
                                 <th>Nama Pelatihan</th>
                                 <th>Kategori</th>
                                 <th>Level</th>
                                 <th>Tanggal Selesai</th>
-                                <th>Nilai / Score</th>
+                                <th>Nilai</th>
+                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($sessions as $index => $session)
                             <tr>
-                                <td>1</td>
-                                <td><strong>Machine Operation - Advanced</strong></td>
-                                <td><span class="badge bg-success">Operation</span></td>
-                                <td><span class="badge bg-danger">Level 3</span></td>
-                                <td>15 Nov 2025</td>
+                                <td>{{ $sessions->firstItem() + $index }}</td>
+                                <td><strong>{{ $session->exam->title }}</strong></td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <span class="fw-bold me-2">92</span>
-                                        <div class="progress" style="width: 100px; height: 6px;">
-                                            <div class="progress-bar bg-success" style="width: 92%;"></div>
-                                        </div>
-                                    </div>
+                                    <span class="badge bg-light-info">{{ $session->exam->skill->code }}</span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Lihat Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Download Sertifikat">
-                                        <i class="fas fa-download"></i>
-                                    </button>
+                                    <span class="badge 
+                                        @if($session->exam->target_level == 1) bg-light-success
+                                        @elseif($session->exam->target_level == 2) bg-light-warning
+                                        @elseif($session->exam->target_level == 3) bg-light-danger
+                                        @else bg-light-dark
+                                        @endif">
+                                        Level {{ $session->exam->target_level }}
+                                    </span>
+                                </td>
+                                <td>
+                                    @if($session->verified_at)
+                                        {{ $session->verified_at->format('d M Y') }}
+                                    @elseif($session->submitted_at)
+                                        {{ $session->submitted_at->format('d M Y') }}
+                                        <br><small class="text-muted">(Dikumpulkan)</small>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($session->status === 'submitted')
+                                        <div class="text-muted">
+                                            <i class="bi bi-hourglass-split"></i> Menunggu
+                                        </div>
+                                    @else
+                                        <div class="d-flex align-items-center">
+                                            <span class="fw-bold me-2">{{ $session->score ?? 0 }}</span>
+                                            <div class="progress" style="width: 80px; height: 6px;">
+                                                <div class="progress-bar 
+                                                    @if(($session->score ?? 0) >= $session->exam->passing_score) bg-success 
+                                                    @else bg-danger 
+                                                    @endif" 
+                                                    style="width: {{ min(($session->score ?? 0), 100) }}%;"></div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($session->status === 'submitted')
+                                        <span class="badge bg-light-secondary">
+                                            <i class="bi bi-hourglass-split"></i> Menunggu Verifikasi
+                                        </span>
+                                    @elseif($session->status === 'verified_pass')
+                                        <span class="badge bg-light-success">
+                                            <i class="bi bi-check-circle"></i> Lulus
+                                        </span>
+                                    @else
+                                        <span class="badge bg-light-danger">
+                                            <i class="bi bi-x-circle"></i> Tidak Lulus
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('cbt.employee.result', $session->id) }}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       data-bs-toggle="tooltip" title="Lihat Detail">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td>2</td>
-                                <td><strong>Safety Training - Level 2</strong></td>
-                                <td><span class="badge bg-secondary">Safety</span></td>
-                                <td><span class="badge bg-warning">Level 2</span></td>
-                                <td>10 Oct 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span class="fw-bold me-2">88</span>
-                                        <div class="progress" style="width: 100px; height: 6px;">
-                                            <div class="progress-bar bg-success" style="width: 88%;"></div>
-                                        </div>
+                                <td colspan="8" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                        Belum ada riwayat pelatihan
                                     </div>
                                 </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Lihat Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Download Sertifikat">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </td>
                             </tr>
-                            <tr>
-                                <td>3</td>
-                                <td><strong>Quality Control Basics</strong></td>
-                                <td><span class="badge bg-primary">Quality</span></td>
-                                <td><span class="badge bg-info">Level 1</span></td>
-                                <td>25 Sep 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span class="fw-bold me-2">85</span>
-                                        <div class="progress" style="width: 100px; height: 6px;">
-                                            <div class="progress-bar bg-success" style="width: 85%;"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Lihat Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Download Sertifikat">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td><strong>ISO 9001:2015 Introduction</strong></td>
-                                <td><span class="badge bg-warning text-dark">Management</span></td>
-                                <td><span class="badge bg-info">Level 1</span></td>
-                                <td>15 Aug 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span class="fw-bold me-2">90</span>
-                                        <div class="progress" style="width: 100px; height: 6px;">
-                                            <div class="progress-bar bg-success" style="width: 90%;"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Lihat Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Download Sertifikat">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td><strong>Maintenance Best Practices</strong></td>
-                                <td><span class="badge bg-info">Maintenance</span></td>
-                                <td><span class="badge bg-warning">Level 2</span></td>
-                                <td>05 Jul 2025</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span class="fw-bold me-2">87</span>
-                                        <div class="progress" style="width: 100px; height: 6px;">
-                                            <div class="progress-bar bg-success" style="width: 87%;"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Lihat Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Download Sertifikat">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                @if($sessions->hasPages())
+                <div class="mt-4">
+                    {{ $sessions->appends(request()->query())->links() }}
+                </div>
+                @endif
             </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">Previous</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
-            </nav>
         </div>
-    </div>
+    </section>
 </div>
-
-<script>
-    // Enable tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-</script>
 @endsection

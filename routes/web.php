@@ -27,6 +27,7 @@ Route::get('/',function(){
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/cbt.php'; // CBT Routes
 
 // ============================================
 // GUEST ROUTES - Untuk user yang belum login
@@ -135,8 +136,16 @@ Route::middleware(['auth'])->group(function(){
         // Fungsi: Mengelola data referensi (karyawan, departemen, jabatan)
         // Submenu: Data Karyawan, Departemen & Line, Jabatan
         Route::get('/master-data',function(){
-            return view('master-data');
+            $departments = \App\Models\Department::withCount(['divisions', 'employees'])->get();
+            return view('master-data', compact('departments'));
         })->name('master-data');
+
+        // GET /departments - Halaman Daftar Departemen
+        // Fungsi: Melihat, tambah, edit, hapus departemen
+        Route::get('/departments', function(){
+            $departments = \App\Models\Department::withCount(['divisions', 'employees'])->get();
+            return view('departments.index', compact('departments'));
+        })->name('departments.index');
 
         // GET /departments/{id} - Halaman Detail Departemen
         // Fungsi: Melihat dan mengelola divisi & jabatan dalam departemen
@@ -221,7 +230,7 @@ Route::middleware(['auth'])->group(function(){
     // Routes untuk fitur yang diakses user/karyawan
     // Middleware: 'is.user' - hanya accessible untuk user dengan role 'user'
     
-    Route::middleware(['is.user'])->group(function(){
+    Route::middleware(['is.user'])->name('user.')->group(function(){
 
         // GET /my-training - Halaman pelatihan saya
         // Fungsi: Menampilkan daftar pelatihan yang ditugaskan ke user
@@ -234,6 +243,10 @@ Route::middleware(['auth'])->group(function(){
         // GET /my-profile - Halaman profil saya
         // Fungsi: Menampilkan dan mengedit profil user
         Route::get('/my-profile', [UserDashboardController::class, 'myProfile'])->name('my-profile');
+
+        // GET /my-competencies - Halaman kompetensi saya
+        // Fungsi: Menampilkan kompetensi/skill yang dimiliki user
+        Route::get('/my-competencies', [UserDashboardController::class, 'myCompetencies'])->name('my-competencies');
 
     });
 

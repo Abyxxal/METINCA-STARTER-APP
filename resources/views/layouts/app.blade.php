@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/iconly.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <style>
         .logo img {
             width: 50px !important;
@@ -109,7 +110,7 @@
                                     <a href="{{ route('master-data') }}#karyawan" class="submenu-link">Employee</a>
                                 </li>
                                 {{-- Submenu 2: Department --}}
-                                {{-- Isi: Daftar departemen dan struktur organisasi --}}
+                                {{-- Isi: Daftar departemen dengan jumlah divisi dan karyawan --}}
                                 <li class="submenu-item {{ request()->fullUrlIs('*master-data#departemen*') ? 'active' : '' }}">
                                     <a href="{{ route('master-data') }}#departemen" class="submenu-link">Department</a>
                                 </li>
@@ -146,26 +147,47 @@
                         {{-- Menu Item 4: Evaluation & Exam --}}
                         {{-- Fungsi: Manajemen soal ujian, setup ujian, dan tracking hasil ujian karyawan --}}
                         {{-- Submenu: Bank Soal, Setup Ujian, Hasil Ujian --}}
-                        <li class="sidebar-item has-sub {{ request()->is('evaluation-and-exam*') ? 'active' : '' }}">
+                        <li class="sidebar-item has-sub {{ request()->is('evaluation-and-exam*') || request()->is('cbt/admin*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-clipboard-check-fill"></i>
                                 <span>Assessments</span>
                             </a>
                             <ul class="submenu">
-                                {{-- Submenu 1: Question Bank --}}
-                                {{-- Isi: Bank soal dengan filter kategori, difficulty level, dan image support --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*evaluation-and-exam#banksoal*') ? 'active' : '' }}">
-                                    <a href="{{ route('evaluation-and-exam') }}#banksoal" class="submenu-link">Question Bank</a>
+                                {{-- CBT: Bank Soal --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/questions*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.questions.index') }}" class="submenu-link">Bank Soal</a>
                                 </li>
-                                {{-- Submenu 2: Exam Setup --}}
-                                {{-- Isi: Konfigurasi ujian (durasi, passing grade, max attempts, shuffle) --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*evaluation-and-exam#setupujian*') ? 'active' : '' }}">
-                                    <a href="{{ route('evaluation-and-exam') }}#setupujian" class="submenu-link">Exam Scheduling</a>
+                                {{-- CBT: Setup Ujian --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/exams*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.exams.index') }}" class="submenu-link">Setup Ujian</a>
                                 </li>
-                                {{-- Submenu 3: Exam Results --}}
-                                {{-- Isi: Hasil ujian karyawan dengan skor, attempt count, LULUS/GAGAL status --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*evaluation-and-exam#hasilujian*') ? 'active' : '' }}">
-                                    <a href="{{ route('evaluation-and-exam') }}#hasilujian" class="submenu-link">Exam Results</a>
+                                {{-- CBT: Sesi Ujian / Penugasan --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/sessions*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.sessions.index') }}" class="submenu-link">Sesi Ujian</a>
+                                </li>
+                                {{-- CBT: Verifikasi (Pending) --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/sessions/pending*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.sessions.pending') }}" class="submenu-link">
+                                        Verifikasi Hasil
+                                        @php
+                                            $pendingCount = \App\Models\ExamSession::where('status', 'submitted')->count();
+                                        @endphp
+                                        @if($pendingCount > 0)
+                                            <span class="badge bg-danger ms-auto">{{ $pendingCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                                {{-- CBT: Matriks Kompetensi --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/competency-matrix*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.competency-matrix') }}" class="submenu-link">Matriks Kompetensi</a>
+                                </li>
+                                {{-- CBT: Level Skill Karyawan --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/employee-competencies*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.employee-competencies.index') }}" class="submenu-link">Level Skill Karyawan</a>
+                                </li>
+                                {{-- CBT: Customisasi Skill Divisi --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/division-skills*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.division-skills.index') }}" class="submenu-link">Skill per Divisi</a>
                                 </li>
                             </ul>
                         </li>
@@ -211,11 +233,6 @@
                                 <li class="submenu-item {{ request()->fullUrlIs('*report-and-audit#riwayatpelatihan*') ? 'active' : '' }}">
                                     <a href="{{ route('report-and-audit') }}#riwayatpelatihan" class="submenu-link">Training Logs</a>
                                 </li>
-                                {{-- Submenu 3: Print Certificate --}}
-                                {{-- Isi: Daftar sertifikat yang bisa di-generate/cetak untuk karyawan yang telah lulus training --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*report-and-audit#cetaksertifikat*') ? 'active' : '' }}">
-                                    <a href="{{ route('report-and-audit') }}#cetaksertifikat" class="submenu-link">Certificates</a>
-                                </li>
                             </ul>
                         </li>
 
@@ -256,7 +273,42 @@
                             </a>
                         </li>
 
-                        {{-- Menu Item 3: Training History --}}
+                        {{-- Menu Item 3: CBT - Ujian Saya --}}
+                        {{-- Fungsi: Ujian kompetensi yang ditugaskan dan hasil ujian --}}
+                        <li class="sidebar-item has-sub {{ request()->is('cbt/*') ? 'active' : '' }}">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-pencil-square"></i>
+                                <span>Ujian Kompetensi</span>
+                            </a>
+                            <ul class="submenu">
+                                {{-- Dashboard Ujian --}}
+                                <li class="submenu-item {{ request()->routeIs('cbt.employee.dashboard') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.employee.dashboard') }}" class="submenu-link">
+                                        Ujian Saya
+                                        @if(Auth::user()->employee)
+                                            @php
+                                                $pendingExamCount = \App\Models\ExamSession::where('employee_nik', Auth::user()->employee->nik)
+                                                    ->whereIn('status', ['assigned', 'started'])
+                                                    ->count();
+                                            @endphp
+                                            @if($pendingExamCount > 0)
+                                                <span class="badge bg-warning ms-auto">{{ $pendingExamCount }}</span>
+                                            @endif
+                                        @endif
+                                    </a>
+                                </li>
+                                {{-- Kompetensi Saya --}}
+                                <li class="submenu-item {{ request()->routeIs('cbt.employee.competencies') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.employee.competencies') }}" class="submenu-link">Kompetensi Saya</a>
+                                </li>
+                                {{-- Riwayat Ujian --}}
+                                <li class="submenu-item {{ request()->routeIs('cbt.employee.history') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.employee.history') }}" class="submenu-link">Riwayat Ujian</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Menu Item 4: Training History --}}
                         {{-- Fungsi: Melihat riwayat training dan assessment yang sudah selesai --}}
                         <li class="sidebar-item {{ request()->routeIs('user.training-history') ? 'active' : '' }}">
                             <a href="{{ route('user.training-history') }}" class='sidebar-link'>
@@ -265,7 +317,7 @@
                             </a>
                         </li>
 
-                        {{-- Menu Item 4: My Profile --}}
+                        {{-- Menu Item 5: My Profile --}}
                         {{-- Fungsi: Edit profil user, lihat informasi pribadi, dan change password --}}
                         <li class="sidebar-item {{ request()->routeIs('user.my-profile') ? 'active' : '' }}">
                             <a href="{{ route('user.my-profile') }}" class='sidebar-link'>
@@ -281,129 +333,112 @@
             </div>
         </div>
         <div id="main">
-            <header>
-                <nav class="navbar navbar-expand navbar-light navbar-top">
-                    <div class="container-fluid">
-                        <a href="#" class="burger-btn d-block">
-                            <i class="bi bi-justify fs-3"></i>
-                        </a>
+            {{-- ========================================
+                 TOPBAR - Rebuilt from scratch
+                 Clean structure, no Bootstrap dropdown dependency
+            ======================================== --}}
+            <header class="topbar">
+                <div class="topbar-container">
+                    {{-- Burger Button --}}
+                    <button class="topbar-burger" id="sidebarToggle" type="button">
+                        <i class="bi bi-justify fs-3"></i>
+                    </button>
 
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                            aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav ms-auto mb-lg-0">
-                                <li class="nav-item dropdown me-1">
-                                    <a class="nav-link active dropdown-toggle text-gray-600" href="#"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-envelope bi-sub fs-4"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                                        <li>
-                                            <h6 class="dropdown-header">Mail</h6>
-                                        </li>
-                                        <li><a class="dropdown-item" href="#">No new mail</a></li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown me-3">
-                                    <a class="nav-link active dropdown-toggle text-gray-600" href="#"
-                                        data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-                                        <i class="bi bi-bell bi-sub fs-4"></i>
-                                        <span class="badge badge-notification bg-danger">7</span>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end notification-dropdown"
-                                        aria-labelledby="dropdownMenuButton">
-                                        <li class="dropdown-header">
-                                            <h6>Notifications</h6>
-                                        </li>
-                                        <li class="dropdown-item notification-item">
-                                            <a class="d-flex align-items-center" href="#">
-                                                <div class="notification-icon bg-primary">
-                                                    <i class="bi bi-cart-check"></i>
-                                                </div>
-                                                <div class="notification-text ms-4">
-                                                    <p class="notification-title font-bold">
-                                                        Successfully check out
-                                                    </p>
-                                                    <p class="notification-subtitle font-thin text-sm">
-                                                        Order ID #256
-                                                    </p>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li class="dropdown-item notification-item">
-                                            <a class="d-flex align-items-center" href="#">
-                                                <div class="notification-icon bg-success">
-                                                    <i class="bi bi-file-earmark-check"></i>
-                                                </div>
-                                                <div class="notification-text ms-4">
-                                                    <p class="notification-title font-bold">
-                                                        Homework submitted
-                                                    </p>
-                                                    <p class="notification-subtitle font-thin text-sm">
-                                                        Algebra math homework
-                                                    </p>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <p class="text-center py-2 mb-0">
-                                                <a href="#">See all notification</a>
-                                            </p>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                            <div class="dropdown">
-                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="user-menu d-flex">
-                                        <div class="user-name text-end me-3">
-                                            <h6 class="mb-0 text-gray-600">{{ auth()->user()->name }}</h6>
-                                            <p class="mb-0 text-sm text-gray-600">Administrator</p>
-                                        </div>
-                                        <div class="user-img d-flex align-items-center">
-                                            <div class="avatar avatar-md">
-                                                <img src="./assets/compiled/jpg/1.jpg" />
+                    {{-- Right Side Items --}}
+                    <div class="topbar-items">
+                        {{-- Notification Bell --}}
+                        @php
+                            $pendingSessions = \App\Models\ExamSession::where('status', 'submitted')
+                                ->with(['employee', 'exam'])
+                                ->orderBy('submitted_at', 'desc')
+                                ->limit(5)
+                                ->get();
+                            $pendingCount = $pendingSessions->count();
+                        @endphp
+                        
+                        <div class="topbar-item" id="notificationWrapper">
+                            <button class="topbar-btn" id="notificationBtn" type="button">
+                                <i class="bi bi-bell fs-4"></i>
+                                @if($pendingCount > 0)
+                                    <span class="topbar-badge">{{ $pendingCount }}</span>
+                                @endif
+                            </button>
+                            
+                            <div class="topbar-dropdown" id="notificationDropdown">
+                                <div class="topbar-dropdown-header">
+                                    <h6 class="mb-0">Verifikasi Hasil Ujian</h6>
+                                </div>
+                                <div class="topbar-dropdown-body">
+                                    @forelse($pendingSessions as $session)
+                                        <a href="{{ route('cbt.admin.sessions.show', $session) }}" class="topbar-dropdown-item">
+                                            <div class="topbar-notification-icon">
+                                                <i class="bi bi-clipboard-check"></i>
                                             </div>
+                                            <div class="topbar-notification-content">
+                                                <div class="topbar-notification-title">{{ $session->employee->name ?? 'Unknown' }}</div>
+                                                <div class="topbar-notification-subtitle">{{ $session->exam->title ?? 'Exam' }}</div>
+                                                <div class="topbar-notification-time">{{ $session->submitted_at?->diffForHumans() ?? 'Recently' }}</div>
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div class="topbar-dropdown-empty">
+                                            <i class="bi bi-check-circle text-success fs-1"></i>
+                                            <p>Semua ujian sudah diverifikasi</p>
                                         </div>
+                                    @endforelse
+                                </div>
+                                @if($pendingCount > 0)
+                                    <div class="topbar-dropdown-footer">
+                                        <a href="{{ route('cbt.admin.sessions.pending') }}">
+                                            <i class="bi bi-arrow-right-circle"></i> Lihat Semua
+                                        </a>
                                     </div>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"
-                                    style="min-width: 11rem">
-                                    <li>
-                                        <h6 class="dropdown-header">Hello, John!</h6>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#"><i
-                                                class="icon-mid bi bi-person me-2"></i> My
-                                            Profile</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#"><i
-                                                class="icon-mid bi bi-gear me-2"></i> Settings</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#"><i
-                                                class="icon-mid bi bi-wallet me-2"></i> Wallet</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider" />
-                                    </li>
-                                    <li>
-                                        <form id="formLogout">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="icon-mid bi bi-box-arrow-left me-2"></i> Logout
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- User Menu --}}
+                        <div class="topbar-item" id="userMenuWrapper">
+                            <button class="topbar-btn topbar-user-btn" id="userMenuBtn" type="button">
+                                <div class="topbar-user-info">
+                                    <div class="topbar-user-name">{{ auth()->user()->name }}</div>
+                                    <div class="topbar-user-role">{{ auth()->user()->isAdmin() ? 'Administrator' : 'Employee' }}</div>
+                                </div>
+                                <div class="topbar-user-avatar">
+                                    @if(auth()->user()->employee && auth()->user()->employee->profile_photo_url)
+                                        <img src="{{ asset('storage/' . auth()->user()->employee->profile_photo_url) }}" alt="{{ auth()->user()->name }}">
+                                    @elseif(auth()->user()->profile_photo_url)
+                                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_url) }}" alt="{{ auth()->user()->name }}">
+                                    @else
+                                        <img src="{{ asset('assets/compiled/jpg/1.jpg') }}" alt="Avatar">
+                                    @endif
+                                </div>
+                            </button>
+                            
+                            <div class="topbar-dropdown topbar-dropdown-user" id="userMenuDropdown">
+                                <div class="topbar-dropdown-header">
+                                    <h6 class="mb-0">Halo, {{ auth()->user()->name }}!</h6>
+                                </div>
+                                <div class="topbar-dropdown-body">
+                                    <a href="#" class="topbar-dropdown-item">
+                                        <i class="bi bi-person me-2"></i> Profil Saya
+                                    </a>
+                                    <a href="#" class="topbar-dropdown-item">
+                                        <i class="bi bi-gear me-2"></i> Pengaturan
+                                    </a>
+                                    <div class="topbar-dropdown-divider"></div>
+                                    <form id="formLogout">
+                                        @csrf
+                                        <button type="submit" class="topbar-dropdown-item topbar-logout-btn">
+                                            <i class="bi bi-box-arrow-left me-2"></i> Keluar
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </nav>
+                </div>
+            </header>
             </header>
 
             <div class="main-content">
@@ -433,31 +468,161 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        // Global: Disable "leave site" warning for auto-submit forms
+        (function() {
+            let isAutoSubmitting = false;
+            
+            // Global beforeunload handler
+            window.addEventListener('beforeunload', function(e) {
+                if (isAutoSubmitting) {
+                    // Allow navigation without warning when auto-submitting
+                    delete e['returnValue'];
+                    return undefined;
+                }
+            }, true); // Use capture phase to ensure this runs first
+            
+            // Global helper function for auto-submit
+            window.autoSubmitForm = function(form) {
+                if (!form) return;
+                isAutoSubmitting = true;
+                setTimeout(() => {
+                    if (form && typeof form.submit === 'function') {
+                        form.submit();
+                    }
+                }, 100);
+            };
+        })();
+
+        // ========================================
+        // TOPBAR: Simple Vanilla JS - No Bootstrap
+        // ========================================
+        (function() {
+            // Elements
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+            
+            // Toggle dropdown function
+            function toggleDropdown(dropdown) {
+                const isOpen = dropdown.classList.contains('show');
+                
+                // Close all dropdowns first
+                document.querySelectorAll('.topbar-dropdown.show').forEach(d => {
+                    d.classList.remove('show');
+                });
+                
+                // Toggle current dropdown
+                if (!isOpen) {
+                    dropdown.classList.add('show');
+                }
+            }
+            
+            // Notification button click
+            if (notificationBtn && notificationDropdown) {
+                notificationBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(notificationDropdown);
+                    
+                    // Hapus badge saat dibuka
+                    const badge = notificationBtn.querySelector('.topbar-badge');
+                    if (badge) {
+                        badge.style.display = 'none';
+                    }
+                });
+            }
+            
+            // User menu button click
+            if (userMenuBtn && userMenuDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(userMenuDropdown);
+                });
+            }
+            
+            // Sidebar toggle
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.getElementById('main');
+                    
+                    if (sidebar) {
+                        // Toggle sidebar state
+                        if (sidebar.classList.contains('active')) {
+                            sidebar.classList.remove('active');
+                            sidebar.classList.add('inactive');
+                        } else {
+                            sidebar.classList.remove('inactive');
+                            sidebar.classList.add('active');
+                        }
+                        
+                        // Adjust main content width on desktop
+                        if (mainContent && window.innerWidth >= 1200) {
+                            if (sidebar.classList.contains('inactive')) {
+                                mainContent.style.marginLeft = '0';
+                            } else {
+                                mainContent.style.marginLeft = '';
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.topbar-item')) {
+                    document.querySelectorAll('.topbar-dropdown.show').forEach(d => {
+                        d.classList.remove('show');
+                    });
+                }
+            });
+            
+            // Close dropdowns on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.topbar-dropdown.show').forEach(d => {
+                        d.classList.remove('show');
+                    });
+                }
+            });
+        })();
 
         document.getElementById('formLogout').addEventListener('submit', function(e){
             e.preventDefault();
+            const form = this;
+            
             Swal.fire({
                 title: 'Yakin ingin logout?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Logout',
-                cancelButtonText: 'Batal'
+                cancelButtonText: 'Batal',
+                reverseButtons: true
             }).then((result) => {
-                App.ajax('{{ route('logout') }}', 'POST',new FormData(this)).then(response => {
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: 'Anda telah logout.',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = '{{ route('login') }}';
+                // Hanya logout jika user klik "Ya, Logout"
+                if (result.isConfirmed) {
+                    App.ajax('{{ route('logout') }}', 'POST', new FormData(form)).then(response => {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Anda telah logout.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = '{{ route('login') }}';
+                        });
+                        
+                    }).catch(error => {
+                        console.log(error);
+                        App.error('Gagal Logout' || 'Terjadi kesalahan saat logout.');
                     });
-                    
-                }).catch(error => {
-                    console.log(error);
-                    App.error('Gagal Logout' || 'Terjadi kesalahan saat logout.');
-                });
+                }
+                // Jika klik "Batal" atau close, tidak terjadi apa-apa (logout dibatalkan)
             });
         });
 

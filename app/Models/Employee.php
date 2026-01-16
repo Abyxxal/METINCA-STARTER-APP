@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -28,12 +29,12 @@ class Employee extends Model
         'nik',
         'name',
         'email',
-        'phone',
         'department_id',
         'division_id',
         'position_id',
         'status',
         'join_date',
+        'photo',
     ];
 
     protected $hidden = [
@@ -88,6 +89,28 @@ class Employee extends Model
      */
     public function competencies(): HasMany
     {
-        return $this->hasMany(EmployeeCompetency::class, 'nik', 'nik');
+        return $this->hasMany(EmployeeCompetency::class, 'employee_nik', 'nik');
+    }
+
+    // ============================================
+    // CBT RELATIONSHIPS
+    // ============================================
+
+    /**
+     * Relation: Employee has many Exam Sessions (CBT)
+     */
+    public function examSessions(): HasMany
+    {
+        return $this->hasMany(ExamSession::class, 'employee_nik', 'nik');
+    }
+
+    /**
+     * Relation: Employee has many Skills (via employee_competencies pivot)
+     */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'employee_competencies', 'employee_nik', 'skill_id')
+            ->withPivot('level', 'verified_by', 'verified_at')
+            ->withTimestamps();
     }
 }

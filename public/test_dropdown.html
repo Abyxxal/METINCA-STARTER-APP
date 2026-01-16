@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Dropdown AJAX</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+    <h1>Test Dropdown AJAX</h1>
+    <select id="deptSelect">
+        <option value="">-- Loading... --</option>
+    </select>
+    
+    <script>
+        console.log('Page loaded');
+        
+        $.ajax({
+            url: '/Laravel_Projects/METINCA-STARTER-APP/public/api/dropdowns/departments',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                console.log('Success:', response);
+                var select = $('#deptSelect');
+                select.html('<option>-- Pilih Departemen --</option>');
+                
+                if (response.data && Array.isArray(response.data)) {
+                    response.data.forEach(function(dept) {
+                        select.append('<option value="' + dept.id + '">' + dept.name + '</option>');
+                    });
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr.status, xhr.responseText);
+                $('#deptSelect').html('<option>Error ' + xhr.status + '</option>');
+            }
+        });
+    </script>
+</body>
+</html>
