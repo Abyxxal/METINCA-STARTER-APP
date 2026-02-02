@@ -153,9 +153,10 @@ class EmployeeExamController extends Controller
         $currentLevel = $competency ? $competency->level : 0;
         
         // Employee must be exactly one level below target to take exam
-        if ($exam->target_level > $currentLevel + 1) {
-            return redirect()->route('cbt.employee.competencies')
-                ->with('error', "Anda belum memenuhi syarat untuk ujian Level {$exam->target_level}. Selesaikan Level " . ($exam->target_level - 1) . " terlebih dahulu.");
+        $requiredLevel = $exam->target_level - 1;
+        if ($currentLevel != $requiredLevel) {
+            return redirect()->route('cbt.employee.dashboard')
+                ->with('error', "Anda belum memenuhi syarat untuk ujian ini. Level Anda saat ini: {$currentLevel}, diperlukan: Level {$requiredLevel}.");
         }
 
         // Create new exam session

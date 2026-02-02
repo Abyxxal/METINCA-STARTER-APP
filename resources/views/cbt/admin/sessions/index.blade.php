@@ -34,17 +34,6 @@
             {{-- Filters --}}
             <form method="GET" class="row g-3 mb-4">
                 <div class="col-md-3">
-                    <label class="form-label">Ujian</label>
-                    <select name="exam_id" class="form-select">
-                        <option value="">Semua Ujian</option>
-                        @foreach($exams as $exam)
-                            <option value="{{ $exam->id }}" {{ request('exam_id') == $exam->id ? 'selected' : '' }}>
-                                {{ $exam->title }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="">Semua Status</option>
@@ -55,11 +44,11 @@
                         <option value="verified_fail" {{ request('status') == 'verified_fail' ? 'selected' : '' }}>Tidak Lulus</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label class="form-label">Dari Tanggal</label>
                     <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label class="form-label">Sampai Tanggal</label>
                     <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
                 </div>
@@ -95,7 +84,7 @@
                                     <br><small class="text-muted">{{ $session->employee->division->name ?? '-' }}</small>
                                 </td>
                                 <td>
-                                    <a href="{{ route('cbt.admin.exams.show', $session->exam) }}">{{ $session->exam->title }}</a>
+                                    <strong>{{ $session->exam->title ?? '-' }}</strong>
                                     <br><small class="text-muted">{{ $session->exam->skill->name ?? '-' }}</small>
                                 </td>
                                 <td>
@@ -182,3 +171,48 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Show detailed notification if there are not eligible or skipped employees
+    @if(session('notEligibleList') || session('skippedList'))
+        let html = '<div style="text-align: left;">';
+        
+        @if(session('assignedCount') && session('assignedCount') > 0)
+            html += '<div class="alert alert-success mb-3"><i class="bi bi-check-circle"></i> <strong>{{ session("assignedCount") }} karyawan berhasil ditugaskan</strong></div>';
+        @endif
+
+        @if(session('notEligibleList') && count(session('notEligibleList')) > 0)
+            html += '<div class="mb-3"><h6 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Tidak Memenuhi Syarat Level:</h6>';
+            html += '<ul style="margin-bottom: 0;">';
+            @foreach(session('notEligibleList') as $emp)
+                html += '<li><strong>{{ $emp['name'] }}</strong> ({{ $emp['nik'] }}) - Level saat ini: <span class="badge bg-warning">{{ $emp['current_level'] }}</span>, Required: <span class="badge bg-info">{{ $emp['required_level'] }}</span>, Target: <span class="badge bg-success">{{ $emp['target_level'] }}</span></li>';
+            @endforeach
+            html += '</ul></div>';
+        @endif
+
+        @if(session('skippedList') && count(session('skippedList')) > 0)
+            html += '<div class="mb-3"><h6 class="text-warning"><i class="bi bi-info-circle"></i> Dilewati:</h6>';
+            html += '<ul style="margin-bottom: 0;">';
+            @foreach(session('skippedList') as $emp)
+                html += '<li><strong>{{ $emp['name'] }}</strong> ({{ $emp['nik'] }}) - {{ $emp['reason'] }}</li>';
+            @endforeach
+            html += '</ul></div>';
+        @endif
+
+        html += '</div>';
+
+        Swal.fire({
+            title: 'Detail Penugasan Ujian',
+            html: html,
+            icon: 'info',
+            confirmButtonText: 'OK',
+            width: '600px',
+            customClass: {
+                popup: 'swal-wide'
+            }
+        });
+    @endif
+</script>
+@endpush

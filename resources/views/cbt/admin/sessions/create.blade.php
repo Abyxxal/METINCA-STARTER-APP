@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>Tugaskan Ujian</h3>
-                <p class="text-subtitle text-muted">Pilih ujian dan karyawan yang akan mengikuti</p>
+                <p class="text-subtitle text-muted">Pilih soal dari Bank Soal dan tugaskan ke karyawan</p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
@@ -24,68 +24,143 @@
 </div>
 
 <section class="section">
-    <form action="{{ route('cbt.admin.sessions.store') }}" method="POST">
+    <form action="{{ route('cbt.admin.sessions.store') }}" method="POST" id="formTugaskanUjian">
         @csrf
         
         <div class="row">
+            {{-- LEFT COLUMN: Pilih Soal --}}
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Pilih Ujian</h4>
+                        <h4 class="card-title"><i class="bi bi-filter me-2"></i>Filter Soal</h4>
                     </div>
                     <div class="card-body">
-                        <div class="form-group mb-3">
-                            <label class="form-label">Ujian <span class="text-danger">*</span></label>
-                            <select name="exam_id" id="examSelect" class="form-select @error('exam_id') is-invalid @enderror" required>
-                                <option value="">-- Pilih Ujian --</option>
-                                @foreach($exams as $exam)
-                                    <option value="{{ $exam->id }}" 
-                                        data-skill="{{ $exam->skill->name ?? '-' }}"
-                                        data-level="{{ $exam->target_level }}"
-                                        data-kkm="{{ $exam->passing_score }}"
-                                        data-duration="{{ $exam->duration_minutes }}"
-                                        {{ old('exam_id', request('exam_id')) == $exam->id ? 'selected' : '' }}>
-                                        {{ $exam->title }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('exam_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        {{-- Search Bar --}}
+                        <div class="mb-3">
+                            <label class="form-label">Cari Set Soal</label>
+                            <input type="text" id="searchSetSoal" class="form-control" placeholder="Ketik nama set soal...">
                         </div>
-
-                        <div id="examInfo" class="alert alert-light d-none">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <small class="text-muted">Skill</small>
-                                    <div class="fw-bold" id="examSkill">-</div>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">Target Level</small>
-                                    <div class="fw-bold" id="examLevel">-</div>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">KKM</small>
-                                    <div class="fw-bold" id="examKkm">-</div>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">Durasi</small>
-                                    <div class="fw-bold" id="examDuration">- menit</div>
-                                </div>
+                        
+                        <div class="row g-3 mb-3">
+                            {{-- Filter Divisi --}}
+                            <div class="col-md-4">
+                                <label class="form-label">Divisi</label>
+                                <select id="filterDivisi" class="form-select">
+                                    <option value="">-- Semua Divisi --</option>
+                                    @foreach($divisions as $division)
+                                        <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            {{-- Filter Level --}}
+                            <div class="col-md-4">
+                                <label class="form-label">Level Kompetensi</label>
+                                <select id="filterLevel" class="form-select">
+                                    <option value="">-- Semua Level --</option>
+                                    <option value="1">Level 1 - Novice</option>
+                                    <option value="2">Level 2 - Competent</option>
+                                    <option value="3">Level 3 - Proficient</option>
+                                    <option value="4">Level 4 - Expert</option>
+                                </select>
+                            </div>
+                            {{-- Filter Tipe Soal --}}
+                            <div class="col-md-4">
+                                <label class="form-label">Tipe Soal</label>
+                                <select id="filterTipe" class="form-select">
+                                    <option value="">-- Semua Tipe --</option>
+                                    <option value="multiple_choice">Pilihan Ganda</option>
+                                    <option value="essay">Essay</option>
+                                    <option value="true_false">Benar/Salah</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Pilih Karyawan</h4>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0"><i class="bi bi-file-earmark-text me-2"></i>Pilih Set Soal</h4>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllSoal">Pilih Semua</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllSoal">Batal Semua</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                            <table class="table table-sm table-hover" id="tableSoal">
+                                <thead class="sticky-top bg-light">
+                                    <tr>
+                                        <th width="5%"></th>
+                                        <th width="35%">Judul Set Soal</th>
+                                        <th width="20%">Divisi</th>
+                                        <th width="15%">Level</th>
+                                        <th width="10%">Jumlah Soal</th>
+                                        <th width="15%">Tipe</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodySoal">
+                                    @forelse($questionSets as $set)
+                                        <tr class="question-row" 
+                                            data-division="{{ $set->skill->division_id ?? '' }}"
+                                            data-level="{{ $set->for_level }}"
+                                            data-type="{{ $set->type }}"
+                                            data-set-title="{{ strtolower($set->set_title) }}">
+                                            <td>
+                                                <input type="checkbox" 
+                                                       name="question_set_ids[]" 
+                                                       value="{{ $set->question_set_id }}" 
+                                                       data-total-questions="{{ $set->total_questions }}"
+                                                       class="question-checkbox form-check-input">
+                                            </td>
+                                            <td>
+                                                <strong>{{ $set->set_title }}</strong>
+                                            </td>
+                                            <td>
+                                                <small>{{ $set->skill->division->name ?? '-' }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">Level {{ $set->for_level }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ $set->total_questions }} soal</span>
+                                            </td>
+                                            <td>
+                                                @if($set->type === 'pilihan_ganda')
+                                                    <span class="badge bg-info">Pilihan Ganda</span>
+                                                @elseif($set->type === 'esai')
+                                                    <span class="badge bg-warning">Esai</span>
+                                                @else
+                                                    <span class="badge bg-secondary">{{ ucfirst($set->type) }}</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <i class="bi bi-inbox fs-1 text-muted"></i>
+                                                <p class="text-muted mt-2">Tidak ada set soal tersedia</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0"><i class="bi bi-people me-2"></i>Pilih Karyawan</h4>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllKaryawan">Pilih Semua</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllKaryawan">Batal Semua</button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label small text-muted">Filter Divisi</label>
-                                <select id="divisionFilter" class="form-select form-select-sm">
+                                <label class="form-label small text-muted">Filter Divisi Karyawan</label>
+                                <select id="filterDivisiKaryawan" class="form-select form-select-sm">
                                     <option value="">-- Semua Divisi --</option>
                                     @foreach($divisions as $division)
                                         <option value="{{ $division->id }}">{{ $division->name }}</option>
@@ -94,18 +169,12 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small text-muted">Cari Karyawan</label>
-                                <input type="text" id="searchEmployee" class="form-control form-control-sm" placeholder="Cari nama/NIK...">
+                                <input type="text" id="searchKaryawan" class="form-control form-control-sm" placeholder="Cari nama/NIK...">
                             </div>
                         </div>
 
-                        <div class="mb-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary" id="selectAll">Pilih Semua</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAll">Batal Semua</button>
-                            <span class="text-muted small ms-2" id="filteredCount"></span>
-                        </div>
-
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                            <table class="table table-sm table-hover" id="employeeTable">
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm table-hover" id="tableKaryawan">
                                 <thead class="sticky-top bg-light">
                                     <tr>
                                         <th width="5%"></th>
@@ -122,8 +191,7 @@
                                             data-nik="{{ strtolower($employee->nik) }}"
                                             data-division="{{ $employee->division_id }}">
                                             <td>
-                                                <input type="checkbox" name="employee_niks[]" value="{{ $employee->nik }}" class="employee-checkbox"
-                                                    {{ in_array($employee->nik, old('employee_niks', [])) ? 'checked' : '' }}>
+                                                <input type="checkbox" name="employee_niks[]" value="{{ $employee->nik }}" class="employee-checkbox form-check-input">
                                             </td>
                                             <td>{{ $employee->nik }}</td>
                                             <td>{{ $employee->name }}</td>
@@ -138,7 +206,9 @@
                                 </tbody>
                             </table>
                         </div>
-
+                        <div class="mt-2">
+                            <span class="text-muted small" id="karyawanInfo">{{ count($employees) }} karyawan aktif</span>
+                        </div>
                         @error('employee_niks')
                             <div class="text-danger small mt-2">{{ $message }}</div>
                         @enderror
@@ -146,23 +216,51 @@
                 </div>
             </div>
 
+            {{-- RIGHT COLUMN: Konfigurasi & Ringkasan --}}
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Ringkasan</h4>
+                        <h4 class="card-title"><i class="bi bi-gear me-2"></i>Konfigurasi Ujian</h4>
                     </div>
                     <div class="card-body">
-                        <table class="table table-borderless">
+                        {{-- Durasi --}}
+                        <div class="mb-3">
+                            <label class="form-label">Durasi (menit) <span class="text-danger">*</span></label>
+                            <input type="number" name="duration_minutes" class="form-control @error('duration_minutes') is-invalid @enderror" 
+                                   value="{{ old('duration_minutes', 60) }}" min="5" max="300" required>
+                            @error('duration_minutes')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Passing Score --}}
+                        <div class="mb-3">
+                            <label class="form-label">Nilai Minimum Lulus (KKM) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" name="passing_score" class="form-control @error('passing_score') is-invalid @enderror" 
+                                       value="{{ old('passing_score', 70) }}" min="0" max="100" required>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            @error('passing_score')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <hr>
+
+                        {{-- Ringkasan --}}
+                        <h6 class="mb-3"><i class="bi bi-clipboard-data me-2"></i>Ringkasan</h6>
+                        <table class="table table-sm table-borderless">
                             <tr>
                                 <td class="text-muted">Karyawan Dipilih</td>
-                                <td class="fw-bold text-end" id="selectedCount">0</td>
+                                <td class="fw-bold text-end" id="selectedKaryawanCount">0</td>
                             </tr>
                         </table>
 
                         <hr>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit">
                                 <i class="bi bi-send"></i> Tugaskan Ujian
                             </button>
                             <a href="{{ route('cbt.admin.sessions.index') }}" class="btn btn-secondary">
@@ -179,49 +277,37 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const examSelect = document.getElementById('examSelect');
-    const examInfo = document.getElementById('examInfo');
-    const searchInput = document.getElementById('searchEmployee');
-    const divisionFilter = document.getElementById('divisionFilter');
-    const employeeTable = document.getElementById('employeeTable');
-    const selectAllBtn = document.getElementById('selectAll');
-    const deselectAllBtn = document.getElementById('deselectAll');
-    const filteredCountSpan = document.getElementById('filteredCount');
-
-    // Show exam info when selected
-    examSelect.addEventListener('change', function() {
-        const selected = this.options[this.selectedIndex];
-        if (this.value) {
-            examInfo.classList.remove('d-none');
-            document.getElementById('examSkill').textContent = selected.dataset.skill;
-            document.getElementById('examLevel').textContent = 'Level ' + selected.dataset.level;
-            document.getElementById('examKkm').textContent = selected.dataset.kkm + '%';
-            document.getElementById('examDuration').textContent = selected.dataset.duration + ' menit';
-        } else {
-            examInfo.classList.add('d-none');
-        }
-    });
-
-    // Trigger change on page load if exam pre-selected
-    if (examSelect.value) {
-        examSelect.dispatchEvent(new Event('change'));
-    }
-
-    // Filter employees
-    function filterEmployees() {
-        const search = searchInput.value.toLowerCase();
-        const divisionId = divisionFilter.value;
+    // Elements
+    const filterDivisi = document.getElementById('filterDivisi');
+    const filterLevel = document.getElementById('filterLevel');
+    const filterTipe = document.getElementById('filterTipe');
+    const searchSetSoal = document.getElementById('searchSetSoal');
+    
+    const filterDivisiKaryawan = document.getElementById('filterDivisiKaryawan');
+    const searchKaryawan = document.getElementById('searchKaryawan');
+    
+    // ============================================
+    // FILTER SOAL
+    // ============================================
+    function filterSoal() {
+        const divisi = filterDivisi.value;
+        const level = filterLevel.value;
+        const tipe = filterTipe.value;
+        const searchText = searchSetSoal.value.toLowerCase().trim();
         let visibleCount = 0;
 
-        document.querySelectorAll('.employee-row').forEach(row => {
-            const name = row.dataset.name || '';
-            const nik = row.dataset.nik || '';
-            const division = row.dataset.division || '';
+        document.querySelectorAll('.question-row').forEach(row => {
+            const rowDivision = row.dataset.division || '';
+            const rowLevel = row.dataset.level || '';
+            const rowType = row.dataset.type || '';
+            const rowSetTitle = row.dataset.setTitle || '';
 
-            const matchSearch = name.includes(search) || nik.includes(search);
-            const matchDivision = !divisionId || division === divisionId;
+            const matchDivisi = !divisi || rowDivision === divisi;
+            const matchLevel = !level || rowLevel === level;
+            const matchTipe = !tipe || rowType === tipe;
+            const matchSearch = !searchText || rowSetTitle.includes(searchText);
 
-            if (matchSearch && matchDivision) {
+            if (matchDivisi && matchLevel && matchTipe && matchSearch) {
                 row.style.display = '';
                 visibleCount++;
             } else {
@@ -229,11 +315,72 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        filteredCountSpan.textContent = `(${visibleCount} karyawan ditampilkan)`;
+        document.getElementById('soalInfo').textContent = visibleCount + ' soal ditampilkan';
     }
 
-    // Debounce utility function
-    function debounce(func, delay = 500) {
+    // Real-time filtering for all inputs
+    searchSetSoal.addEventListener('input', filterSoal);
+    filterDivisi.addEventListener('change', filterSoal);
+    filterLevel.addEventListener('change', filterSoal);
+    filterTipe.addEventListener('change', filterSoal);
+    
+    // Initialize filter on page load
+    filterSoal();
+
+    // Select/Deselect All Soal (visible only)
+    const btnSelectAllSoal = document.getElementById('selectAllSoal');
+    const btnDeselectAllSoal = document.getElementById('deselectAllSoal');
+    
+    if (btnSelectAllSoal) {
+        btnSelectAllSoal.addEventListener('click', function() {
+            document.querySelectorAll('.question-row').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const checkbox = row.querySelector('.question-checkbox');
+                    if (checkbox) checkbox.checked = true;
+                }
+            });
+            updateCounts();
+        });
+    }
+
+    if (btnDeselectAllSoal) {
+        btnDeselectAllSoal.addEventListener('click', function() {
+            document.querySelectorAll('.question-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            updateCounts();
+        });
+    }
+
+    // ============================================
+    // FILTER KARYAWAN
+    // ============================================
+    function filterKaryawan() {
+        const divisi = filterDivisiKaryawan.value;
+        const search = searchKaryawan.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        document.querySelectorAll('.employee-row').forEach(row => {
+            const rowDivision = row.dataset.division || '';
+            const rowName = row.dataset.name || '';
+            const rowNik = row.dataset.nik || '';
+
+            const matchDivisi = !divisi || rowDivision === divisi;
+            const matchSearch = !search || rowName.includes(search) || rowNik.includes(search);
+
+            if (matchDivisi && matchSearch) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('karyawanInfo').textContent = visibleCount + ' karyawan ditampilkan';
+    }
+
+    // Debounce utility
+    function debounce(func, delay = 300) {
         let timeoutId;
         return function(...args) {
             clearTimeout(timeoutId);
@@ -241,40 +388,77 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Search employees with debounce
-    const debouncedFilter = debounce(filterEmployees, 500);
-    searchInput.addEventListener('input', debouncedFilter);
-    divisionFilter.addEventListener('change', filterEmployees);
+    searchKaryawan.addEventListener('input', debounce(filterKaryawan, 300));
+    filterDivisiKaryawan.addEventListener('change', filterKaryawan);
 
-    // Initial filter
-    filterEmployees();
-
-    // Select/deselect all visible
-    selectAllBtn.addEventListener('click', function() {
-        document.querySelectorAll('.employee-checkbox').forEach(cb => {
-            if (cb.closest('tr').style.display !== 'none') {
-                cb.checked = true;
-            }
+    // Select/Deselect All Karyawan (visible only)
+    const btnSelectAllKaryawan = document.getElementById('selectAllKaryawan');
+    const btnDeselectAllKaryawan = document.getElementById('deselectAllKaryawan');
+    
+    if (btnSelectAllKaryawan) {
+        btnSelectAllKaryawan.addEventListener('click', function() {
+            document.querySelectorAll('.employee-row').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const checkbox = row.querySelector('.employee-checkbox');
+                    if (checkbox) checkbox.checked = true;
+                }
+            });
+            updateCounts();
         });
-        updateCount();
-    });
-
-    deselectAllBtn.addEventListener('click', function() {
-        document.querySelectorAll('.employee-checkbox').forEach(cb => cb.checked = false);
-        updateCount();
-    });
-
-    // Update count on checkbox change
-    document.querySelectorAll('.employee-checkbox').forEach(cb => {
-        cb.addEventListener('change', updateCount);
-    });
-
-    function updateCount() {
-        const count = document.querySelectorAll('.employee-checkbox:checked').length;
-        document.getElementById('selectedCount').textContent = count;
     }
 
-    updateCount();
+    if (btnDeselectAllKaryawan) {
+        btnDeselectAllKaryawan.addEventListener('click', function() {
+            document.querySelectorAll('.employee-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            updateCounts();
+        });
+    }
+
+    // ============================================
+    // UPDATE COUNTS
+    // ============================================
+    function updateCounts() {
+        const karyawanCount = document.querySelectorAll('.employee-checkbox:checked').length;
+        const karyawanCountElement = document.getElementById('selectedKaryawanCount');
+        if (karyawanCountElement) {
+            karyawanCountElement.textContent = karyawanCount;
+        }
+    }
+
+    // Use event delegation for better performance and dynamic content
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('employee-checkbox') || 
+            e.target.classList.contains('question-checkbox')) {
+            updateCounts();
+        }
+    });
+
+    // Initial count on page load
+    updateCounts();
+
+    // ============================================
+    // FORM VALIDATION
+    // ============================================
+    document.getElementById('formTugaskanUjian').addEventListener('submit', function(e) {
+        const soalCount = document.querySelectorAll('.question-checkbox:checked').length;
+        const karyawanCount = document.querySelectorAll('.employee-checkbox:checked').length;
+        
+        if (soalCount === 0) {
+            e.preventDefault();
+            alert('Pilih minimal 1 set soal!');
+            return false;
+        }
+        
+        if (karyawanCount === 0) {
+            e.preventDefault();
+            alert('Pilih minimal 1 karyawan!');
+            return false;
+        }
+        
+        return true;
+    });
 });
 </script>
 @endpush

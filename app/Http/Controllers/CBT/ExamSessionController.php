@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\EmployeeCompetency;
 use App\Models\Exam;
 use App\Models\ExamSession;
+use App\Models\Question;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,11 +33,6 @@ class ExamSessionController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Filter by exam
-        if ($request->exam_id) {
-            $query->where('exam_id', $request->exam_id);
-        }
-
         // Filter by date range
         if ($request->from_date) {
             $query->whereDate('created_at', '>=', $request->from_date);
@@ -46,19 +42,31 @@ class ExamSessionController extends Controller
         }
 
         $sessions = $query->latest()->paginate(20);
-        $exams = Exam::where('is_published', true)->get();
 
-        return view('cbt.admin.sessions.index', compact('sessions', 'exams'));
+        return view('cbt.admin.sessions.index', compact('sessions'));
     }
 
     /**
      * Show form to assign exam to employee(s).
+     * Using Question Set (paket soal) selection
      */
     public function create()
     {
-        $exams = Exam::where('is_published', true)
-            ->with('skill')
-            ->get();
+        // Get unique question sets with their details
+        $questionSets = Question::with(['skill.division'])
+            ->where('status', 'active')
+            ->whereNotNull('question_set_id')
+            ->whereNotNull('set_title')
+            ->select('question_set_id', 'set_title', 'skill_id', 'for_level')
+            ->selectRaw('MIN(type) as type')
+            ->selectRaw('COUNT(*) as total_questions')
+            ->groupBy('question_set_id', 'set_title', 'skill_id', 'for_level')
+            ->get()
+            ->map(function($set) {
+                // Load skill for division info
+                $set->skill = \App\Models\Skill::with('division')->find($set->skill_id);
+                return $set;
+            });
 
         $employees = Employee::with(['division', 'position'])
             ->where('status', 'Aktif')
@@ -67,55 +75,169 @@ class ExamSessionController extends Controller
 
         $divisions = \App\Models\Division::orderBy('name')->get();
 
-        return view('cbt.admin.sessions.create', compact('exams', 'employees', 'divisions'));
+        return view('cbt.admin.sessions.create', compact('questionSets', 'employees', 'divisions'));
     }
 
     /**
-     * Assign exam to employee(s).
+     * Create exam from selected question sets and assign to employees.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'exam_id' => 'required|exists:exams,id',
+            'duration_minutes' => 'required|integer|min:5|max:300',
+            'passing_score' => 'required|integer|min:0|max:100',
+            'question_set_ids' => 'required|array|min:1',
+            'question_set_ids.*' => 'string',
             'employee_niks' => 'required|array|min:1',
             'employee_niks.*' => 'exists:employees,nik',
         ]);
 
-        $exam = Exam::findOrFail($validated['exam_id']);
-        $assigned = 0;
-        $skipped = 0;
+        DB::beginTransaction();
 
-        foreach ($validated['employee_niks'] as $nik) {
-            // Check if employee already has pending/started session for this exam
-            $existingSession = ExamSession::where('exam_id', $exam->id)
-                ->where('employee_nik', $nik)
-                ->whereIn('status', [
-                    ExamSession::STATUS_ASSIGNED,
-                    ExamSession::STATUS_STARTED
-                ])
-                ->exists();
+        try {
+            // Get all questions from selected sets
+            $questions = Question::whereIn('question_set_id', $validated['question_set_ids'])
+                ->where('status', 'active')
+                ->with('skill')
+                ->get();
 
-            if ($existingSession) {
-                $skipped++;
-                continue;
+            if ($questions->isEmpty()) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Tidak ada soal ditemukan dalam set yang dipilih');
             }
 
-            ExamSession::create([
-                'exam_id' => $exam->id,
-                'employee_nik' => $nik,
-                'status' => ExamSession::STATUS_ASSIGNED,
+            // Get set titles for exam title
+            $setTitles = Question::whereIn('question_set_id', $validated['question_set_ids'])
+                ->select('set_title')
+                ->distinct()
+                ->pluck('set_title')
+                ->toArray();
+            
+            $examTitle = count($setTitles) === 1 
+                ? $setTitles[0] 
+                : implode(' + ', $setTitles);
+
+            // Get target level from question level (for_level)
+            $targetLevel = $questions->first()->for_level ?? 1;
+
+            // Get the first question to determine skill_id
+            $skillId = $questions->first()->skill_id ?? null;
+
+            // Create exam automatically
+            $exam = Exam::create([
+                'skill_id' => $skillId,
+                'title' => $examTitle,
+                'description' => 'Ujian dibuat otomatis dari Sesi Ujian (' . count($validated['question_set_ids']) . ' set soal)',
+                'target_level' => $targetLevel,
+                'passing_score' => $validated['passing_score'],
+                'duration_minutes' => $validated['duration_minutes'],
+                'is_published' => true,
+                'status' => 'active',
             ]);
-            $assigned++;
-        }
 
-        $message = "{$assigned} karyawan berhasil ditugaskan ujian.";
-        if ($skipped > 0) {
-            $message .= " ({$skipped} dilewati karena sudah memiliki sesi aktif)";
-        }
+            // Attach all questions from selected sets to exam
+            $order = 1;
+            foreach ($questions as $question) {
+                $exam->questions()->attach($question->id, [
+                    'weight' => 1,
+                    'order' => $order++,
+                ]);
+            }
 
-        return redirect()
-            ->route('cbt.admin.sessions.index')
-            ->with('success', $message);
+            // Assign exam to employees
+            $assigned = 0;
+            $skipped = 0;
+            $notEligibleList = [];
+            $skippedList = [];
+
+            foreach ($validated['employee_niks'] as $nik) {
+                // Get employee with competencies
+                $employee = Employee::with('competencies')->where('nik', $nik)->first();
+
+                if (!$employee) {
+                    $skippedList[] = [
+                        'name' => 'NIK: ' . $nik,
+                        'nik' => $nik,
+                        'reason' => 'Karyawan tidak ditemukan'
+                    ];
+                    $skipped++;
+                    continue;
+                }
+
+                // Check employee's current level for this skill
+                $competency = $employee->competencies->where('skill_id', $skillId)->first();
+                $currentLevel = $competency ? $competency->level : 0;
+
+                // Validation: Employee must be exactly one level below target
+                // Level 0 can only take Level 1 exam
+                // Level 1 can only take Level 2 exam, etc.
+                $requiredLevel = $targetLevel - 1;
+                if ($currentLevel != $requiredLevel) {
+                    $notEligibleList[] = [
+                        'name' => $employee->name,
+                        'nik' => $employee->nik,
+                        'current_level' => $currentLevel,
+                        'required_level' => $requiredLevel,
+                        'target_level' => $targetLevel
+                    ];
+                    continue;
+                }
+
+                // Check if employee already has pending/started session for this exam
+                $existingSession = ExamSession::where('exam_id', $exam->id)
+                    ->where('employee_nik', $nik)
+                    ->whereIn('status', [
+                        ExamSession::STATUS_ASSIGNED,
+                        ExamSession::STATUS_STARTED
+                    ])
+                    ->exists();
+
+                if ($existingSession) {
+                    $skippedList[] = [
+                        'name' => $employee->name,
+                        'nik' => $employee->nik,
+                        'reason' => 'Sudah memiliki sesi ujian aktif'
+                    ];
+                    $skipped++;
+                    continue;
+                }
+
+                ExamSession::create([
+                    'exam_id' => $exam->id,
+                    'employee_nik' => $nik,
+                    'status' => ExamSession::STATUS_ASSIGNED,
+                ]);
+                $assigned++;
+            }
+
+            DB::commit();
+
+            $totalSoal = $order - 1;
+            $totalSets = count($validated['question_set_ids']);
+            $message = "Ujian '{$exam->title}' berhasil dibuat dengan {$totalSets} set soal ({$totalSoal} soal). {$assigned} karyawan ditugaskan.";
+            $notEligibleCount = count($notEligibleList);
+            if ($notEligibleCount > 0) {
+                $requiredLvl = $targetLevel - 1;
+                $message .= " ({$notEligibleCount} karyawan tidak memenuhi syarat - harus Level {$requiredLvl})";
+            }
+            if ($skipped > 0) {
+                $message .= " ({$skipped} dilewati karena sudah memiliki sesi aktif)";
+            }
+
+            return redirect()
+                ->route('cbt.admin.sessions.index')
+                ->with('success', $message)
+                ->with('notEligibleList', $notEligibleList)
+                ->with('skippedList', $skippedList)
+                ->with('assignedCount', $assigned);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal membuat ujian: ' . $e->getMessage());
+        }
     }
 
     /**

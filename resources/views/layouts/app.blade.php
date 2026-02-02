@@ -145,8 +145,8 @@
                         </li>
 
                         {{-- Menu Item 4: Evaluation & Exam --}}
-                        {{-- Fungsi: Manajemen soal ujian, setup ujian, dan tracking hasil ujian karyawan --}}
-                        {{-- Submenu: Bank Soal, Setup Ujian, Hasil Ujian --}}
+                        {{-- Fungsi: Manajemen soal ujian dan tracking hasil ujian karyawan --}}
+                        {{-- Submenu: Bank Soal, Sesi Ujian, Verifikasi Hasil, Hasil Ujian --}}
                         <li class="sidebar-item has-sub {{ request()->is('evaluation-and-exam*') || request()->is('cbt/admin*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-clipboard-check-fill"></i>
@@ -156,10 +156,6 @@
                                 {{-- CBT: Bank Soal --}}
                                 <li class="submenu-item {{ request()->is('cbt/admin/questions*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.questions.index') }}" class="submenu-link">Bank Soal</a>
-                                </li>
-                                {{-- CBT: Setup Ujian --}}
-                                <li class="submenu-item {{ request()->is('cbt/admin/exams*') ? 'active' : '' }}">
-                                    <a href="{{ route('cbt.admin.exams.index') }}" class="submenu-link">Setup Ujian</a>
                                 </li>
                                 {{-- CBT: Sesi Ujian / Penugasan --}}
                                 <li class="submenu-item {{ request()->is('cbt/admin/sessions*') ? 'active' : '' }}">
