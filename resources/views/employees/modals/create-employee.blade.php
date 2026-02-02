@@ -105,9 +105,7 @@
                                     required
                                     style="border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 0.625rem 0.875rem; font-size: 0.9rem;">
                                     <option value="">-- Pilih Departemen --</option>
-                                    <option value="IT">IT</option>
-                                    <option value="HRD">HRD</option>
-                                    <option value="Finance">Finance</option>
+                                    <!-- Options loaded dynamically from database -->
                                 </select>
                             </div>
 
@@ -123,9 +121,7 @@
                                     required
                                     style="border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 0.625rem 0.875rem; font-size: 0.9rem;">
                                     <option value="">-- Pilih Divisi --</option>
-                                    <option value="Backend">Backend</option>
-                                    <option value="Frontend">Frontend</option>
-                                    <option value="Recruitment">Recruitment</option>
+                                    <!-- Options loaded based on department selection -->
                                 </select>
                             </div>
 
@@ -141,9 +137,7 @@
                                     required
                                     style="border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 0.625rem 0.875rem; font-size: 0.9rem;">
                                     <option value="">-- Pilih Jabatan --</option>
-                                    <option value="Staff">Staff</option>
-                                    <option value="SPV">SPV (Supervisor)</option>
-                                    <option value="Manager">Manager</option>
+                                    <!-- Options loaded based on division selection -->
                                 </select>
                             </div>
 
@@ -241,24 +235,138 @@
         // Collect form data
         const formData = {
             nik: document.getElementById('nikInput').value,
-            nama_lengkap: document.getElementById('namaInput').value,
+            name: document.getElementById('namaInput').value,
             email: document.getElementById('emailInput').value,
-            departemen: document.getElementById('departemenSelect').value,
-            divisi: document.getElementById('divisiSelect').value,
-            posisi: document.getElementById('posisiSelect').value,
+            password: document.getElementById('passwordInput').value,
+            department_id: document.getElementById('departemenSelect').value,
+            division_id: document.getElementById('divisiSelect').value,
+            position_id: document.getElementById('posisiSelect').value,
             join_date: document.getElementById('joinDateInput').value,
+            status: 'Aktif'
         };
 
-        console.log('Form Data:', formData);
-        
-        // Here you would send this data to your backend via AJAX
-        alert('Data karyawan siap disimpan!\n\nNIK: ' + formData.nik + '\nNama: ' + formData.nama_lengkap);
-        
-        // Close modal
-        bootstrap.Modal.getInstance(document.getElementById('modalCreateEmployee')).hide();
-        
-        // Reset form
-        this.reset();
-        document.getElementById('photoPreview').style.display = 'none';
+        // Send to backend
+        fetch('/api/employees', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Karyawan berhasil ditambahkan!');
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('modalCreateEmployee')).hide();
+                // Reset form
+                this.reset();
+                document.getElementById('photoPreview').style.display = 'none';
+                // Reload page or refresh table
+                location.reload();
+            } else {
+                alert('Gagal menambahkan karyawan: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat menyimpan data');
+        });
     });
+    
+    // Load departments on modal show
+    const createModal = document.getElementById('modalCreateEmployee');
+    if (createModal) {
+        createModal.addEventListener('show.bs.modal', function() {
+            loadDepartmentsForCreate();
+        });
+    }
+    
+    // Handle dropdown changes
+    document.getElementById('departemenSelect').addEventListener('change', function() {
+        const deptId = this.value;
+        const divisiSelect = document.getElementById('divisiSelect');
+        const posisiSelect = document.getElementById('posisiSelect');
+        
+        divisiSelect.innerHTML = '<option value="">-- Pilih Divisi --</option>';
+        posisiSelect.innerHTML = '<option value="">-- Pilih Jabatan --</option>';
+        
+        if (deptId) {
+            loadDivisionsForCreate(deptId);
+        }
+    });
+    
+    document.getElementById('divisiSelect').addEventListener('change', function() {
+        const divId = this.value;
+        const posisiSelect = document.getElementById('posisiSelect');
+        posisiSelect.innerHTML = '<option value="">-- Pilih Jabatan --</option>';
+        
+        if (divId) {
+            loadPositionsForCreate(divId);
+        }
+    });
+    
+    // Load departments function
+    async function loadDepartmentsForCreate() {
+        try {
+            const response = await fetch('/api/dropdowns/departments');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const select = document.getElementById('departemenSelect');
+                // Clear existing options except the first one
+                select.innerHTML = '<option value="">-- Pilih Departemen --</option>';
+                
+                result.data.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Load departments error:', error);
+        }
+    }
+    
+    // Load divisions function
+    async function loadDivisionsForCreate(departmentId) {
+        try {
+            const response = await fetch(`/api/dropdowns/divisions?department_id=${departmentId}`);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const select = document.getElementById('divisiSelect');
+                result.data.forEach(div => {
+                    const option = document.createElement('option');
+                    option.value = div.id;
+                    option.textContent = div.name;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Load divisions error:', error);
+        }
+    }
+    
+    // Load positions function
+    async function loadPositionsForCreate(divisionId) {
+        try {
+            const response = await fetch(`/api/dropdowns/positions?division_id=${divisionId}`);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const select = document.getElementById('posisiSelect');
+                result.data.forEach(pos => {
+                    const option = document.createElement('option');
+                    option.value = pos.id;
+                    option.textContent = pos.name;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Load positions error:', error);
+        }
+    }
 </script>

@@ -18,6 +18,7 @@ Route::get('/dropdowns/positions', [MasterDataController::class, 'getPositionsBy
 
 // PUBLIC READ ROUTES (untuk DataTables yang loaded saat page load, sebelum authentication)
 Route::get('/departments', [MasterDataController::class, 'getDepartments']);
+Route::get('/departments/{id}', [MasterDataController::class, 'showDepartment']); // Get single department with divisions & positions
 Route::get('/employees', [MasterDataController::class, 'getEmployees']);
 Route::get('/positions', [MasterDataController::class, 'getPositionsByDivision']);
 Route::get('/divisions', [MasterDataController::class, 'getDivisions']);

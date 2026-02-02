@@ -29,6 +29,33 @@ Route::get('/',function(){
 require __DIR__.'/auth.php';
 require __DIR__.'/cbt.php'; // CBT Routes
 
+// DEBUG ROUTE - Raw data check
+Route::get('/debug-dropdown', function() {
+    $departments = \App\Models\Department::all();
+    $divisions = \App\Models\Division::all();
+    $positions = \App\Models\Position::all();
+    
+    return response()->json([
+        'departments' => $departments->map(fn($d) => ['id' => $d->id, 'name' => $d->name]),
+        'divisions' => $divisions->map(fn($d) => ['id' => $d->id, 'name' => $d->name, 'department_id' => $d->department_id]),
+        'positions' => $positions->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'division_id' => $p->division_id]),
+        'counts' => [
+            'departments' => $departments->count(),
+            'divisions' => $divisions->count(),
+            'positions' => $positions->count(),
+        ]
+    ]);
+});
+
+// TEST ROUTE - Cascade Dropdown Test
+Route::get('/test-cascade', function() {
+    $departments = \App\Models\Department::all();
+    $divisions = \App\Models\Division::all();
+    $positions = \App\Models\Position::all();
+    
+    return view('test-cascade', compact('departments', 'divisions', 'positions'));
+})->name('test.cascade');
+
 // ============================================
 // GUEST ROUTES - Untuk user yang belum login
 // ============================================
@@ -137,7 +164,9 @@ Route::middleware(['auth'])->group(function(){
         // Submenu: Data Karyawan, Departemen & Line, Jabatan
         Route::get('/master-data',function(){
             $departments = \App\Models\Department::withCount(['divisions', 'employees'])->get();
-            return view('master-data', compact('departments'));
+            $divisions = \App\Models\Division::with('department')->orderBy('name')->get();
+            $positions = \App\Models\Position::with('division')->orderBy('name')->get();
+            return view('master-data', compact('departments', 'divisions', 'positions'));
         })->name('master-data');
 
         // GET /departments - Halaman Daftar Departemen

@@ -238,13 +238,42 @@ class MasterDataController extends Controller
             // Validasi input
             $validated = $request->validate([
                 'name' => 'required|unique:departments,name|string',
+                'divisions' => 'nullable|array',
+                'divisions.*.name' => 'required|string',
+                'divisions.*.positions' => 'nullable|array',
+                'divisions.*.positions.*.name' => 'required|string',
             ]);
 
             // Reset auto-increment jika tabel kosong
             $this->ensureAutoIncrementReset('departments');
 
             // Buat record departemen baru
-            $department = Department::create($validated);
+            $department = Department::create([
+                'name' => $validated['name']
+            ]);
+
+            // Simpan divisions dan positions jika ada
+            if (isset($validated['divisions']) && is_array($validated['divisions'])) {
+                foreach ($validated['divisions'] as $divisionData) {
+                    $division = $department->divisions()->create([
+                        'name' => $divisionData['name'],
+                        'department_id' => $department->id
+                    ]);
+
+                    // Simpan positions untuk division ini
+                    if (isset($divisionData['positions']) && is_array($divisionData['positions'])) {
+                        foreach ($divisionData['positions'] as $positionData) {
+                            $division->positions()->create([
+                                'name' => $positionData['name'],
+                                'division_id' => $division->id
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Load relationships untuk response
+            $department->load(['divisions.positions']);
 
             // Clear cache setelah create
             Cache::forget('departments_list');
@@ -252,7 +281,7 @@ class MasterDataController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Departemen berhasil ditambahkan',
+                'message' => 'Departemen dengan divisi dan jabatan berhasil ditambahkan',
                 'data' => $department
             ], 201);
         } catch (\Exception $e) {
@@ -264,7 +293,7 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Memperbarui data departemen
+     * Memperbarui data departemen dengan divisions dan positions
      * 
      * @param Request $request
      * @param int $id ID Departemen
@@ -278,16 +307,78 @@ class MasterDataController extends Controller
             // Validasi input
             $validated = $request->validate([
                 'name' => 'required|unique:departments,name,' . $id . '|string',
-                'employee_count' => 'nullable|integer|min:0',
-                'status' => 'nullable|in:active,inactive',
+                'divisions' => 'nullable|array',
+                'divisions.*.id' => 'nullable|integer|exists:divisions,id',
+                'divisions.*.name' => 'required|string',
+                'divisions.*.positions' => 'nullable|array',
+                'divisions.*.positions.*.id' => 'nullable|integer|exists:positions,id',
+                'divisions.*.positions.*.name' => 'required|string',
             ]);
 
-            // Update record departemen
-            $department->update($validated);
+            // Update nama departemen
+            $department->update(['name' => $validated['name']]);
+
+            // Handle divisions dan positions jika ada
+            if (isset($validated['divisions']) && is_array($validated['divisions'])) {
+                // Track ID divisions yang dikirim untuk mengetahui mana yang dihapus
+                $sentDivisionIds = [];
+
+                foreach ($validated['divisions'] as $divisionData) {
+                    if (isset($divisionData['id'])) {
+                        // Update division yang sudah ada
+                        $division = Division::find($divisionData['id']);
+                        if ($division && $division->department_id == $department->id) {
+                            $division->update(['name' => $divisionData['name']]);
+                            $sentDivisionIds[] = $division->id;
+                        }
+                    } else {
+                        // Buat division baru
+                        $division = $department->divisions()->create([
+                            'name' => $divisionData['name']
+                        ]);
+                        $sentDivisionIds[] = $division->id;
+                    }
+
+                    // Handle positions untuk division ini
+                    if (isset($divisionData['positions']) && is_array($divisionData['positions'])) {
+                        $sentPositionIds = [];
+
+                        foreach ($divisionData['positions'] as $positionData) {
+                            if (isset($positionData['id'])) {
+                                // Update position yang sudah ada
+                                $position = Position::find($positionData['id']);
+                                if ($position && $position->division_id == $division->id) {
+                                    $position->update(['name' => $positionData['name']]);
+                                    $sentPositionIds[] = $position->id;
+                                }
+                            } else {
+                                // Buat position baru
+                                $position = $division->positions()->create([
+                                    'name' => $positionData['name']
+                                ]);
+                                $sentPositionIds[] = $position->id;
+                            }
+                        }
+
+                        // Hapus positions yang tidak ada di request (dihapus user)
+                        $division->positions()->whereNotIn('id', $sentPositionIds)->delete();
+                    }
+                }
+
+                // Hapus divisions yang tidak ada di request (dihapus user)
+                $department->divisions()->whereNotIn('id', $sentDivisionIds)->delete();
+            }
+
+            // Load relationships untuk response
+            $department->load(['divisions.positions']);
+
+            // Clear cache
+            Cache::forget('departments_list');
+            Cache::forget('departments_with_counts');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Departemen berhasil diperbarui',
+                'message' => 'Departemen dengan divisi dan jabatan berhasil diperbarui',
                 'data' => $department
             ]);
         } catch (\Exception $e) {
@@ -484,13 +575,11 @@ class MasterDataController extends Controller
     public function getDepartments()
     {
         try {
-            // Cache selama 30 menit (1800 detik) karena include counts
-            $departments = Cache::remember('departments_with_counts', 1800, function() {
-                return Department::withCount('employees')
-                    ->withCount('divisions')
-                    ->orderBy('name')
-                    ->get();
-            });
+            // Tidak pakai cache agar data selalu fresh saat reload tabel
+            $departments = Department::withCount('employees')
+                ->withCount('divisions')
+                ->orderBy('name')
+                ->get();
 
             return response()->json([
                 'success' => true,
@@ -501,6 +590,29 @@ class MasterDataController extends Controller
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * Mengambil detail departemen dengan divisions dan positions
+     * 
+     * @param int $id ID Departemen
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showDepartment($id)
+    {
+        try {
+            $department = Department::with(['divisions.positions'])->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $department
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 404);
         }
     }
 
@@ -524,13 +636,11 @@ class MasterDataController extends Controller
                 ], 400);
             }
 
-            // Cache per division selama 1 jam
-            $positions = Cache::remember("positions_division_{$divisionId}", 3600, function() use ($divisionId) {
-                return Position::where('division_id', $divisionId)
-                    ->select('id', 'name')
-                    ->orderBy('name')
-                    ->get();
-            });
+            // Tidak pakai cache agar data selalu fresh
+            $positions = Position::where('division_id', $divisionId)
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
 
             return response()->json([
                 'success' => true,
@@ -906,8 +1016,8 @@ class MasterDataController extends Controller
         try {
             $departmentId = $request->query('department_id');
             
-            // Build query
-            $query = Division::query();
+            // Build query - tidak pakai cache agar data selalu fresh
+            $query = Division::select('id', 'name', 'department_id');
             
             // Apply filter department jika diberikan
             if ($departmentId) {
@@ -915,7 +1025,7 @@ class MasterDataController extends Controller
             }
 
             // Get data
-            $divisions = $query->get();
+            $divisions = $query->orderBy('name')->get();
 
             return response()->json([
                 'success' => true, 
