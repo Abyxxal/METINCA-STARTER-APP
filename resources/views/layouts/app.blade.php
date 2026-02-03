@@ -117,34 +117,7 @@
                             </ul>
                         </li>
 
-                        {{-- Menu Item 3: Material Management --}}
-                        {{-- Fungsi: Manajemen materi training, dokumen SOP/WI, dan media pembelajaran --}}
-                        {{-- Submenu: Training Catalog, SOP/WI Library, Media Library --}}
-                        <li class="sidebar-item has-sub {{ request()->is('material-management*') ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link'>
-                                <i class="bi bi-book-fill"></i>
-                                <span>Training Materials</span>
-                            </a>
-                            <ul class="submenu">
-                                {{-- Submenu 1: Training Catalog --}}
-                                {{-- Isi: Daftar materi training dengan kategori, durasi, target posisi --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*material-management#katalog*') ? 'active' : '' }}">
-                                    <a href="{{ route('material-management') }}#katalog" class="submenu-link">Course Catalog</a>
-                                </li>
-                                {{-- Submenu 2: SOP/WI Library --}}
-                                {{-- Isi: Dokumen SOP dan Work Instruction dengan tracking versi/revisi --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*material-management#dokumen*') ? 'active' : '' }}">
-                                    <a href="{{ route('material-management') }}#dokumen" class="submenu-link">Documents</a>
-                                </li>
-                                {{-- Submenu 3: Media Library --}}
-                                {{-- Isi: File video, image, dan dokumen multimedia untuk pembelajaran --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*material-management#media*') ? 'active' : '' }}">
-                                    <a href="{{ route('material-management') }}#media" class="submenu-link">Media Library</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Menu Item 4: Evaluation & Exam --}}
+                        {{-- Menu Item 3: Evaluation & Exam --}}
                         {{-- Fungsi: Manajemen soal ujian dan tracking hasil ujian karyawan --}}
                         {{-- Submenu: Bank Soal, Sesi Ujian, Verifikasi Hasil, Hasil Ujian --}}
                         <li class="sidebar-item has-sub {{ request()->is('evaluation-and-exam*') || request()->is('cbt/admin*') ? 'active' : '' }}">
@@ -184,72 +157,6 @@
                                 {{-- CBT: Customisasi Skill Divisi --}}
                                 <li class="submenu-item {{ request()->is('cbt/admin/division-skills*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.division-skills.index') }}" class="submenu-link">Skill per Divisi</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Menu Item 5: Socialization & News --}}
-                        {{-- Fungsi: Komunikasi dengan karyawan melalui pengumuman dan tracking pembacaan --}}
-                        {{-- Submenu: Create Announcement, Read Status --}}
-                        <li class="sidebar-item has-sub {{ request()->is('socialization-and-news*') ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link'>
-                                <i class="bi bi-megaphone-fill"></i>
-                                <span>Communication</span>
-                            </a>
-                            <ul class="submenu">
-                                {{-- Submenu 1: Create Announcement --}}
-                                {{-- Isi: Form untuk membuat pengumuman dengan urgency level (CRITICAL/NORMAL) dan force read option --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*socialization-and-news#pengumuman*') ? 'active' : '' }}">
-                                    <a href="{{ route('socialization-and-news') }}#pengumuman" class="submenu-link">Announcement</a>
-                                </li>
-                                {{-- Submenu 2: Read Status --}}
-                                {{-- Isi: Audit trail dengan tracking siapa yang sudah baca pengumuman, kapan, dan durasi membaca --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*socialization-and-news#statusbaca*') ? 'active' : '' }}">
-                                    <a href="{{ route('socialization-and-news') }}#statusbaca" class="submenu-link">Read Acknowledgement</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Menu Item 6: Report & Audit --}}
-                        {{-- Fungsi: Reporting dan compliance untuk audit ISO 9001 dengan tracking kompetensi karyawan --}}
-                        {{-- Submenu: Competency Matrix, Training History, Print Certificate --}}
-                        <li class="sidebar-item has-sub {{ request()->is('report-and-audit*') ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link'>
-                                <i class="bi bi-file-earmark-text-fill"></i>
-                                <span>Reports & Compliance</span>
-                            </a>
-                            <ul class="submenu">
-                                {{-- Submenu 1: Competency Matrix --}}
-                                {{-- Isi: Grid matrix dengan karyawan sebagai baris, skill sebagai kolom, warna indikator status (Competent/Not Passed/Not Trained) --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*report-and-audit#matrikskompetensi*') ? 'active' : '' }}">
-                                    <a href="{{ route('report-and-audit') }}#matrikskompetensi" class="submenu-link">Competency Matrix</a>
-                                </li>
-                                {{-- Submenu 2: Training History --}}
-                                {{-- Isi: Complete history pelatihan per karyawan dengan tanggal, nilai ujian, status kelulusan --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*report-and-audit#riwayatpelatihan*') ? 'active' : '' }}">
-                                    <a href="{{ route('report-and-audit') }}#riwayatpelatihan" class="submenu-link">Training Logs</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Menu Item 7: Settings --}}
-                        {{-- Fungsi: Pengaturan sistem, manajemen user admin, dan audit log untuk compliance --}}
-                        {{-- Submenu: Admin Management, Audit Log --}}
-                        <li class="sidebar-item has-sub {{ request()->is('settings*') ? 'active' : '' }}">
-                            <a href="#" class='sidebar-link'>
-                                <i class="bi bi-gear-fill"></i>
-                                <span>Settings</span>
-                            </a>
-                            <ul class="submenu">
-                                {{-- Submenu 1: Admin Management --}}
-                                {{-- Isi: List admin users dengan role (Super Admin/Admin HR/Admin DC), status (Active/Inactive), dan tanggal terakhir login --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*settings#manajemenadmin*') ? 'active' : '' }}">
-                                    <a href="{{ route('settings') }}#manajemenadmin" class="submenu-link">Admin Management</a>
-                                </li>
-                                {{-- Submenu 2: Audit Log --}}
-                                {{-- Isi: Security log yang mencatat semua aksi admin (Create/Update/Delete/Login/Logout) dengan timestamp, user, dan IP address --}}
-                                <li class="submenu-item {{ request()->fullUrlIs('*settings#auditlog*') ? 'active' : '' }}">
-                                    <a href="{{ route('settings') }}#auditlog" class="submenu-link">Audit Trails</a>
                                 </li>
                             </ul>
                         </li>

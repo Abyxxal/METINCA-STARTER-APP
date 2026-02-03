@@ -336,12 +336,46 @@ class EmployeeExamController extends Controller
             // Formula: (Correct Answers / Total Questions) × 100
             $finalScore = round(($correctAnswersCount / $totalQuestions) * 100, 2);
 
+            // Check if exam contains only non-essay questions (auto-verifiable)
+            $hasEssayQuestions = $session->exam->questions()->where('type', 'essay')->exists();
+            
+            // Determine status and auto-verify if no essay questions
+            if ($hasEssayQuestions) {
+                // Has essay questions - need admin verification
+                $status = ExamSession::STATUS_SUBMITTED;
+                $verifiedAt = null;
+                $verifiedBy = null;
+                $resultMessage = "Ujian berhasil diselesaikan! Nilai Anda: {$finalScore} ({$correctAnswersCount}/{$totalQuestions} benar). Menunggu verifikasi admin.";
+            } else {
+                // Only multiple choice / true-false - auto-verify
+                $passingScore = $session->exam->passing_score;
+                $isPassed = $finalScore >= $passingScore;
+                
+                $status = $isPassed ? ExamSession::STATUS_VERIFIED_PASS : ExamSession::STATUS_VERIFIED_FAIL;
+                $verifiedAt = now();
+                $verifiedBy = null; // System auto-verify
+                
+                // Update competency level if passed
+                if ($isPassed) {
+                    $this->updateEmployeeSkillLevel(
+                        $session->employee_nik,
+                        $session->exam->skill_id,
+                        $session->exam->target_level
+                    );
+                    $resultMessage = "Selamat! Ujian berhasil diselesaikan dengan nilai {$finalScore}. Anda LULUS dan level kompetensi Anda telah diperbarui!";
+                } else {
+                    $resultMessage = "Ujian berhasil diselesaikan dengan nilai {$finalScore}. Maaf, Anda TIDAK LULUS (KKM: {$passingScore}). Silakan coba lagi.";
+                }
+            }
+
             // Update session with final results
             $session->update([
-                'status' => ExamSession::STATUS_SUBMITTED,
+                'status' => $status,
                 'submitted_at' => now(),
                 'finished_at' => now(),
                 'score' => $finalScore,
+                'verified_at' => $verifiedAt,
+                'verified_by' => $verifiedBy,
             ]);
 
             DB::commit();
@@ -349,7 +383,7 @@ class EmployeeExamController extends Controller
             // Redirect to result page with success message
             return redirect()
                 ->route('cbt.employee.result', $session)
-                ->with('success', "Ujian berhasil diselesaikan! Nilai Anda: {$finalScore} ({$correctAnswersCount}/{$totalQuestions} benar)");
+                ->with('success', $resultMessage);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -383,11 +417,41 @@ class EmployeeExamController extends Controller
 
         // Calculate and save score
         $score = $session->calculateScore();
+        
+        // Check if exam contains only non-essay questions (auto-verifiable)
+        $hasEssayQuestions = $session->exam->questions()->where('type', 'essay')->exists();
+        
+        if ($hasEssayQuestions) {
+            // Has essay questions - need admin verification
+            $status = ExamSession::STATUS_SUBMITTED;
+            $verifiedAt = null;
+            $verifiedBy = null;
+        } else {
+            // Only multiple choice / true-false - auto-verify
+            $passingScore = $session->exam->passing_score;
+            $isPassed = $score >= $passingScore;
+            
+            $status = $isPassed ? ExamSession::STATUS_VERIFIED_PASS : ExamSession::STATUS_VERIFIED_FAIL;
+            $verifiedAt = now();
+            $verifiedBy = null;
+            
+            // Update competency level if passed
+            if ($isPassed) {
+                $this->updateEmployeeSkillLevel(
+                    $session->employee_nik,
+                    $session->exam->skill_id,
+                    $session->exam->target_level
+                );
+            }
+        }
 
         $session->update([
-            'status' => ExamSession::STATUS_SUBMITTED,
+            'status' => $status,
             'finished_at' => now(),
+            'submitted_at' => now(),
             'score' => $score,
+            'verified_at' => $verifiedAt,
+            'verified_by' => $verifiedBy,
         ]);
 
         return redirect()
