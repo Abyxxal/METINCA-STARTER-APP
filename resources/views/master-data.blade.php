@@ -2770,49 +2770,92 @@
                 activateTabFromHash();
             });
 
-            // Function to reload department dropdowns
-            function loadDepartemenDropdown() {
-                console.log('📂 Loading departments...');
-                // Clear existing options (keep placeholder)
-                $('#filterDepartemenKaryawan').find('option:not(:first)').remove();
-                $('#filterDepartemenMaster').find('option:not(:first)').remove();
-                $('#departemenKaryawan').find('option:not(:first)').remove();
-                $('#editDepartemenKaryawan').find('option:not(:first)').remove();
-                $('#departmentTambah').find('option:not(:first)').remove();
-                
-                console.log('🔍 Checking #departmentTambah exists:', $('#departmentTambah').length);
-                
-                // Load departments dari API yang benar
+            // ===== FILTER DROPDOWN KARYAWAN - SIMPLE VERSION =====
+            // Fungsi untuk load filter departemen
+            function loadFilterDepartemen() {
                 $.ajax({
-                    url: baseUrl + '/api/departments',
+                    url: '/api/departments',
                     type: 'GET',
                     success: function(response) {
-                        console.log('✅ Departments loaded:', response.data);
-                        if (response.data && Array.isArray(response.data)) {
+                        if (response.success && response.data) {
+                            var select = $('#filterDepartemenKaryawan');
+                            select.find('option:not(:first)').remove();
+                            
                             response.data.forEach(function(dept) {
-                                $('#filterDepartemenKaryawan').append('<option value="' + dept.name + '">' + dept.name + '</option>');
-                                $('#filterDepartemenMaster').append('<option value="' + dept.name + '">' + dept.name + '</option>');
-                                $('#departemenKaryawan').append('<option value="' + dept.id + '">' + dept.name + '</option>');
-                                $('#editDepartemenKaryawan').append('<option value="' + dept.id + '">' + dept.name + '</option>');
-                                $('#departmentTambah').append('<option value="' + dept.id + '">' + dept.name + '</option>');
+                                select.append('<option value="' + dept.id + '">' + dept.name + '</option>');
                             });
-                            console.log('✅ #departmentTambah populated with', response.data.length, 'departments');
-                            console.log('   Total options in #departmentTambah:', $('#departmentTambah').find('option').length);
+                            
+                            console.log('✅ Filter Departemen loaded:', response.data.length, 'items');
                         }
-                        
-                        console.log('📌 Attaching department change handler...');
-                        // Attach event handler untuk departemenKaryawan setelah dropdown ter-load
-                        attachDepartmentChangeHandler();
                     },
                     error: function(xhr) {
-                        console.error('❌ Error loading departments:', xhr);
+                        console.error('❌ Error loading departments:', xhr.status);
                     }
                 });
             }
             
-            // Function untuk attach event handler untuk department change
+            // Fungsi untuk load filter divisi
+            function loadFilterDivisi() {
+                $.ajax({
+                    url: '/api/divisions',
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            var select = $('#filterDivisiKaryawan');
+                            select.find('option:not(:first)').remove();
+                            
+                            response.data.forEach(function(div) {
+                                select.append(
+                                    '<option value="' + div.id + '" data-dept-id="' + div.department_id + '">' + 
+                                    div.name + 
+                                    '</option>'
+                                );
+                            });
+                            
+                            console.log('✅ Filter Divisi loaded:', response.data.length, 'items');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('❌ Error loading divisions:', xhr.status);
+                    }
+                });
+            }
+            
+            // Event handler: Ketika filter departemen berubah  
+            $('#filterDepartemenKaryawan').on('change', function() {
+                var deptId = $(this).val();
+                var divSelect = $('#filterDivisiKaryawan');
+                
+                // Reset filter divisi
+                divSelect.val('');
+                
+                if (!deptId) {
+                    // Tampilkan semua divisi
+                    divSelect.find('option').show();
+                } else {
+                    // Filter divisi berdasarkan departemen yang dipilih
+                    divSelect.find('option').each(function() {
+                        var optDeptId = $(this).attr('data-dept-id');
+                        if (!optDeptId || optDeptId == deptId) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+                }
+            });
+            
+            // Event handler: Ketika filter divisi berubah
+            $('#filterDivisiKaryawan').on('change', function() {
+                console.log('Filter divisi changed:', $(this).val());
+            });
+            
+            // Load filter saat halaman ready
+            loadFilterDepartemen();
+            loadFilterDivisi();
+            
+            // Function untuk attach event handler untuk department change (untuk modal)
             function attachDepartmentChangeHandler() {
-                console.log('🔗 Checking for #departemenKaryawan element...');
                 var elem = $('#departemenKaryawan');
                 console.log('Found element:', elem.length > 0 ? 'YES' : 'NO');
                 
@@ -3302,49 +3345,6 @@
                     console.log('✅ Backdrop dan body classes cleaned up');
                 });
             }
-
-            // ===== FILTER DROPDOWN HANDLER (uses department NAME as value) =====
-            $('#filterDepartemenKaryawan').on('change', function() {
-                const selectedDeptName = $(this).val();
-                
-                // Clear division filter
-                $('#filterDivisiKaryawan').val('').find('option:not(:first)').remove();
-                
-                if (selectedDeptName) {
-                    // Get department ID from name, then load divisions
-                    const apiUrl = `${window.location.origin}/api/departments`;
-                    fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success && data.data) {
-                            const dept = data.data.find(d => d.name === selectedDeptName);
-                            if (dept) {
-                                // Load divisions for filter (uses name as value)
-                                const divUrl = `${window.location.origin}/api/dropdowns/divisions?department_id=${dept.id}`;
-                                return fetch(divUrl);
-                            }
-                        }
-                    })
-                    .then(response => response ? response.json() : null)
-                    .then(divData => {
-                        if (divData && divData.success && divData.data) {
-                            const divSelect = $('#filterDivisiKaryawan');
-                            divData.data.forEach(division => {
-                                divSelect.append(`<option value="${division.name}">${division.name}</option>`);
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('❌ Error loading filter divisions:', error);
-                    });
-                }
-                
-                // Reload table when department filter changes
-                window.loadBothTables();
-            });
 
             // Filter divisi karyawan dropdown
             $('#filterDivisiKaryawan').on('change', function() {
@@ -3967,50 +3967,8 @@
             console.log('🔍 #departemenKaryawan exists?', $('#departemenKaryawan').length);
             console.log('🔍 #divisiKaryawan exists?', $('#divisiKaryawan').length);
             console.log('🔍 #jabatanKaryawan exists?', $('#jabatanKaryawan').length);
-            
-            // Load departments immediately (don't wait for modal open)
-            console.log('⚡ Loading departments on page load...');
-            
-            // Check if function exists
-            if (typeof loadDepartmentsDropdown === 'function') {
-                console.log('✅ Function loadDepartmentsDropdown exists');
-                loadDepartmentsDropdown();
-            } else {
-                console.error('❌ Function loadDepartmentsDropdown NOT FOUND!');
-                console.log('🔧 Trying manual load...');
-                
-                // Manual fallback
-                $.ajax({
-                    url: '/api/departments',
-                    method: 'GET',
-                    success: function(response) {
-                        console.log('✅ Manual load - response:', response);
-                        if (response.success && response.data) {
-                            const select = $('#departemenKaryawan');
-                            select.find('option:not(:first)').remove();
-                            
-                            response.data.forEach(dept => {
-                                select.append(`<option value="${dept.id}">${dept.name}</option>`);
-                            });
-                            
-                            console.log(`✅ MANUAL: Loaded ${response.data.length} departments`);
-                            console.log(`   Total options in dropdown:`, select.find('option').length);
-                            
-                            // Also load to filter
-                            const filterSelect = $('#filterDepartemenKaryawan');
-                            filterSelect.find('option:not(:first)').remove();
-                            response.data.forEach(dept => {
-                                filterSelect.append(`<option value="${dept.name}">${dept.name}</option>`);
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('❌ Manual load failed:', error);
-                        console.error('   Status:', xhr.status);
-                        console.error('   Response:', xhr.responseText);
-                    }
-                });
-            }
+            console.log('🔍 Filter departemen element exists?', $('#filterDepartemenKaryawan').length);
+            console.log('🔍 Filter divisi element exists?', $('#filterDivisiKaryawan').length);
             
             // Load both tables
             window.loadBothTables();

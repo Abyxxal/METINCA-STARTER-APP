@@ -27,6 +27,14 @@
                 <span id="errorMessage">Username atau password salah!</span>
             </div>
 
+            <!-- Success Alert -->
+            @if (session('success'))
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <!-- Login Form -->
             <form id="loginForm">
                 <!-- Email/NIK -->

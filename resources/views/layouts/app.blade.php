@@ -154,10 +154,6 @@
                                 <li class="submenu-item {{ request()->is('cbt/admin/employee-competencies*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.employee-competencies.index') }}" class="submenu-link">Level Skill Karyawan</a>
                                 </li>
-                                {{-- CBT: Customisasi Skill Divisi --}}
-                                <li class="submenu-item {{ request()->is('cbt/admin/division-skills*') ? 'active' : '' }}">
-                                    <a href="{{ route('cbt.admin.division-skills.index') }}" class="submenu-link">Skill per Divisi</a>
-                                </li>
                             </ul>
                         </li>
 
