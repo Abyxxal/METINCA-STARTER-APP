@@ -93,7 +93,7 @@
                         {{-- =====================================================
                             ADMIN ONLY MENUS - Hanya visible untuk user dengan role 'admin'
                             ===================================================== --}}
-                        @if(Auth::check() && Auth::user()->role === 'admin')
+                        @if(Auth::check() && Auth::user()->isAdminOrManager())
 
                         {{-- Menu Item 2: Master Data --}}
                         {{-- Fungsi: Manajemen data karyawan, departemen, dan posisi kerja --}}
@@ -150,11 +150,30 @@
                                 <li class="submenu-item {{ request()->is('cbt/admin/competency-matrix*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.competency-matrix') }}" class="submenu-link">Matriks Kompetensi</a>
                                 </li>
-                                {{-- CBT: Level Skill Karyawan --}}
-                                <li class="submenu-item {{ request()->is('cbt/admin/employee-competencies*') ? 'active' : '' }}">
-                                    <a href="{{ route('cbt.admin.employee-competencies.index') }}" class="submenu-link">Level Skill Karyawan</a>
+                                @if(Auth::user()->isManager())
+                                <li class="submenu-item {{ request()->is('cbt/admin/approval*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.sessions.pending-approval') }}" class="submenu-link">
+                                        Persetujuan Level
+                                        @php
+                                            $pendingApprovalCount = \App\Models\ExamSession::where('status', 'verified_pass')
+                                                ->where(function($q) { $q->where('manager_decision', 'pending')->orWhereNull('manager_decision'); })
+                                                ->count();
+                                        @endphp
+                                        @if($pendingApprovalCount > 0)
+                                            <span class="badge bg-warning ms-auto">{{ $pendingApprovalCount }}</span>
+                                        @endif
+                                    </a>
                                 </li>
+                                @endif
                             </ul>
+                        </li>
+
+                        {{-- Menu: Manajemen User --}}
+                        <li class="sidebar-item {{ request()->is('admin/users*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.users.index') }}" class='sidebar-link'>
+                                <i class="bi bi-people-fill"></i>
+                                <span>Manajemen User</span>
+                            </a>
                         </li>
 
                         @else

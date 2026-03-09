@@ -24,12 +24,15 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // Check role dan redirect sesuai dengan peran user
-        if ($user->role === 'admin') {
+        if ($user->role === 'admin' || $user->role === 'manager') {
             // Ambil data statistik untuk admin dashboard
             $stats = [
                 'total_employees' => Employee::where('status', 'Aktif')->count(),
                 'total_questions' => Question::where('status', 'active')->count(),
                 'pending_verification' => ExamSession::where('status', 'submitted')->count(),
+                'pending_approval' => ExamSession::where('status', 'verified_pass')
+                    ->where(function($q) { $q->where('manager_decision', 'pending')->orWhereNull('manager_decision'); })
+                    ->count(),
                 'active_exams_this_month' => ExamSession::whereMonth('created_at', Carbon::now()->month)
                     ->whereYear('created_at', Carbon::now()->year)
                     ->whereIn('status', ['assigned', 'started', 'submitted'])

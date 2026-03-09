@@ -59,6 +59,33 @@
                                         </div>
                                     </div>
 
+                                    {{-- Schedule Info --}}
+                                    @if($session->scheduled_start_at && $session->isNotStartedYet())
+                                        <div class="alert alert-info py-2 mb-3">
+                                            <i class="bi bi-calendar-event"></i>
+                                            <strong>Belum Dibuka</strong>
+                                            <br><small>Jadwal mulai: {{ $session->getFormattedScheduledStart() }} WIB</small>
+                                        </div>
+                                    @endif
+
+                                    {{-- Deadline Warning --}}
+                                    @php
+                                        $deadlineStatus = $session->getDeadlineStatus();
+                                    @endphp
+                                    @if($deadlineStatus['label'])
+                                        <div class="alert alert-{{ $deadlineStatus['class'] }} py-2 mb-3">
+                                            <i class="bi bi-calendar-x"></i>
+                                            <strong>{{ $deadlineStatus['label'] }}</strong>
+                                            <br><small>Batas: {{ $session->getFormattedDeadline() }}</small>
+                                        </div>
+                                    @elseif($session->deadline_at)
+                                        <div class="mb-3">
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar-check"></i> Deadline: {{ $session->getFormattedDeadline() }}
+                                            </small>
+                                        </div>
+                                    @endif
+
                                     @if($session->status === 'started')
                                         <div class="alert alert-warning py-2 mb-3">
                                             <i class="bi bi-clock"></i>
@@ -71,9 +98,19 @@
                                             <i class="bi bi-play-circle"></i> Lanjutkan Ujian
                                         </a>
                                     @else
-                                        <a href="{{ route('cbt.employee.show', $session) }}" class="btn btn-success w-100">
-                                            <i class="bi bi-play-fill"></i> Mulai Ujian
-                                        </a>
+                                        @if($session->isDeadlinePassed())
+                                            <button class="btn btn-secondary w-100" disabled>
+                                                <i class="bi bi-lock"></i> Deadline Terlewat
+                                            </button>
+                                        @elseif($session->isNotStartedYet())
+                                            <button class="btn btn-secondary w-100" disabled>
+                                                <i class="bi bi-clock-history"></i> Dibuka {{ $session->getFormattedScheduledStart() }}
+                                            </button>
+                                        @else
+                                            <a href="{{ route('cbt.employee.show', $session) }}" class="btn btn-success w-100">
+                                                <i class="bi bi-play-fill"></i> Mulai Ujian
+                                            </a>
+                                        @endif
                                     @endif
                                 </div>
                                 <div class="card-footer text-muted">
@@ -129,10 +166,16 @@
                                                 <span class="badge bg-info">Menunggu Verifikasi</span>
                                                 @break
                                             @case('verified_pass')
-                                                <span class="badge bg-success">LULUS</span>
+                                                <span class="badge bg-primary">Lulus - Menunggu Approval</span>
                                                 @break
                                             @case('verified_fail')
                                                 <span class="badge bg-danger">TIDAK LULUS</span>
+                                                @break
+                                            @case('approved')
+                                                <span class="badge bg-success">Disetujui</span>
+                                                @break
+                                            @case('rejected')
+                                                <span class="badge bg-dark">Ditolak</span>
                                                 @break
                                         @endswitch
                                     </td>

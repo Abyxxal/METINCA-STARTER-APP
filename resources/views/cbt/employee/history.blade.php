@@ -36,8 +36,10 @@
                             <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>Ditugaskan</option>
                             <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>Sedang Dikerjakan</option>
                             <option value="submitted" {{ request('status') == 'submitted' ? 'selected' : '' }}>Menunggu Verifikasi</option>
-                            <option value="verified_pass" {{ request('status') == 'verified_pass' ? 'selected' : '' }}>Lulus</option>
+                            <option value="verified_pass" {{ request('status') == 'verified_pass' ? 'selected' : '' }}>Lulus - Menunggu Approval</option>
                             <option value="verified_fail" {{ request('status') == 'verified_fail' ? 'selected' : '' }}>Tidak Lulus</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
                         </select>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-filter"></i> Filter
@@ -77,15 +79,19 @@
                                         'assigned' => 'secondary',
                                         'started' => 'warning',
                                         'submitted' => 'info',
-                                        'verified_pass' => 'success',
+                                        'verified_pass' => 'primary',
                                         'verified_fail' => 'danger',
+                                        'approved' => 'success',
+                                        'rejected' => 'dark',
                                     ];
                                     $statusLabels = [
                                         'assigned' => 'Ditugaskan',
                                         'started' => 'Sedang Dikerjakan',
                                         'submitted' => 'Menunggu Verifikasi',
-                                        'verified_pass' => 'Lulus',
+                                        'verified_pass' => 'Lulus - Menunggu Approval',
                                         'verified_fail' => 'Tidak Lulus',
+                                        'approved' => 'Disetujui',
+                                        'rejected' => 'Ditolak',
                                     ];
                                 @endphp
                                 <tr>
@@ -102,7 +108,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if(in_array($session->status, ['submitted', 'verified_pass', 'verified_fail']))
+                                        @if(in_array($session->status, ['submitted', 'verified_pass', 'verified_fail', 'approved', 'rejected']))
                                             <span class="{{ $session->score >= $session->exam->passing_score ? 'text-success' : 'text-danger' }} fw-bold">
                                                 {{ $session->score }} / 100
                                             </span>

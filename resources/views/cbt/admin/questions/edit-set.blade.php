@@ -35,7 +35,8 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
+                    {{-- 1. Judul Set Soal --}}
+                    <div class="col-md-3">
                         <div class="form-group mb-3">
                             <label class="form-label">Judul Set Soal <span class="text-danger">*</span></label>
                             <input type="text" name="set_title" class="form-control @error('set_title') is-invalid @enderror" 
@@ -43,32 +44,55 @@
                             @error('set_title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Nama set soal</small>
                         </div>
                     </div>
-                    <div class="col-md-2">
+
+                    {{-- 2. Divisi --}}
+                    <div class="col-md-3">
                         <div class="form-group mb-3">
                             <label class="form-label">Divisi <span class="text-danger">*</span></label>
-                            <select name="division_id" id="divisionSelect" class="form-select @error('division_id') is-invalid @enderror">
+                            <select name="division_id" id="divisionSelect" class="form-select @error('division_id') is-invalid @enderror" required>
                                 <option value="">-- Pilih Divisi --</option>
                                 @foreach($divisions as $division)
                                     <option value="{{ $division->id }}" 
                                         {{ old('division_id', $setInfo->skill->division_id ?? '') == $division->id ? 'selected' : '' }}>
-                                        {{ $division->name }}
+                                        {{ $division->name }} ({{ $division->department->name }})
                                     </option>
                                 @endforeach
                             </select>
                             @error('division_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Pilih divisi dulu</small>
                         </div>
                     </div>
+
+                    {{-- 3. Target Jabatan --}}
+                    <div class="col-md-2">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Jabatan</label>
+                            <select name="target_position" id="targetPositionsSelect" class="form-select" 
+                                data-selected-position="{{ $setInfo->positions->isNotEmpty() ? $setInfo->positions->first()->id : '' }}">
+                                <option value="">-- Semua Jabatan --</option>
+                                @if($setInfo->positions->isNotEmpty())
+                                    <option value="{{ $setInfo->positions->first()->id }}" selected>
+                                        {{ $setInfo->positions->first()->name }}
+                                    </option>
+                                @endif
+                            </select>
+                            <small class="text-muted">Kosongkan untuk semua</small>
+                        </div>
+                    </div>
+
+                    {{-- 4. Skill --}}
                     <div class="col-md-2">
                         <div class="form-group mb-3">
                             <label class="form-label">Skill <span class="text-danger">*</span></label>
                             <select name="skill_id" id="skillSelect" class="form-select @error('skill_id') is-invalid @enderror" required>
                                 <option value="">-- Pilih Skill --</option>
                                 @foreach($skills as $skill)
-                                    <option value="{{ $skill->id }}" 
+                                    <option value="{{ $skill->id }}" data-division-id="{{ $skill->division_id }}" 
                                         {{ old('skill_id', $setInfo->skill_id) == $skill->id ? 'selected' : '' }}>
                                         {{ $skill->name }}
                                     </option>
@@ -77,22 +101,31 @@
                             @error('skill_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Berdasarkan divisi</small>
                         </div>
                     </div>
-                    <div class="col-md-1">
+
+                    {{-- 5. Level --}}
+                    <div class="col-md-2">
                         <div class="form-group mb-3">
                             <label class="form-label">Level <span class="text-danger">*</span></label>
                             <select name="for_level" class="form-select @error('for_level') is-invalid @enderror" required>
+                                <option value="">-- Level --</option>
                                 @for($i = 1; $i <= 4; $i++)
-                                    <option value="{{ $i }}" {{ old('for_level', $setInfo->for_level) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                    <option value="{{ $i }}" {{ old('for_level', $setInfo->for_level) == $i ? 'selected' : '' }}>Level {{ $i }}</option>
                                 @endfor
                             </select>
                             @error('for_level')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Tingkat kesulitan</small>
                         </div>
                     </div>
-                    <div class="col-md-1">
+                </div>
+
+                {{-- Row 2: Status (full width) --}}
+                <div class="row">
+                    <div class="col-md-2">
                         <div class="form-group mb-3">
                             <label class="form-label">Status <span class="text-danger">*</span></label>
                             <select name="status" class="form-select @error('status') is-invalid @enderror" required>
@@ -103,6 +136,7 @@
                             @error('status')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Status set soal</small>
                         </div>
                     </div>
                 </div>
@@ -210,33 +244,88 @@ document.addEventListener('DOMContentLoaded', function() {
     const addBtn = document.getElementById('addQuestionBtn');
     const countBadge = document.getElementById('questionCount');
 
-    // Cascading division to skill
+    // Cascading division to skill and position
     const divisionSelect = document.getElementById('divisionSelect');
     const skillSelect = document.getElementById('skillSelect');
+    const targetPositionsSelect = document.getElementById('targetPositionsSelect');
+    
+    // Function to filter skills based on selected division
+    function filterSkillsByDivision(divisionId) {
+        const allOptions = skillSelect.querySelectorAll('option');
+        let visibleCount = 0;
+        
+        allOptions.forEach(option => {
+            if (option.value === '') {
+                option.style.display = 'block';
+                return;
+            }
+            
+            if (!divisionId || option.dataset.divisionId === divisionId) {
+                option.style.display = 'block';
+                visibleCount++;
+            } else {
+                option.style.display = 'none';
+            }
+        });
+        
+        // If selected skill is now hidden, reset selection
+        const selectedOption = skillSelect.options[skillSelect.selectedIndex];
+        if (selectedOption && selectedOption.dataset.divisionId && 
+            selectedOption.dataset.divisionId !== divisionId) {
+            skillSelect.value = '';
+        }
+    }
+    
+    // Function to load positions based on division
+    function loadPositions(divisionId, preserveSelection = true) {
+        if (!divisionId) {
+            targetPositionsSelect.innerHTML = '<option value="">-- Semua Jabatan --</option>';
+            targetPositionsSelect.disabled = true;
+            return;
+        }
+        
+        const selectedPositionId = preserveSelection ? 
+            (targetPositionsSelect.dataset.selectedPosition || targetPositionsSelect.value) : '';
+        
+        fetch(`/api/positions?division_id=${divisionId}`)
+            .then(response => response.json())
+            .then(data => {
+                targetPositionsSelect.innerHTML = '<option value="">-- Semua Jabatan --</option>';
+                
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(position => {
+                        const option = document.createElement('option');
+                        option.value = position.id;
+                        option.textContent = position.name;
+                        
+                        // Re-select previously selected position
+                        if (selectedPositionId && position.id == selectedPositionId) {
+                            option.selected = true;
+                        }
+                        
+                        targetPositionsSelect.appendChild(option);
+                    });
+                    targetPositionsSelect.disabled = false;
+                } else {
+                    targetPositionsSelect.disabled = true;
+                }
+            })
+            .catch(error => console.error('Error loading positions:', error));
+    }
     
     if (divisionSelect) {
         divisionSelect.addEventListener('change', function() {
             const divisionId = this.value;
-            
-            if (divisionId) {
-                fetch(`/api/divisions/${divisionId}/skills`)
-                    .then(response => response.json())
-                    .then(data => {
-                        skillSelect.innerHTML = '<option value="">-- Pilih Skill --</option>';
-                        
-                        if (data.skills && data.skills.length > 0) {
-                            data.skills.forEach(skill => {
-                                const option = document.createElement('option');
-                                option.value = skill.id;
-                                option.textContent = skill.name;
-                                skillSelect.appendChild(option);
-                            });
-                            skillSelect.disabled = false;
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-            }
+            filterSkillsByDivision(divisionId);
+            loadPositions(divisionId, false);
         });
+
+        // On page load: filter skills and load positions if division is already selected
+        const initialDivisionId = divisionSelect.value;
+        if (initialDivisionId) {
+            filterSkillsByDivision(initialDivisionId);
+            loadPositions(initialDivisionId, true);
+        }
     }
 
     // Handle type change for existing questions

@@ -22,11 +22,7 @@ class EmployeeImport implements ToModel, WithHeadingRow, WithValidation
             'email' => $row['email'] ?? null,
             'department_id' => $row['department_id'] ?? null,
             'position_id' => $row['position_id'] ?? null,
-            'phone' => $row['phone'] ?? null,
-            'address' => $row['address'] ?? null,
-            'photo_path' => $row['photo_path'] ?? null,
-            'hire_date' => $row['hire_date'] ?? null,
-            'status' => $row['status'] ?? 'active',
+            'status' => $row['status'] ?? 'Aktif',
         ]);
     }
 
@@ -41,11 +37,7 @@ class EmployeeImport implements ToModel, WithHeadingRow, WithValidation
             'email' => ['nullable', 'email', 'unique:employees,email'],
             'department_id' => ['required', 'exists:departments,id'],
             'position_id' => ['required', 'exists:positions,id'],
-            'phone' => ['nullable', 'string'],
-            'address' => ['nullable', 'string'],
-            'photo_path' => ['nullable', 'string'],
-            'hire_date' => ['nullable', 'date'],
-            'status' => ['in:active,inactive,resigned'],
+            'status' => ['in:Aktif,Non-Aktif'],
         ];
     }
 
@@ -64,7 +56,7 @@ class EmployeeImport implements ToModel, WithHeadingRow, WithValidation
             'department_id.exists' => 'Department tidak ditemukan',
             'position_id.required' => 'Position harus dipilih',
             'position_id.exists' => 'Position tidak ditemukan',
-            'status.in' => 'Status harus: active, inactive, atau resigned',
+            'status.in' => 'Status harus: Aktif atau Non-Aktif',
         ];
     }
 }

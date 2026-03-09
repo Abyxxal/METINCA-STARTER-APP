@@ -35,13 +35,37 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4">
+                    {{-- 1. Divisi (Display Only) --}}
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Divisi</label>
+                            <input type="text" class="form-control" value="{{ $question->skill->division->name ?? '-' }} ({{ $question->skill->division->department->name ?? '-' }})" readonly>
+                            <small class="text-muted">Dari skill yang dipilih</small>
+                        </div>
+                    </div>
+
+                    {{-- 2. Target Jabatan --}}
+                    <div class="col-md-2">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Jabatan</label>
+                            <select name="target_position" id="targetPositionsSelect" class="form-select" data-skill-division="{{ $question->skill->division_id ?? '' }}">
+                                <option value="">-- Semua Jabatan --</option>
+                                @if($question->positions->isNotEmpty())
+                                    <option value="{{ $question->positions->first()->id }}" selected>{{ $question->positions->first()->name }}</option>
+                                @endif
+                            </select>
+                            <small class="text-muted">Kosongkan untuk semua</small>
+                        </div>
+                    </div>
+
+                    {{-- 3. Skill --}}
+                    <div class="col-md-3">
                         <div class="form-group mb-3">
                             <label class="form-label">Skill <span class="text-danger">*</span></label>
                             <select name="skill_id" class="form-select @error('skill_id') is-invalid @enderror" required>
                                 <option value="">-- Pilih Skill --</option>
                                 @foreach($skills as $skill)
-                                    <option value="{{ $skill->id }}" {{ old('skill_id', $question->skill_id) == $skill->id ? 'selected' : '' }}>
+                                    <option value="{{ $skill->id }}" data-division-id="{{ $skill->division_id }}" {{ old('skill_id', $question->skill_id) == $skill->id ? 'selected' : '' }}>
                                         {{ $skill->name }}
                                     </option>
                                 @endforeach
@@ -49,13 +73,16 @@
                             @error('skill_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Skill yang diuji</small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+
+                    {{-- 4. Level --}}
+                    <div class="col-md-2">
                         <div class="form-group mb-3">
-                            <label class="form-label">Untuk Level <span class="text-danger">*</span></label>
+                            <label class="form-label">Level <span class="text-danger">*</span></label>
                             <select name="for_level" class="form-select @error('for_level') is-invalid @enderror" required>
-                                <option value="">-- Pilih Level --</option>
+                                <option value="">-- Level --</option>
                                 <option value="1" {{ old('for_level', $question->for_level) == 1 ? 'selected' : '' }}>Level 1</option>
                                 <option value="2" {{ old('for_level', $question->for_level) == 2 ? 'selected' : '' }}>Level 2</option>
                                 <option value="3" {{ old('for_level', $question->for_level) == 3 ? 'selected' : '' }}>Level 3</option>
@@ -64,9 +91,12 @@
                             @error('for_level')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Tingkat kesulitan</small>
                         </div>
                     </div>
-                    <div class="col-md-4">
+
+                    {{-- 5. Status --}}
+                    <div class="col-md-2">
                         <div class="form-group mb-3">
                             <label class="form-label">Status <span class="text-danger">*</span></label>
                             <select name="status" class="form-select @error('status') is-invalid @enderror" required>
@@ -76,6 +106,7 @@
                             @error('status')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Status soal</small>
                         </div>
                     </div>
                 </div>
@@ -360,6 +391,51 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     addBtn.addEventListener('click', addQuestion);
+
+    // Load positions for edit mode
+    const targetPositionsEdit = document.getElementById('targetPositionsSelect');
+    const skillSelectEdit = document.querySelector('select[name="skill_id"]');
+    
+    if (skillSelectEdit && targetPositionsEdit) {
+        // Load positions based on skill's division
+        const divisionId = targetPositionsEdit.dataset.skillDivision;
+        
+        skillSelectEdit.addEventListener('change', function() {
+            const selectedSkill = this.options[this.selectedIndex];
+            if (selectedSkill && selectedSkill.dataset.divisionId) {
+                loadPositionsForEdit(selectedSkill.dataset.divisionId);
+            }
+        });
+        
+        // Load on page load if division exists
+        if (divisionId) {
+            loadPositionsForEdit(divisionId);
+        }
+    }
+
+    function loadPositionsForEdit(divisionId) {
+        if (!divisionId || !targetPositionsEdit) return;
+        
+        const selectedPosition = targetPositionsEdit.value;
+        
+        fetch(`/api/positions?division_id=${divisionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    targetPositionsEdit.innerHTML = '<option value="">-- Semua Jabatan --</option>';
+                    data.data.forEach(position => {
+                        const option = document.createElement('option');
+                        option.value = position.id;
+                        option.textContent = position.name;
+                        if (selectedPosition == position.id) {
+                            option.selected = true;
+                        }
+                        targetPositionsEdit.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading positions:', error));
+    }
 });
 </script>
 @endpush

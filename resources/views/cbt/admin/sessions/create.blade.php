@@ -246,6 +246,28 @@
                             @enderror
                         </div>
 
+                        {{-- Jadwal Mulai (Opsional) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Jadwal Mulai Ujian</label>
+                            <input type="datetime-local" name="scheduled_start_at" class="form-control @error('scheduled_start_at') is-invalid @enderror" 
+                                   value="{{ old('scheduled_start_at') }}">
+                            @error('scheduled_start_at')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Jika diisi, karyawan tidak bisa membuka ujian sebelum waktu ini. Kosongkan jika bisa dikerjakan kapan saja.</small>
+                        </div>
+
+                        {{-- Tenggat Waktu --}}
+                        <div class="mb-3">
+                            <label class="form-label">Tenggat Waktu <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="deadline_at" class="form-control @error('deadline_at') is-invalid @enderror" 
+                                   value="{{ old('deadline_at') }}" required>
+                            @error('deadline_at')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Batas waktu karyawan harus menyelesaikan ujian</small>
+                        </div>
+
                         <hr>
 
                         {{-- Ringkasan --}}

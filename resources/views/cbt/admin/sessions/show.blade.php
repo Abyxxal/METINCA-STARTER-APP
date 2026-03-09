@@ -206,10 +206,16 @@
                             <span class="badge bg-info fs-5 mb-3">Menunggu Verifikasi</span>
                             @break
                         @case('verified_pass')
-                            <span class="badge bg-success fs-5 mb-3">LULUS</span>
+                            <span class="badge bg-primary fs-5 mb-3">Lulus - Menunggu Approval</span>
                             @break
                         @case('verified_fail')
                             <span class="badge bg-danger fs-5 mb-3">TIDAK LULUS</span>
+                            @break
+                        @case('approved')
+                            <span class="badge bg-success fs-5 mb-3">Disetujui Manager</span>
+                            @break
+                        @case('rejected')
+                            <span class="badge bg-dark fs-5 mb-3">Ditolak Manager</span>
                             @break
                     @endswitch
 
@@ -227,6 +233,18 @@
                             <td class="text-muted">Ditugaskan</td>
                             <td>{{ $session->created_at->format('d M Y H:i') }}</td>
                         </tr>
+                        @if($session->scheduled_start_at)
+                            <tr>
+                                <td class="text-muted">Jadwal Mulai</td>
+                                <td>{{ $session->getFormattedScheduledStart() }} WIB</td>
+                            </tr>
+                        @endif
+                        @if($session->deadline_at)
+                            <tr>
+                                <td class="text-muted">Batas Akhir</td>
+                                <td>{{ $session->getFormattedDeadline() }} WIB</td>
+                            </tr>
+                        @endif
                         @if($session->started_at)
                             <tr>
                                 <td class="text-muted">Mulai</td>
@@ -245,6 +263,22 @@
                                 <td>
                                     {{ $session->verifier->name }}
                                     <br><small>{{ $session->verified_at?->format('d M Y H:i') }}</small>
+                                </td>
+                            </tr>
+                        @endif
+                        @if($session->manager)
+                            <tr>
+                                <td class="text-muted">Keputusan Manager</td>
+                                <td>
+                                    @if($session->manager_decision === 'approved')
+                                        <span class="badge bg-success">Disetujui</span>
+                                    @elseif($session->manager_decision === 'rejected')
+                                        <span class="badge bg-dark">Ditolak</span>
+                                    @endif
+                                    <br><small>{{ $session->manager->name }} &bull; {{ $session->decided_at?->format('d M Y H:i') }}</small>
+                                    @if($session->manager_notes)
+                                        <br><small class="text-muted fst-italic">"{{ $session->manager_notes }}"</small>
+                                    @endif
                                 </td>
                             </tr>
                         @endif
@@ -288,6 +322,47 @@
                                     <i class="bi bi-check-circle"></i> Verifikasi & Simpan Hasil
                                 </button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Manager Approval --}}
+            @if($session->status === 'verified_pass' && $session->isPendingManagerApproval() && Auth::user()->isManager())
+                <div class="card">
+                    <div class="card-header bg-light-primary">
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-shield-check"></i> Persetujuan Kenaikan Level
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->score }}%</strong>.<br>
+                            Skill <strong>{{ $session->exam->skill->name ?? '-' }}</strong> akan dinaikkan ke <strong>Level {{ $session->exam->target_level }}</strong>.
+                        </div>
+
+                        {{-- Approve Form --}}
+                        <form action="{{ route('cbt.admin.sessions.approve-level', $session) }}" method="POST" class="mb-3">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">Catatan (Opsional)</label>
+                                <textarea name="manager_notes" class="form-control" rows="2" placeholder="Catatan persetujuan..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 mb-2">
+                                <i class="bi bi-check-circle"></i> Setujui Kenaikan Level
+                            </button>
+                        </form>
+
+                        {{-- Reject Form --}}
+                        <form action="{{ route('cbt.admin.sessions.reject-level', $session) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Alasan Penolakan <span class="text-danger">*</span></label>
+                                <textarea name="manager_notes" class="form-control" rows="2" placeholder="Alasan penolakan..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="bi bi-x-circle"></i> Tolak Kenaikan Level
+                            </button>
                         </form>
                     </div>
                 </div>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeImportController;
 use App\Http\Controllers\UserDashboardController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -29,32 +30,7 @@ Route::get('/',function(){
 require __DIR__.'/auth.php';
 require __DIR__.'/cbt.php'; // CBT Routes
 
-// DEBUG ROUTE - Raw data check
-Route::get('/debug-dropdown', function() {
-    $departments = \App\Models\Department::all();
-    $divisions = \App\Models\Division::all();
-    $positions = \App\Models\Position::all();
-    
-    return response()->json([
-        'departments' => $departments->map(fn($d) => ['id' => $d->id, 'name' => $d->name]),
-        'divisions' => $divisions->map(fn($d) => ['id' => $d->id, 'name' => $d->name, 'department_id' => $d->department_id]),
-        'positions' => $positions->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'division_id' => $p->division_id]),
-        'counts' => [
-            'departments' => $departments->count(),
-            'divisions' => $divisions->count(),
-            'positions' => $positions->count(),
-        ]
-    ]);
-});
 
-// TEST ROUTE - Cascade Dropdown Test
-Route::get('/test-cascade', function() {
-    $departments = \App\Models\Department::all();
-    $divisions = \App\Models\Division::all();
-    $positions = \App\Models\Position::all();
-    
-    return view('test-cascade', compact('departments', 'divisions', 'positions'));
-})->name('test.cascade');
 
 // ============================================
 // GUEST ROUTES - Untuk user yang belum login
@@ -158,6 +134,10 @@ Route::middleware(['auth'])->group(function(){
     // Middleware: 'is.admin' - hanya accessible untuk user dengan role 'admin'
     
     Route::middleware(['is.admin'])->group(function(){
+
+        // ---- MANAJEMEN USER ----
+        Route::get('/admin/users', [UserManagementController::class, 'index'])->name('admin.users.index');
+        Route::put('/admin/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('admin.users.update-role');
 
         // GET /master-data - Halaman Master Data
         // Fungsi: Mengelola data referensi (karyawan, departemen, jabatan)

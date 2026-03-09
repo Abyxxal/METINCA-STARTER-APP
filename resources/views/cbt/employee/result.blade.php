@@ -28,14 +28,35 @@
             {{-- Result Card --}}
             <div class="card mb-4">
                 <div class="card-body text-center py-5">
-                    @if($session->status === 'verified_pass')
+                    @if($session->status === 'approved')
                         <div class="mb-4">
                             <i class="bi bi-trophy-fill display-1 text-success"></i>
                         </div>
                         <h2 class="text-success mb-3">
-                            <i class="bi bi-check-circle-fill"></i> LULUS
+                            <i class="bi bi-check-circle-fill"></i> LULUS & DISETUJUI
                         </h2>
-                        <p class="text-muted">Selamat! Anda telah lulus ujian ini.</p>
+                        <p class="text-muted">Selamat! Anda telah lulus ujian ini dan kenaikan level telah disetujui oleh Manager.</p>
+                    @elseif($session->status === 'verified_pass')
+                        <div class="mb-4">
+                            <i class="bi bi-hourglass-split display-1 text-primary"></i>
+                        </div>
+                        <h2 class="text-primary mb-3">
+                            <i class="bi bi-hourglass-split"></i> LULUS - MENUNGGU PERSETUJUAN
+                        </h2>
+                        <p class="text-muted mb-2">Selamat! Anda telah lulus ujian ini. Kenaikan level sedang menunggu persetujuan Manager.</p>
+                    @elseif($session->status === 'rejected')
+                        <div class="mb-4">
+                            <i class="bi bi-x-circle-fill display-1 text-dark"></i>
+                        </div>
+                        <h2 class="text-dark mb-3">
+                            <i class="bi bi-x-circle-fill"></i> LULUS - KENAIKAN DITOLAK
+                        </h2>
+                        <p class="text-muted">Anda lulus ujian ini, namun kenaikan level ditolak oleh Manager.</p>
+                        @if($session->manager_notes)
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-chat-left-text"></i> <strong>Catatan Manager:</strong> {{ $session->manager_notes }}
+                            </div>
+                        @endif
                     @elseif($session->status === 'verified_fail')
                         <div class="mb-4">
                             <i class="bi bi-x-circle-fill display-1 text-danger"></i>
@@ -61,7 +82,7 @@
                     @endif
 
                     {{-- Score Display --}}
-                    @if($session->status !== 'submitted')
+                    @if(!in_array($session->status, ['submitted']))
                     <div class="row justify-content-center mt-4">
                         <div class="col-md-4">
                             <div class="bg-light rounded p-4">
@@ -116,7 +137,11 @@
                                 @elseif($session->status === 'submitted')
                                     <span class="badge bg-secondary">Menunggu Verifikasi Admin</span>
                                 @elseif($session->status === 'verified_pass')
-                                    <span class="badge bg-success">Lulus - Terverifikasi</span>
+                                    <span class="badge bg-primary">Lulus - Menunggu Persetujuan Manager</span>
+                                @elseif($session->status === 'approved')
+                                    <span class="badge bg-success">Lulus - Disetujui Manager</span>
+                                @elseif($session->status === 'rejected')
+                                    <span class="badge bg-dark">Lulus - Ditolak Manager</span>
                                 @elseif($session->status === 'verified_fail')
                                     <span class="badge bg-danger">Tidak Lulus - Terverifikasi</span>
                                 @endif
@@ -135,14 +160,17 @@
                             <td>
                                 @if($session->started_at && $session->finished_at)
                                     @php
-                                        $diffInMinutes = $session->started_at->diffInMinutes($session->finished_at);
-                                        $hours = floor($diffInMinutes / 60);
-                                        $minutes = $diffInMinutes % 60;
+                                        $diffInSeconds = $session->started_at->diffInSeconds($session->finished_at);
+                                        $hours = floor($diffInSeconds / 3600);
+                                        $minutes = floor(($diffInSeconds % 3600) / 60);
+                                        $seconds = $diffInSeconds % 60;
                                     @endphp
                                     @if($hours > 0)
-                                        {{ $hours }} jam {{ $minutes }} menit
+                                        {{ $hours }} jam {{ $minutes }} menit {{ $seconds }} detik
+                                    @elseif($minutes > 0)
+                                        {{ $minutes }} menit {{ $seconds }} detik
                                     @else
-                                        {{ $minutes }} menit
+                                        {{ $seconds }} detik
                                     @endif
                                 @else
                                     -
@@ -161,12 +189,25 @@
                             <td>{{ $session->verifier->name ?? '-' }}</td>
                         </tr>
                         @endif
+                        @if($session->decided_at)
+                        <tr>
+                            <td class="text-muted">Keputusan Manager</td>
+                            <td>
+                                @if($session->manager_decision === 'approved')
+                                    <span class="badge bg-success">Disetujui</span>
+                                @elseif($session->manager_decision === 'rejected')
+                                    <span class="badge bg-dark">Ditolak</span>
+                                @endif
+                                <br><small class="text-muted">{{ $session->decided_at->format('d M Y, H:i') }}</small>
+                            </td>
+                        </tr>
+                        @endif
                     </table>
                 </div>
             </div>
 
             {{-- Admin Notes (if any) --}}
-            @if($session->admin_notes && in_array($session->status, ['verified_pass', 'verified_fail']))
+            @if($session->admin_notes && in_array($session->status, ['verified_pass', 'verified_fail', 'approved', 'rejected']))
             <div class="card">
                 <div class="card-header bg-light-info">
                     <h5 class="card-title mb-0">

@@ -99,11 +99,12 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="30%">Judul Set Soal</th>
-                            <th width="15%">Skill</th>
-                            <th width="10%">Level</th>
+                            <th width="25%">Judul Set Soal</th>
+                            <th width="12%">Skill</th>
+                            <th width="12%">Jabatan</th>
+                            <th width="8%">Level</th>
                             <th width="10%">Jumlah Soal</th>
-                            <th width="10%">Status</th>
+                            <th width="8%">Status</th>
                             <th width="20%">Aksi</th>
                         </tr>
                     </thead>
@@ -118,6 +119,13 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-info">{{ $set->skill->name ?? '-' }}</span>
+                                </td>
+                                <td>
+                                    @if(isset($set->targetPosition) && $set->targetPosition)
+                                        <span class="badge bg-warning text-dark">{{ $set->targetPosition->name }}</span>
+                                    @else
+                                        <span class="badge bg-secondary">Semua Jabatan</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge bg-secondary">Level {{ $set->for_level }}</span>
@@ -150,7 +158,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="8" class="text-center text-muted py-4">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                     Belum ada soal. <a href="{{ route('cbt.admin.questions.create') }}">Buat soal pertama</a>.
                                 </td>

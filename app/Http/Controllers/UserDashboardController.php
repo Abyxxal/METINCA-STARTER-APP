@@ -21,7 +21,6 @@ class UserDashboardController extends Controller
             'active' => 0,
             'completed' => 0,
             'in_progress' => 0,
-            'certificates' => 0
         ];
         
         $recentSessions = collect();
@@ -34,17 +33,12 @@ class UserDashboardController extends Controller
             
             // Count completed trainings
             $stats['completed'] = ExamSession::where('employee_nik', $user->employee->nik)
-                ->whereIn('status', ['verified_pass', 'verified_fail'])
+                ->whereIn('status', ['submitted', 'verified_pass', 'verified_fail', 'approved', 'rejected'])
                 ->count();
             
             // Count in progress
             $stats['in_progress'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->where('status', 'started')
-                ->count();
-            
-            // Count certificates (passed)
-            $stats['certificates'] = ExamSession::where('employee_nik', $user->employee->nik)
-                ->where('status', 'verified_pass')
                 ->count();
             
             // Get recent 3 training sessions
@@ -121,7 +115,7 @@ class UserDashboardController extends Controller
         // Query exam sessions for submitted and completed trainings
         $query = ExamSession::with(['exam.skill', 'verifier'])
             ->where('employee_nik', $user->employee->nik)
-            ->whereIn('status', ['submitted', 'verified_pass', 'verified_fail']);
+            ->whereIn('status', ['submitted', 'verified_pass', 'verified_fail', 'approved', 'rejected']);
 
         // Filter by year
         if ($request->year) {

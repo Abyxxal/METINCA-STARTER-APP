@@ -24,15 +24,26 @@ class ExamSession extends Model
         'status',
         'verified_by',
         'admin_notes',
+        'manager_decision',
+        'manager_notes',
+        'decided_by',
+        'decided_at',
         'started_at',
+        'finished_at',
         'submitted_at',
         'verified_at',
+        'deadline_at',
+        'scheduled_start_at',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
+        'finished_at' => 'datetime',
         'submitted_at' => 'datetime',
         'verified_at' => 'datetime',
+        'deadline_at' => 'datetime',
+        'scheduled_start_at' => 'datetime',
+        'decided_at' => 'datetime',
         'score' => 'integer',
     ];
 
@@ -42,6 +53,14 @@ class ExamSession extends Model
     const STATUS_SUBMITTED = 'submitted';
     const STATUS_VERIFIED_PASS = 'verified_pass';
     const STATUS_VERIFIED_FAIL = 'verified_fail';
+    const STATUS_PENDING_APPROVAL = 'pending_approval';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
+
+    // Manager decision constants
+    const DECISION_PENDING = 'pending';
+    const DECISION_APPROVED = 'approved';
+    const DECISION_REJECTED = 'rejected';
 
     // ============================================
     // RELATIONSHIPS
@@ -77,6 +96,14 @@ class ExamSession extends Model
     public function verifiedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    /**
+     * Session was decided by a Manager
+     */
+    public function manager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'decided_by');
     }
 
     /**
@@ -196,8 +223,10 @@ class ExamSession extends Model
             self::STATUS_ASSIGNED => 'Ditugaskan',
             self::STATUS_STARTED => 'Sedang Berlangsung',
             self::STATUS_SUBMITTED => 'Menunggu Verifikasi',
-            self::STATUS_VERIFIED_PASS => 'Lulus',
+            self::STATUS_VERIFIED_PASS => 'Lulus - Menunggu Approval',
             self::STATUS_VERIFIED_FAIL => 'Tidak Lulus',
+            self::STATUS_APPROVED => 'Lulus - Disetujui',
+            self::STATUS_REJECTED => 'Lulus - Ditolak',
         ];
         return $labels[$this->status] ?? 'Unknown';
     }
@@ -211,8 +240,10 @@ class ExamSession extends Model
             self::STATUS_ASSIGNED => 'bg-secondary',
             self::STATUS_STARTED => 'bg-warning',
             self::STATUS_SUBMITTED => 'bg-info',
-            self::STATUS_VERIFIED_PASS => 'bg-success',
+            self::STATUS_VERIFIED_PASS => 'bg-primary',
             self::STATUS_VERIFIED_FAIL => 'bg-danger',
+            self::STATUS_APPROVED => 'bg-success',
+            self::STATUS_REJECTED => 'bg-dark',
         ];
         return $classes[$this->status] ?? 'bg-secondary';
     }
@@ -242,5 +273,100 @@ class ExamSession extends Model
         }
         
         return $this->score >= $this->exam->passing_score;
+    }
+
+    /**
+     * Check if exam has not opened yet (before scheduled start)
+     */
+    public function isNotStartedYet(): bool
+    {
+        if (!$this->scheduled_start_at) {
+            return false;
+        }
+
+        return now()->isBefore($this->scheduled_start_at);
+    }
+
+    /**
+     * Get formatted scheduled start
+     */
+    public function getFormattedScheduledStart(): string
+    {
+        if (!$this->scheduled_start_at) {
+            return '-';
+        }
+
+        return $this->scheduled_start_at->format('d M Y, H:i');
+    }
+
+    /**
+     * Check if deadline has passed
+     */
+    public function isDeadlinePassed(): bool
+    {
+        if (!$this->deadline_at) {
+            return false;
+        }
+        
+        return now()->isAfter($this->deadline_at);
+    }
+
+    /**
+     * Get deadline status (for badge)
+     */
+    public function getDeadlineStatus(): array
+    {
+        if (!$this->deadline_at) {
+            return ['label' => '', 'class' => ''];
+        }
+
+        if ($this->isDeadlinePassed()) {
+            return ['label' => 'Deadline Terlewat', 'class' => 'danger'];
+        }
+
+        $hoursRemaining = now()->diffInHours($this->deadline_at, false);
+        
+        if ($hoursRemaining <= 24) {
+            return ['label' => 'Deadline < 24 jam', 'class' => 'warning'];
+        }
+
+        return ['label' => '', 'class' => ''];
+    }
+
+    /**
+     * Get formatted deadline
+     */
+    public function getFormattedDeadline(): string
+    {
+        if (!$this->deadline_at) {
+            return '-';
+        }
+
+        return $this->deadline_at->format('d M Y, H:i');
+    }
+
+    /**
+     * Check if session needs manager approval (lulus tapi belum di-approve)
+     */
+    public function isPendingManagerApproval(): bool
+    {
+        return $this->status === self::STATUS_VERIFIED_PASS
+            && ($this->manager_decision === null || $this->manager_decision === self::DECISION_PENDING);
+    }
+
+    /**
+     * Check if session was approved by manager
+     */
+    public function isApprovedByManager(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
+    }
+
+    /**
+     * Check if session was rejected by manager
+     */
+    public function isRejectedByManager(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
     }
 }

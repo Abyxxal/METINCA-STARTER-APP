@@ -65,6 +65,13 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
         Route::post('/bulk-assign', [ExamSessionController::class, 'bulkAssignByDivision'])->name('bulk-assign');
     });
 
+    // ----- MANAGER APPROVAL (Hanya Manager) -----
+    Route::middleware(['is.manager'])->group(function () {
+        Route::get('/approval', [ExamSessionController::class, 'pendingApproval'])->name('sessions.pending-approval');
+        Route::post('/sessions/{session}/approve-level', [ExamSessionController::class, 'approveLevel'])->name('sessions.approve-level');
+        Route::post('/sessions/{session}/reject-level', [ExamSessionController::class, 'rejectLevel'])->name('sessions.reject-level');
+    });
+
     // ----- COMPETENCY MATRIX (Matriks Kompetensi) -----
     Route::get('/competency-matrix', [CompetencyMatrixController::class, 'index'])->name('competency-matrix');
 

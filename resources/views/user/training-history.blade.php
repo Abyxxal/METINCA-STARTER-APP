@@ -125,8 +125,16 @@
                                             <i class="bi bi-hourglass-split"></i> Menunggu Verifikasi
                                         </span>
                                     @elseif($session->status === 'verified_pass')
+                                        <span class="badge bg-light-warning">
+                                            <i class="bi bi-clock"></i> Lulus - Menunggu Persetujuan
+                                        </span>
+                                    @elseif($session->status === 'approved')
                                         <span class="badge bg-light-success">
-                                            <i class="bi bi-check-circle"></i> Lulus
+                                            <i class="bi bi-check-circle"></i> Lulus - Disetujui
+                                        </span>
+                                    @elseif($session->status === 'rejected')
+                                        <span class="badge bg-light-danger">
+                                            <i class="bi bi-x-circle"></i> Lulus - Ditolak
                                         </span>
                                     @else
                                         <span class="badge bg-light-danger">

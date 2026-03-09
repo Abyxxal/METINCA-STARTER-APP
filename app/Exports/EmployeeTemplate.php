@@ -24,11 +24,7 @@ class EmployeeTemplate implements FromCollection, WithHeadings, WithStyles
                 'email' => 'contoh@metinca.com',
                 'department_id' => '1',
                 'position_id' => '1',
-                'phone' => '081234567890',
-                'address' => 'Jl. Contoh No. 123',
-                'photo_path' => 'path/to/photo.jpg',
-                'hire_date' => '2024-01-15',
-                'status' => 'active',
+                'status' => 'Aktif',
             ],
         ]);
     }
@@ -44,10 +40,6 @@ class EmployeeTemplate implements FromCollection, WithHeadings, WithStyles
             'email',
             'department_id',
             'position_id',
-            'phone',
-            'address',
-            'photo_path',
-            'hire_date',
             'status',
         ];
     }

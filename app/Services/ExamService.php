@@ -243,4 +243,41 @@ class ExamService
             $session->exam->target_level
         );
     }
+
+    /**
+     * Get questions for employee exam (filtered by position)
+     * 
+     * This method retrieves questions that are either:
+     * - Universal (no position targeting)
+     * - Targeted specifically for the employee's position
+     * 
+     * @param int $skillId The skill ID to filter questions
+     * @param int $forLevel The competency level (1-4)
+     * @param int|null $employeePositionId The employee's position ID (optional)
+     * @param int $limit Maximum number of questions to retrieve
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getQuestionsForEmployee($skillId, $forLevel, $employeePositionId = null, $limit = 10)
+    {
+        $query = Question::where('skill_id', $skillId)
+            ->where('for_level', $forLevel)
+            ->where('status', 'active');
+
+        // Filter by position if provided
+        if ($employeePositionId) {
+            $query->where(function($q) use ($employeePositionId) {
+                // Get universal questions (no position records)
+                $q->whereDoesntHave('positions')
+                  // OR questions targeted for this position
+                  ->orWhereHas('positions', function($q2) use ($employeePositionId) {
+                      $q2->where('position_id', $employeePositionId);
+                  });
+            });
+        } else {
+            // If no position provided, only get universal questions
+            $query->whereDoesntHave('positions');
+        }
+
+        return $query->inRandomOrder()->limit($limit)->get();
+    }
 }

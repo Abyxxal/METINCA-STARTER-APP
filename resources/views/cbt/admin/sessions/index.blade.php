@@ -40,8 +40,10 @@
                         <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>Ditugaskan</option>
                         <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>Dikerjakan</option>
                         <option value="submitted" {{ request('status') == 'submitted' ? 'selected' : '' }}>Selesai (Pending)</option>
-                        <option value="verified_pass" {{ request('status') == 'verified_pass' ? 'selected' : '' }}>Lulus</option>
+                        <option value="verified_pass" {{ request('status') == 'verified_pass' ? 'selected' : '' }}>Lulus - Menunggu Approval</option>
                         <option value="verified_fail" {{ request('status') == 'verified_fail' ? 'selected' : '' }}>Tidak Lulus</option>
+                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui Manager</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak Manager</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -66,13 +68,14 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="20%">Karyawan</th>
-                            <th width="20%">Ujian</th>
+                            <th width="18%">Karyawan</th>
+                            <th width="18%">Ujian</th>
                             <th width="12%">Tanggal</th>
-                            <th width="10%">Nilai</th>
-                            <th width="13%">Status</th>
-                            <th width="10%">Verifikator</th>
-                            <th width="10%">Aksi</th>
+                            <th width="12%">Deadline</th>
+                            <th width="8%">Nilai</th>
+                            <th width="12%">Status</th>
+                            <th width="8%">Verifikator</th>
+                            <th width="7%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -90,6 +93,22 @@
                                 <td>
                                     {{ $session->created_at->format('d M Y') }}
                                     <br><small class="text-muted">{{ $session->created_at->format('H:i') }}</small>
+                                </td>
+                                <td>
+                                    @if($session->deadline_at)
+                                        @php
+                                            $deadlineStatus = $session->getDeadlineStatus();
+                                        @endphp
+                                        {{ $session->deadline_at->format('d M Y') }}
+                                        <br><small class="text-muted">{{ $session->deadline_at->format('H:i') }}</small>
+                                        @if($deadlineStatus['label'])
+                                            <br><span class="badge bg-{{ $deadlineStatus['class'] }} mt-1">
+                                                <small>{{ $deadlineStatus['label'] }}</small>
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($session->score !== null)
@@ -117,13 +136,23 @@
                                             </span>
                                             @break
                                         @case('verified_pass')
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i> LULUS
+                                            <span class="badge bg-primary">
+                                                <i class="bi bi-hourglass"></i> Lulus - Menunggu Approval
                                             </span>
                                             @break
                                         @case('verified_fail')
                                             <span class="badge bg-danger">
                                                 <i class="bi bi-x-circle"></i> TIDAK LULUS
+                                            </span>
+                                            @break
+                                        @case('approved')
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Disetujui
+                                            </span>
+                                            @break
+                                        @case('rejected')
+                                            <span class="badge bg-dark">
+                                                <i class="bi bi-x-circle"></i> Ditolak
                                             </span>
                                             @break
                                     @endswitch
@@ -153,7 +182,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
+                                <td colspan="9" class="text-center text-muted py-4">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                     Belum ada sesi ujian.
                                 </td>

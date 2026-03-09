@@ -86,6 +86,8 @@ class ExamSessionController extends Controller
         $validated = $request->validate([
             'duration_minutes' => 'required|integer|min:5|max:300',
             'passing_score' => 'required|integer|min:0|max:100',
+            'deadline_at' => 'required|date|after:now',
+            'scheduled_start_at' => 'nullable|date|before:deadline_at',
             'question_set_ids' => 'required|array|min:1',
             'question_set_ids.*' => 'string',
             'employee_niks' => 'required|array|min:1',
@@ -207,6 +209,8 @@ class ExamSessionController extends Controller
                     'exam_id' => $exam->id,
                     'employee_nik' => $nik,
                     'status' => ExamSession::STATUS_ASSIGNED,
+                    'deadline_at' => $validated['deadline_at'],
+                    'scheduled_start_at' => $validated['scheduled_start_at'] ?? null,
                 ]);
                 $assigned++;
             }
@@ -252,6 +256,7 @@ class ExamSessionController extends Controller
             'employee.position',
             'answers.question',
             'verifier',
+            'manager',
         ]);
 
         return view('cbt.admin.sessions.show', compact('session'));
@@ -304,12 +309,10 @@ class ExamSessionController extends Controller
                     'verified_by' => Auth::id(),
                     'verified_at' => now(),
                     'admin_notes' => $validated['notes'] ?? null,
+                    'manager_decision' => $passed ? ExamSession::DECISION_PENDING : null,
                 ]);
 
-                // If passed, update employee's skill level
-                if ($passed) {
-                    $this->updateEmployeeSkillLevel($session);
-                }
+                // Tidak langsung update level - menunggu keputusan manager
             } else {
                 // Rejected - allow retake
                 $session->update([
@@ -424,5 +427,84 @@ class ExamSessionController extends Controller
         // Reuse store logic
         $request->merge(['employee_niks' => $employees]);
         return $this->store($request);
+    }
+
+    // ============================================
+    // MANAGER APPROVAL METHODS
+    // ============================================
+
+    /**
+     * Display sessions pending manager approval.
+     */
+    public function pendingApproval()
+    {
+        $sessions = ExamSession::with(['exam.skill', 'employee.division', 'employee.position', 'verifier'])
+            ->where('status', ExamSession::STATUS_VERIFIED_PASS)
+            ->where(function ($q) {
+                $q->where('manager_decision', ExamSession::DECISION_PENDING)
+                  ->orWhereNull('manager_decision');
+            })
+            ->latest('verified_at')
+            ->paginate(20);
+
+        return view('cbt.admin.sessions.pending-approval', compact('sessions'));
+    }
+
+    /**
+     * Manager approves level upgrade.
+     */
+    public function approveLevel(Request $request, ExamSession $session)
+    {
+        $validated = $request->validate([
+            'manager_notes' => 'nullable|string|max:500',
+        ]);
+
+        if (!$session->isPendingManagerApproval()) {
+            return back()->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $session->update([
+                'status' => ExamSession::STATUS_APPROVED,
+                'manager_decision' => ExamSession::DECISION_APPROVED,
+                'manager_notes' => $validated['manager_notes'] ?? null,
+                'decided_by' => Auth::id(),
+                'decided_at' => now(),
+            ]);
+
+            // Update employee skill level
+            $this->updateEmployeeSkillLevel($session);
+
+            DB::commit();
+            return back()->with('success', "Kenaikan level karyawan {$session->employee->name} telah DISETUJUI.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menyetujui: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Manager rejects level upgrade.
+     */
+    public function rejectLevel(Request $request, ExamSession $session)
+    {
+        $validated = $request->validate([
+            'manager_notes' => 'required|string|max:500',
+        ]);
+
+        if (!$session->isPendingManagerApproval()) {
+            return back()->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
+        }
+
+        $session->update([
+            'status' => ExamSession::STATUS_REJECTED,
+            'manager_decision' => ExamSession::DECISION_REJECTED,
+            'manager_notes' => $validated['manager_notes'],
+            'decided_by' => Auth::id(),
+            'decided_at' => now(),
+        ]);
+
+        return back()->with('success', "Kenaikan level karyawan {$session->employee->name} telah DITOLAK.");
     }
 }

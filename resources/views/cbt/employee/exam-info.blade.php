@@ -63,6 +63,27 @@
                         </div>
                     </div>
 
+                    @if($session->scheduled_start_at || $session->deadline_at)
+                    <div class="row justify-content-center mb-4">
+                        @if($session->scheduled_start_at)
+                        <div class="col-md-4">
+                            <div class="bg-light rounded p-3">
+                                <small class="text-muted d-block"><i class="bi bi-calendar-event"></i> Jadwal Mulai</small>
+                                <strong>{{ $session->getFormattedScheduledStart() }} WIB</strong>
+                            </div>
+                        </div>
+                        @endif
+                        @if($session->deadline_at)
+                        <div class="col-md-4">
+                            <div class="bg-light rounded p-3">
+                                <small class="text-muted d-block"><i class="bi bi-calendar-x"></i> Batas Akhir</small>
+                                <strong>{{ $session->getFormattedDeadline() }} WIB</strong>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
                     <div class="alert alert-warning text-start">
                         <h5><i class="bi bi-exclamation-triangle"></i> Perhatian!</h5>
                         <ul class="mb-0">

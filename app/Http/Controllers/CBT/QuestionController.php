@@ -56,6 +56,16 @@ class QuestionController extends Controller
         }
 
         $questionSets = $query->latest('created_at')->paginate(20);
+        
+        // Load positions for each set (from first question in each set)
+        $questionSets->getCollection()->transform(function ($set) {
+            $firstQuestion = Question::where('question_set_id', $set->question_set_id)
+                ->with('positions')
+                ->first();
+            $set->targetPosition = $firstQuestion?->positions->first();
+            return $set;
+        });
+        
         $divisions = Cache::remember('divisions_with_dept', 3600, function() {
             return Division::with('department')->orderBy('name')->get();
         });
@@ -82,6 +92,7 @@ class QuestionController extends Controller
     public function create()
     {
         $divisions = Division::with('department')->orderBy('name')->get();
+        
         return view('cbt.admin.questions.create', compact('divisions'));
     }
 
@@ -96,6 +107,7 @@ class QuestionController extends Controller
                 'skill_id' => 'required|exists:skills,id',
                 'for_level' => 'required|integer|min:1|max:4',
                 'set_title' => 'nullable|string|max:255',
+                'target_position' => 'nullable|exists:positions,id',
                 'questions' => 'required|array|min:1',
                 'questions.*.question_text' => 'required|string',
                 'questions.*.type' => 'required|in:multiple_choice,true_false,essay',
@@ -123,7 +135,7 @@ class QuestionController extends Controller
                     $options = array_filter($q['options'], fn($v) => !empty($v));
                 }
 
-                Question::create([
+                $question = Question::create([
                     'question_set_id' => $questionSetId,
                     'set_title' => $setTitle,
                     'skill_id' => $validated['skill_id'],
@@ -134,6 +146,12 @@ class QuestionController extends Controller
                     'correct_answer' => $q['correct_answer'] ?? null,
                     'status' => 'active',
                 ]);
+
+                // Attach position if specified (empty = universal)
+                if (!empty($validated['target_position'])) {
+                    $question->positions()->attach($validated['target_position']);
+                }
+
                 $count++;
             }
 
@@ -148,6 +166,7 @@ class QuestionController extends Controller
             'question_text' => 'required|string',
             'for_level' => 'required|integer|min:1|max:4',
             'type' => 'required|in:multiple_choice,true_false,essay',
+            'target_position' => 'nullable|exists:positions,id',
             'options' => 'required_if:type,multiple_choice|array',
             'correct_answer' => 'required_unless:type,essay|string',
             'status' => 'required|in:active,inactive',
@@ -161,7 +180,12 @@ class QuestionController extends Controller
             $validated['options'] = ['A' => 'Benar', 'B' => 'Salah'];
         }
 
-        Question::create($validated);
+        $question = Question::create($validated);
+
+        // Attach position if specified
+        if (!empty($validated['target_position'])) {
+            $question->positions()->attach($validated['target_position']);
+        }
 
         return redirect()
             ->route('cbt.admin.questions.index')
@@ -183,6 +207,8 @@ class QuestionController extends Controller
     public function edit(Question $question)
     {
         $skills = Skill::where('is_active', true)->get();
+        $question->load('positions', 'skill.division');
+        
         return view('cbt.admin.questions.edit', compact('question', 'skills'));
     }
 
@@ -196,6 +222,7 @@ class QuestionController extends Controller
             'question_text' => 'required|string',
             'for_level' => 'required|integer|min:1|max:4',
             'type' => 'required|in:multiple_choice,true_false,essay',
+            'target_position' => 'nullable|exists:positions,id',
             'options' => 'required_if:type,multiple_choice|array',
             'options.A' => 'required_if:type,multiple_choice|string',
             'options.B' => 'required_if:type,multiple_choice|string',
@@ -215,6 +242,13 @@ class QuestionController extends Controller
         }
 
         $question->update($validated);
+
+        // Sync position (empty = detach all = universal)
+        if (!empty($validated['target_position'])) {
+            $question->positions()->sync([$validated['target_position']]);
+        } else {
+            $question->positions()->sync([]);
+        }
 
         // Handle new questions if added
         $newQuestionsCount = 0;
@@ -448,7 +482,7 @@ class QuestionController extends Controller
     public function editSet($questionSetId)
     {
         $questions = Question::where('question_set_id', $questionSetId)
-            ->with('skill')
+            ->with(['skill.division.department', 'positions'])
             ->get();
 
         if ($questions->isEmpty()) {
@@ -480,6 +514,7 @@ class QuestionController extends Controller
             'skill_id' => 'required|exists:skills,id',
             'for_level' => 'required|integer|min:1|max:4',
             'status' => 'required|in:active,inactive,draft',
+            'target_position' => 'nullable|exists:positions,id',
             'questions' => 'required|array|min:1',
             'questions.*.id' => 'nullable|exists:questions,id',
             'questions.*.question_text' => 'required|string',
@@ -535,11 +570,23 @@ class QuestionController extends Controller
                 
                 if ($question && $question->question_set_id == $questionSetId) {
                     $question->update($questionData);
+                    
+                    // Sync target position
+                    if (!empty($validated['target_position'])) {
+                        $question->positions()->sync([$validated['target_position']]);
+                    } else {
+                        $question->positions()->sync([]);
+                    }
                 }
             } else {
                 // Create new question
                 $questionData['question_set_id'] = $questionSetId;
-                Question::create($questionData);
+                $newQuestion = Question::create($questionData);
+                
+                // Attach target position
+                if (!empty($validated['target_position'])) {
+                    $newQuestion->positions()->attach($validated['target_position']);
+                }
             }
         }
 

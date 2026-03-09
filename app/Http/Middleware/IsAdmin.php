@@ -15,9 +15,9 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check jika user sudah login dan memiliki role 'admin'
-        // Jika tidak, redirect ke user dashboard
-        if (auth()->check() && auth()->user()->role === 'admin') {
+        // Check jika user sudah login dan memiliki role 'admin' atau 'manager'
+        // Keduanya bisa akses panel admin
+        if (auth()->check() && in_array(auth()->user()->role, ['admin', 'manager'])) {
             return $next($request);
         }
 

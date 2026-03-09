@@ -65,6 +65,16 @@ class Question extends Model
         return $this->hasMany(ExamAnswer::class);
     }
 
+    /**
+     * Question can target specific Positions (many-to-many)
+     * Empty = universal (all positions)
+     */
+    public function positions(): BelongsToMany
+    {
+        return $this->belongsToMany(Position::class, 'question_positions')
+            ->withTimestamps();
+    }
+
     // ============================================
     // SCOPES
     // ============================================

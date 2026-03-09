@@ -34,6 +34,20 @@
             </div>
             <div class="card-body">
                 <div class="row">
+                    {{-- 1. Judul Set Soal --}}
+                    <div class="col-md-3">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Judul Set Soal</label>
+                            <input type="text" name="set_title" class="form-control @error('set_title') is-invalid @enderror" 
+                                placeholder="Contoh: Ujian CMM Dasar" value="{{ old('set_title') }}">
+                            @error('set_title')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Opsional, otomatis jika kosong</small>
+                        </div>
+                    </div>
+
+                    {{-- 2. Divisi --}}
                     <div class="col-md-3">
                         <div class="form-group mb-3">
                             <label class="form-label">Divisi <span class="text-danger">*</span></label>
@@ -48,26 +62,41 @@
                             @error('division_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Pilih divisi untuk melihat skill yang tersedia</small>
+                            <small class="text-muted">Pilih divisi dulu</small>
                         </div>
                     </div>
-                    <div class="col-md-3">
+
+                    {{-- 3. Target Jabatan --}}
+                    <div class="col-md-2">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Jabatan</label>
+                            <select name="target_position" id="targetPositionsSelect" class="form-select" disabled>
+                                <option value="">-- Semua Jabatan --</option>
+                            </select>
+                            <small class="text-muted">Kosongkan untuk semua</small>
+                        </div>
+                    </div>
+
+                    {{-- 4. Skill --}}
+                    <div class="col-md-2">
                         <div class="form-group mb-3">
                             <label class="form-label">Skill <span class="text-danger">*</span></label>
                             <select name="skill_id" id="skillSelect" class="form-select @error('skill_id') is-invalid @enderror" required disabled>
-                                <option value="">-- Pilih Divisi Terlebih Dahulu --</option>
+                                <option value="">-- Pilih Skill --</option>
                             </select>
                             @error('skill_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Skill berdasarkan divisi terpilih</small>
+                            <small class="text-muted">Berdasarkan divisi</small>
                         </div>
                     </div>
+
+                    {{-- 5. Level --}}
                     <div class="col-md-2">
                         <div class="form-group mb-3">
-                            <label class="form-label">Untuk Level <span class="text-danger">*</span></label>
+                            <label class="form-label">Level <span class="text-danger">*</span></label>
                             <select name="for_level" class="form-select @error('for_level') is-invalid @enderror" required>
-                                <option value="">-- Pilih Level --</option>
+                                <option value="">-- Level --</option>
                                 <option value="1" {{ old('for_level') == 1 ? 'selected' : '' }}>Level 1</option>
                                 <option value="2" {{ old('for_level') == 2 ? 'selected' : '' }}>Level 2</option>
                                 <option value="3" {{ old('for_level') == 3 ? 'selected' : '' }}>Level 3</option>
@@ -76,17 +105,6 @@
                             @error('for_level')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group mb-3">
-                            <label class="form-label">Judul Set Soal</label>
-                            <input type="text" name="set_title" class="form-control @error('set_title') is-invalid @enderror" 
-                                placeholder="Contoh: Ujian CMM Dasar" value="{{ old('set_title') }}">
-                            @error('set_title')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <small class="text-muted">Opsional, otomatis jika kosong</small>
                         </div>
                     </div>
                 </div>
@@ -312,6 +330,46 @@ document.addEventListener('DOMContentLoaded', function() {
         if (questions.length === 0) {
             e.preventDefault();
             alert('Tambahkan minimal 1 soal!');
+        }
+    });
+
+    // Cascade dropdown: Division → Positions
+    const targetPositionsSelect = document.getElementById('targetPositionsSelect');
+    
+    divisionSelect.addEventListener('change', function() {
+        const divisionId = this.value;
+        
+        // Reset positions dropdown
+        targetPositionsSelect.innerHTML = '<option value="" disabled>-- Loading... --</option>';
+        targetPositionsSelect.disabled = true;
+        
+        if (divisionId) {
+            // Fetch positions for selected division
+            fetch(`/api/positions?division_id=${divisionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.length > 0) {
+                        targetPositionsSelect.innerHTML = '<option value="">-- Semua Jabatan (Universal) --</option>';
+                        data.data.forEach(position => {
+                            const option = document.createElement('option');
+                            option.value = position.id;
+                            option.textContent = position.name;
+                            targetPositionsSelect.appendChild(option);
+                        });
+                        targetPositionsSelect.disabled = false;
+                    } else {
+                        targetPositionsSelect.innerHTML = '<option value="">Tidak ada jabatan untuk divisi ini</option>';
+                        targetPositionsSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading positions:', error);
+                    targetPositionsSelect.innerHTML = '<option value="" disabled>Error memuat jabatan</option>';
+                    targetPositionsSelect.disabled = true;
+                });
+        } else {
+            targetPositionsSelect.innerHTML = '<option value="">-- Pilih Divisi Terlebih Dahulu --</option>';
+            targetPositionsSelect.disabled = true;
         }
     });
 

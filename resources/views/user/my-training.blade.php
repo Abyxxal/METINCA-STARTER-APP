@@ -64,6 +64,7 @@
                             <th>Kategori</th>
                             <th>Level</th>
                             <th>Status</th>
+                            <th>Jadwal Mulai</th>
                             <th>Deadline</th>
                             <th>Aksi</th>
                         </tr>
@@ -87,7 +88,7 @@
                                 <td>
                                     @if($session->status === 'assigned')
                                         <span class="badge bg-warning">
-                                            <i class="bi bi-clock"></i> Belum Dimulai
+                                            <i class="bi bi-clock"></i> Belum Dikerjakan
                                         </span>
                                     @elseif($session->status === 'started')
                                         <span class="badge bg-info">
@@ -108,12 +109,28 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($session->created_at)
-                                        {{ $session->created_at->addDays(30)->format('d M Y') }}
-                                        <br>
-                                        <small class="text-muted">{{ $session->created_at->addDays(30)->diffForHumans() }}</small>
+                                    @if($session->scheduled_start_at)
+                                        @if($session->isNotStartedYet())
+                                            <span class="text-info fw-bold">{{ $session->scheduled_start_at->format('d M Y') }}</span>
+                                            <br><small class="text-muted">{{ $session->scheduled_start_at->format('H:i') }} WIB</small>
+                                        @else
+                                            <span class="text-muted">{{ $session->scheduled_start_at->format('d M Y') }}</span>
+                                            <br><small class="text-success"><i class="bi bi-check-circle"></i> Sudah dibuka</small>
+                                        @endif
                                     @else
-                                        -
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($session->deadline_at)
+                                        @php $deadlineStatus = $session->getDeadlineStatus(); @endphp
+                                        <span class="{{ $deadlineStatus['class'] === 'danger' ? 'text-danger fw-bold' : ($deadlineStatus['class'] === 'warning' ? 'text-warning fw-bold' : '') }}">
+                                            {{ $session->deadline_at->format('d M Y') }}
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">{{ $session->deadline_at->diffForHumans() }}</small>
+                                    @else
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td>

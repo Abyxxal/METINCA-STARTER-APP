@@ -69,8 +69,11 @@
                             </div>
                         @endif
                     </div>
-                    <div class="col-md-4 text-md-end">
-                        <a href="{{ route('cbt.admin.division-skills.index') }}" class="btn btn-outline-primary mt-4">
+                    <div class="col-md-4 text-md-end d-flex flex-column flex-md-row gap-2 justify-content-md-end align-items-md-end mt-4">
+                        <a href="{{ route('cbt.admin.employee-competencies.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-person-lines-fill me-1"></i> Level Skill Karyawan
+                        </a>
+                        <a href="{{ route('cbt.admin.division-skills.index') }}" class="btn btn-outline-primary">
                             <i class="bi bi-gear me-1"></i> Customisasi Skill Divisi
                         </a>
                     </div>

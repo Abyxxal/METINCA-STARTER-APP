@@ -19,12 +19,9 @@ class SkillsSeeder extends Seeder
         
         if ($qualityDept) {
             // Create QC Division
-            $qcDivision = Division::create([
-                'department_id' => $qualityDept->id,
-                'name' => 'QC (Quality Control)',
-                'description' => 'Divisi Quality Control',
-                'status' => 'active'
-            ]);
+            $qcDivision = Division::firstOrCreate(
+                ['name' => 'QC (Quality Control)', 'department_id' => $qualityDept->id]
+            );
 
             // Create skills for QC Division
             $skillCodes = [
@@ -38,13 +35,15 @@ class SkillsSeeder extends Seeder
             ];
 
             foreach ($skillCodes as $skill) {
-                Skill::create([
-                    'division_id' => $qcDivision->id,
-                    'code' => $skill['code'],
-                    'name' => $skill['name'],
-                    'description' => 'Skill ' . $skill['code'],
-                    'status' => 'active'
-                ]);
+                Skill::firstOrCreate(
+                    ['code' => $skill['code']],
+                    [
+                        'division_id' => $qcDivision->id,
+                        'name' => $skill['name'],
+                        'description' => 'Skill ' . $skill['code'],
+                        'is_active' => true,
+                    ]
+                );
             }
 
             // Seed some sample competencies for existing employees in Quality department
@@ -58,7 +57,7 @@ class SkillsSeeder extends Seeder
                         $level = ($idx % 5);
                         
                         EmployeeCompetency::updateOrCreate(
-                            ['nik' => $emp->nik, 'skill_id' => $skill->id],
+                            ['employee_nik' => $emp->nik, 'skill_id' => $skill->id],
                             ['level' => $level]
                         );
                     }

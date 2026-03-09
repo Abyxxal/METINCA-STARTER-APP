@@ -50,6 +50,8 @@ class EmployeeExamController extends Controller
                 ExamSession::STATUS_SUBMITTED,
                 ExamSession::STATUS_VERIFIED_PASS,
                 ExamSession::STATUS_VERIFIED_FAIL,
+                ExamSession::STATUS_APPROVED,
+                ExamSession::STATUS_REJECTED,
             ])
             ->latest()
             ->take(10)
@@ -81,6 +83,18 @@ class EmployeeExamController extends Controller
         ])) {
             return redirect()->route('cbt.employee.dashboard')
                 ->with('error', 'Ujian ini tidak tersedia untuk dikerjakan.');
+        }
+
+        // Check deadline
+        if ($session->isDeadlinePassed()) {
+            return redirect()->route('cbt.employee.dashboard')
+                ->with('error', 'Deadline ujian telah terlewat. Ujian tidak dapat dikerjakan.');
+        }
+
+        // Check scheduled start
+        if ($session->isNotStartedYet()) {
+            return redirect()->route('cbt.employee.dashboard')
+                ->with('error', 'Ujian belum dibuka. Jadwal mulai: ' . $session->getFormattedScheduledStart() . ' WIB.');
         }
 
         $session->load(['exam.skill', 'exam.questions']);
@@ -176,6 +190,18 @@ class EmployeeExamController extends Controller
     public function startExam(ExamSession $session)
     {
         $this->authorizeSession($session);
+
+        // Check deadline before allowing start
+        if ($session->isDeadlinePassed()) {
+            return redirect()->route('cbt.employee.dashboard')
+                ->with('error', 'Deadline ujian telah terlewat. Ujian tidak dapat dikerjakan.');
+        }
+
+        // Check scheduled start
+        if ($session->isNotStartedYet()) {
+            return redirect()->route('cbt.employee.dashboard')
+                ->with('error', 'Ujian belum dibuka. Jadwal mulai: ' . $session->getFormattedScheduledStart() . ' WIB.');
+        }
 
         if ($session->status === ExamSession::STATUS_ASSIGNED) {
             $session->update([
@@ -355,14 +381,9 @@ class EmployeeExamController extends Controller
                 $verifiedAt = now();
                 $verifiedBy = null; // System auto-verify
                 
-                // Update competency level if passed
                 if ($isPassed) {
-                    $this->updateEmployeeSkillLevel(
-                        $session->employee_nik,
-                        $session->exam->skill_id,
-                        $session->exam->target_level
-                    );
-                    $resultMessage = "Selamat! Ujian berhasil diselesaikan dengan nilai {$finalScore}. Anda LULUS dan level kompetensi Anda telah diperbarui!";
+                    // Tidak langsung naik level, menunggu keputusan manager
+                    $resultMessage = "Selamat! Ujian berhasil diselesaikan dengan nilai {$finalScore}. Anda LULUS! Menunggu persetujuan Manager untuk kenaikan level.";
                 } else {
                     $resultMessage = "Ujian berhasil diselesaikan dengan nilai {$finalScore}. Maaf, Anda TIDAK LULUS (KKM: {$passingScore}). Silakan coba lagi.";
                 }
@@ -376,6 +397,7 @@ class EmployeeExamController extends Controller
                 'score' => $finalScore,
                 'verified_at' => $verifiedAt,
                 'verified_by' => $verifiedBy,
+                'manager_decision' => ($status === ExamSession::STATUS_VERIFIED_PASS) ? ExamSession::DECISION_PENDING : null,
             ]);
 
             DB::commit();
@@ -434,15 +456,6 @@ class EmployeeExamController extends Controller
             $status = $isPassed ? ExamSession::STATUS_VERIFIED_PASS : ExamSession::STATUS_VERIFIED_FAIL;
             $verifiedAt = now();
             $verifiedBy = null;
-            
-            // Update competency level if passed
-            if ($isPassed) {
-                $this->updateEmployeeSkillLevel(
-                    $session->employee_nik,
-                    $session->exam->skill_id,
-                    $session->exam->target_level
-                );
-            }
         }
 
         $session->update([
@@ -452,6 +465,7 @@ class EmployeeExamController extends Controller
             'score' => $score,
             'verified_at' => $verifiedAt,
             'verified_by' => $verifiedBy,
+            'manager_decision' => ($status === ExamSession::STATUS_VERIFIED_PASS) ? ExamSession::DECISION_PENDING : null,
         ]);
 
         return redirect()
@@ -470,6 +484,8 @@ class EmployeeExamController extends Controller
             ExamSession::STATUS_SUBMITTED,
             ExamSession::STATUS_VERIFIED_PASS,
             ExamSession::STATUS_VERIFIED_FAIL,
+            ExamSession::STATUS_APPROVED,
+            ExamSession::STATUS_REJECTED,
         ])) {
             return redirect()->route('cbt.employee.dashboard')
                 ->with('error', 'Hasil ujian belum tersedia.');
@@ -480,6 +496,7 @@ class EmployeeExamController extends Controller
             'exam.questions' => fn($q) => $q->orderBy('exam_question.order'),
             'answers.question',
             'verifier',
+            'manager',
         ]);
 
         return view('cbt.employee.result', compact('session'));
@@ -558,5 +575,13 @@ class EmployeeExamController extends Controller
         if (!$user->employee || $session->employee_nik !== $user->employee->nik) {
             abort(403, 'Anda tidak memiliki akses ke sesi ujian ini.');
         }
+    }
+
+    private function updateEmployeeSkillLevel(string $employeeNik, int $skillId, int $newLevel): void
+    {
+        \App\Models\EmployeeCompetency::updateOrCreate(
+            ['employee_nik' => $employeeNik, 'skill_id' => $skillId],
+            ['level' => $newLevel]
+        );
     }
 }
