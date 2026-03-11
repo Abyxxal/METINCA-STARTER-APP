@@ -9,6 +9,7 @@ use App\Models\Exam;
 use App\Models\ExamSession;
 use App\Models\Question;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -242,6 +243,60 @@ class ExamSessionController extends Controller
                 ->withInput()
                 ->with('error', 'Gagal membuat ujian: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show edit form for a session (returns JSON for modal).
+     */
+    public function edit(ExamSession $session)
+    {
+        $session->load(['exam.skill', 'employee.division']);
+        return response()->json([
+            'id' => $session->id,
+            'employee_name' => $session->employee->name ?? $session->employee_nik,
+            'exam_title' => $session->exam->title ?? '-',
+            'deadline_at' => $session->deadline_at?->format('Y-m-d\TH:i'),
+            'scheduled_start_at' => $session->scheduled_start_at?->format('Y-m-d\TH:i'),
+            'passing_score' => $session->exam->passing_score ?? 70,
+            'duration_minutes' => $session->exam->duration_minutes ?? 60,
+            'status' => $session->status,
+        ]);
+    }
+
+    /**
+     * Update session settings (deadline, KKM, duration).
+     */
+    public function update(Request $request, ExamSession $session)
+    {
+        if (!in_array($session->status, [ExamSession::STATUS_ASSIGNED, ExamSession::STATUS_STARTED])) {
+            return back()->with('error', 'Sesi yang sudah selesai atau diverifikasi tidak dapat diedit!');
+        }
+
+        $validated = $request->validate([
+            'deadline_at'      => 'required|date',
+            'passing_score'    => 'required|integer|min:0|max:100',
+            'duration_minutes' => 'required|integer|min:5|max:300',
+        ]);
+
+        $deadline = Carbon::parse($validated['deadline_at']);
+
+        // Read directly from request to avoid nullable validator converting empty -> null
+        $schedStartRaw  = $request->input('scheduled_start_at');
+        $scheduledStart = !empty($schedStartRaw) ? Carbon::parse($schedStartRaw) : null;
+
+        DB::table('exam_sessions')->where('id', $session->id)->update([
+            'deadline_at'        => $deadline->toDateTimeString(),
+            'scheduled_start_at' => $scheduledStart?->toDateTimeString(),
+            'updated_at'         => now()->toDateTimeString(),
+        ]);
+
+        DB::table('exams')->where('id', $session->exam_id)->update([
+            'passing_score'    => $validated['passing_score'],
+            'duration_minutes' => $validated['duration_minutes'],
+            'updated_at'       => now()->toDateTimeString(),
+        ]);
+
+        return back()->with('success', 'Pengaturan sesi ujian berhasil diperbarui!');
     }
 
     /**

@@ -60,6 +60,8 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
         Route::get('/create', [ExamSessionController::class, 'create'])->name('create');
         Route::post('/', [ExamSessionController::class, 'store'])->name('store');
         Route::get('/{session}', [ExamSessionController::class, 'show'])->name('show');
+        Route::get('/{session}/edit', [ExamSessionController::class, 'edit'])->name('edit');
+        Route::put('/{session}', [ExamSessionController::class, 'update'])->name('update');
         Route::post('/{session}/verify', [ExamSessionController::class, 'verify'])->name('verify');
         Route::delete('/{session}/cancel', [ExamSessionController::class, 'cancel'])->name('cancel');
         Route::post('/bulk-assign', [ExamSessionController::class, 'bulkAssignByDivision'])->name('bulk-assign');

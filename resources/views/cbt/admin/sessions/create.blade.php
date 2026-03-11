@@ -209,6 +209,9 @@
                         <div class="mt-2">
                             <span class="text-muted small" id="karyawanInfo">{{ count($employees) }} karyawan aktif</span>
                         </div>
+                        <div class="mt-1">
+                            <span class="text-muted small" id="soalInfo"></span>
+                        </div>
                         @error('employee_niks')
                             <div class="text-danger small mt-2">{{ $message }}</div>
                         @enderror
@@ -337,7 +340,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        document.getElementById('soalInfo').textContent = visibleCount + ' soal ditampilkan';
+        const soalInfoEl = document.getElementById('soalInfo');
+        if (soalInfoEl) soalInfoEl.textContent = visibleCount + ' soal ditampilkan';
     }
 
     // Real-time filtering for all inputs
@@ -410,8 +414,11 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    searchKaryawan.addEventListener('input', debounce(filterKaryawan, 300));
+    searchKaryawan.addEventListener('input', debounce(filterKaryawan, 150));
     filterDivisiKaryawan.addEventListener('change', filterKaryawan);
+
+    // Initialize filter on page load
+    filterKaryawan();
 
     // Select/Deselect All Karyawan (visible only)
     const btnSelectAllKaryawan = document.getElementById('selectAllKaryawan');

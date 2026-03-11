@@ -67,15 +67,16 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th width="5%">#</th>
-                            <th width="18%">Karyawan</th>
-                            <th width="18%">Ujian</th>
-                            <th width="12%">Tanggal</th>
-                            <th width="12%">Deadline</th>
-                            <th width="8%">Nilai</th>
-                            <th width="12%">Status</th>
+                            <th width="4%">#</th>
+                            <th width="15%">Karyawan</th>
+                            <th width="15%">Ujian</th>
+                            <th width="10%">Tgl Ditugaskan</th>
+                            <th width="10%">Tgl Mulai</th>
+                            <th width="10%">Deadline</th>
+                            <th width="7%">Nilai</th>
+                            <th width="11%">Status</th>
                             <th width="8%">Verifikator</th>
-                            <th width="7%">Aksi</th>
+                            <th width="10%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -93,6 +94,14 @@
                                 <td>
                                     {{ $session->created_at->format('d M Y') }}
                                     <br><small class="text-muted">{{ $session->created_at->format('H:i') }}</small>
+                                </td>
+                                <td>
+                                    @if($session->scheduled_start_at)
+                                        <span class="text-info fw-semibold">{{ $session->scheduled_start_at->format('d M Y') }}</span>
+                                        <br><small class="text-muted">{{ $session->scheduled_start_at->format('H:i') }}</small>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($session->deadline_at)
@@ -169,6 +178,19 @@
                                     <a href="{{ route('cbt.admin.sessions.show', $session) }}" class="btn btn-sm btn-outline-info" title="Detail">
                                         <i class="bi bi-eye"></i>
                                     </a>
+                                    @if(in_array($session->status, ['assigned', 'started']))
+                                        <button type="button" class="btn btn-sm btn-outline-warning btn-edit-session" title="Edit Pengaturan"
+                                            data-id="{{ $session->id }}"
+                                            data-employee="{{ $session->employee->name ?? $session->employee_nik }}"
+                                            data-exam="{{ $session->exam->title ?? '-' }}"
+                                            data-deadline="{{ $session->deadline_at?->format('Y-m-d\TH:i') }}"
+                                            data-scheduled="{{ $session->scheduled_start_at?->format('Y-m-d\TH:i') }}"
+                                            data-passing-score="{{ $session->exam->passing_score ?? 70 }}"
+                                            data-duration="{{ $session->exam->duration_minutes ?? 60 }}"
+                                            data-update-url="{{ route('cbt.admin.sessions.update', $session) }}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    @endif
                                     @if($session->status === 'assigned')
                                         <form action="{{ route('cbt.admin.sessions.cancel', $session) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan penugasan ini?')">
                                             @csrf
@@ -182,7 +204,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
+                                <td colspan="10" class="text-center text-muted py-4">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                     Belum ada sesi ujian.
                                 </td>
@@ -199,15 +221,116 @@
         </div>
     </div>
 </section>
+
+{{-- Modal Edit Sesi --}}
+<div class="modal fade" id="editSessionModal" tabindex="-1" aria-labelledby="editSessionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSessionModalLabel">
+                    <i class="bi bi-pencil-square"></i> Edit Pengaturan Sesi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditSession" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <p class="mb-1"><strong>Karyawan:</strong> <span id="edit-employee-name"></span></p>
+                        <p class="mb-0"><strong>Ujian:</strong> <span id="edit-exam-title"></span></p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">KKM / Nilai Minimum Lulus <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="passing_score" id="edit-passing-score"
+                                    min="0" max="100" required>
+                                <span class="input-group-text">/ 100</span>
+                            </div>
+                            <small class="text-muted">Nilai minimum untuk lulus ujian ini.</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Waktu Pengerjaan <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="duration_minutes" id="edit-duration"
+                                    min="5" max="300" required>
+                                <span class="input-group-text">menit</span>
+                            </div>
+                            <small class="text-muted">Durasi ujian dalam menit.</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Jadwal Mulai</label>
+                        <input type="datetime-local" class="form-control" name="scheduled_start_at" id="edit-scheduled">
+                        <small class="text-muted">Opsional. Harus lebih awal dari deadline.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tenggat Waktu (Deadline) <span class="text-danger">*</span></label>
+                        <input type="datetime-local" class="form-control" name="deadline_at" id="edit-deadline" required>
+                    </div>
+
+                    <div class="alert alert-warning py-2 mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        <small>Perubahan KKM dan waktu pengerjaan akan mempengaruhi semua karyawan yang ditugaskan pada ujian yang sama.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Edit Session Modal
+    document.querySelectorAll('.btn-edit-session').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var deadline  = this.dataset.deadline  || '';
+            var scheduled = this.dataset.scheduled || '';
+
+            document.getElementById('edit-employee-name').textContent = this.dataset.employee;
+            document.getElementById('edit-exam-title').textContent    = this.dataset.exam;
+            document.getElementById('edit-passing-score').value       = this.dataset.passingScore;
+            document.getElementById('edit-duration').value            = this.dataset.duration;
+            document.getElementById('formEditSession').action         = this.dataset.updateUrl;
+
+            // Set datetime-local values after a tiny delay so modal is fully rendered
+            var deadlineInput   = document.getElementById('edit-deadline');
+            var scheduledInput  = document.getElementById('edit-scheduled');
+            deadlineInput.value  = '';
+            scheduledInput.value = '';
+            setTimeout(function() {
+                deadlineInput.value  = deadline;
+                scheduledInput.value = scheduled;
+            }, 50);
+
+            var modal = new bootstrap.Modal(document.getElementById('editSessionModal'));
+            modal.show();
+        });
+    });
+
+    // Flash messages
+    @if(session('success'))
+        App.toast('success', '{{ addslashes(session('success')) }}');
+    @endif
+    @if(session('error'))
+        App.toast('error', '{{ addslashes(session('error')) }}');
+    @endif
+
     // Show detailed notification if there are not eligible or skipped employees
     @if(session('notEligibleList') || session('skippedList'))
         let html = '<div style="text-align: left;">';
-        
+
         @if(session('assignedCount') && session('assignedCount') > 0)
             html += '<div class="alert alert-success mb-3"><i class="bi bi-check-circle"></i> <strong>{{ session("assignedCount") }} karyawan berhasil ditugaskan</strong></div>';
         @endif

@@ -291,7 +291,7 @@
                 <div class="card">
                     <div class="card-header bg-light-warning">
                         <h4 class="card-title mb-0">
-                            <i class="bi bi-clipboard-check"></i> Verifikasi Hasil Ujian
+                            <i class="bi bi-clipboard-check"></i> Penilaian Hasil Ujian
                         </h4>
                     </div>
                     <div class="card-body">
