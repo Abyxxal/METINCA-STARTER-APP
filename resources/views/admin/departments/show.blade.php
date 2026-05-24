@@ -273,7 +273,7 @@
 </div>
 
 {{-- Include Edit Department Modal --}}
-@include('departments.modals.edit-department')
+@include('admin.departments.modals.edit-department')
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

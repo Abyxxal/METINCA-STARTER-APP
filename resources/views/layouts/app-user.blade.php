@@ -87,13 +87,13 @@
                                 <span>Pelatihan Saya</span>
                             </a>
                             <ul class="submenu">
-                                {{-- Submenu 1: Daftar Pelatihan --}}
+                                {{-- Submenu 1: Daftar Ujian --}}
                                 <li class="submenu-item {{ request()->is('my-training*') ? 'active' : '' }}">
-                                    <a href="{{ route('user.my-training') }}" class="submenu-link">Daftar Pelatihan</a>
+                                    <a href="{{ route('user.my-training') }}" class="submenu-link">Daftar Ujian</a>
                                 </li>
-                                {{-- Submenu 2: Riwayat Pelatihan --}}
+                                {{-- Submenu 2: Riwayat Ujian --}}
                                 <li class="submenu-item {{ request()->is('training-history*') ? 'active' : '' }}">
-                                    <a href="{{ route('user.training-history') }}" class="submenu-link">Riwayat Pelatihan</a>
+                                    <a href="{{ route('user.training-history') }}" class="submenu-link">Riwayat Ujian</a>
                                 </li>
                                 {{-- Submenu 3: Kompetensi Saya --}}
                                 <li class="submenu-item {{ request()->is('my-competencies*') ? 'active' : '' }}">
@@ -217,7 +217,37 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/compiled/js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    @auth
+    @if(Auth::user()->employee)
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pusher = new Pusher('{{ env("REVERB_APP_KEY") }}', {
+            wsHost: '{{ env("REVERB_HOST", "localhost") }}',
+            wsPort: {{ env("REVERB_PORT", 8080) }},
+            forceTLS: false,
+            encrypted: false,
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        const employeeChannel = pusher.subscribe('private-employee.{{ Auth::user()->employee->nik }}');
+        employeeChannel.bind('App\\Events\\SessionStatusUpdated', function(data) {
+            if (data.action === 'verified' || data.action === 'approved' || data.action === 'rejected') {
+                const toastMsg = data.action === 'approved' 
+                    ? 'Level Anda telah DISETUJUI Manager!' 
+                    : data.action === 'rejected'
+                    ? 'Level Anda ditolak Manager'
+                    : 'Hasil ujian "' + data.exam_title + '" telah diverifikasi!';
+                App.toast(data.action === 'approved' ? 'success' : 'info', toastMsg);
+            }
+        });
+    });
+    </script>
+    @endif
+    @endauth
+
     <script>
         // Toggle Dropdown (Notification & User Menu)
         function toggleDropdown(dropdownId) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CBT;
+namespace App\Http\Controllers\Admin\CBT;
 
 use App\Http\Controllers\Controller;
 use App\Models\Question;
@@ -83,7 +83,7 @@ class QuestionController extends Controller
             });
         }
 
-        return view('cbt.admin.questions.index', compact('questionSets', 'skills', 'divisions'));
+        return view('admin.cbt.questions.index', compact('questionSets', 'skills', 'divisions'));
     }
 
     /**
@@ -93,7 +93,7 @@ class QuestionController extends Controller
     {
         $divisions = Division::with('department')->orderBy('name')->get();
         
-        return view('cbt.admin.questions.create', compact('divisions'));
+        return view('admin.cbt.questions.create', compact('divisions'));
     }
 
     /**
@@ -198,7 +198,7 @@ class QuestionController extends Controller
     public function show(Question $question)
     {
         $question->load(['skill', 'exams']);
-        return view('cbt.admin.questions.show', compact('question'));
+        return view('admin.cbt.questions.show', compact('question'));
     }
 
     /**
@@ -209,7 +209,7 @@ class QuestionController extends Controller
         $skills = Skill::where('is_active', true)->get();
         $question->load('positions', 'skill.division');
         
-        return view('cbt.admin.questions.edit', compact('question', 'skills'));
+        return view('admin.cbt.questions.edit', compact('question', 'skills'));
     }
 
     /**
@@ -350,7 +350,7 @@ class QuestionController extends Controller
     public function bulkCreate()
     {
         $skills = Skill::where('is_active', true)->get();
-        return view('cbt.admin.questions.bulk-create', compact('skills'));
+        return view('admin.cbt.questions.bulk-create', compact('skills'));
     }
 
     /**
@@ -473,7 +473,7 @@ class QuestionController extends Controller
 
         $setInfo = $questions->first();
 
-        return view('cbt.admin.questions.show-set', compact('questions', 'setInfo'));
+        return view('admin.cbt.questions.show-set', compact('questions', 'setInfo'));
     }
 
     /**
@@ -495,7 +495,7 @@ class QuestionController extends Controller
         $divisions = Division::with('department')->orderBy('name')->get();
         $skills = Skill::where('is_active', true)->get();
 
-        return view('cbt.admin.questions.edit-set', compact('questions', 'setInfo', 'divisions', 'skills'));
+        return view('admin.cbt.questions.edit-set', compact('questions', 'setInfo', 'divisions', 'skills'));
     }
 
     /**

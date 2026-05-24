@@ -7,10 +7,10 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EmployeeImportController;
-use App\Http\Controllers\UserDashboardController;
-use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EmployeeImportController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -146,20 +146,20 @@ Route::middleware(['auth'])->group(function(){
             $departments = \App\Models\Department::withCount(['divisions', 'employees'])->get();
             $divisions = \App\Models\Division::with('department')->orderBy('name')->get();
             $positions = \App\Models\Position::with('division')->orderBy('name')->get();
-            return view('master-data', compact('departments', 'divisions', 'positions'));
+            return view('admin.master-data', compact('departments', 'divisions', 'positions'));
         })->name('master-data');
 
         // GET /departments - Halaman Daftar Departemen
         // Fungsi: Melihat, tambah, edit, hapus departemen
         Route::get('/departments', function(){
             $departments = \App\Models\Department::withCount(['divisions', 'employees'])->get();
-            return view('departments.index', compact('departments'));
+            return view('admin.departments.index', compact('departments'));
         })->name('departments.index');
 
         // GET /departments/{id} - Halaman Detail Departemen
         // Fungsi: Melihat dan mengelola divisi & jabatan dalam departemen
         Route::get('/departments/{id}', function($id){
-            return view('departments.show');
+            return view('admin.departments.show');
         })->name('departments.show');
 
         // ============================================
@@ -180,35 +180,28 @@ Route::middleware(['auth'])->group(function(){
         // Fungsi: Mengelola materi pelatihan dan dokumen SOP
         // Submenu: Katalog Pelatihan, Pustaka SOP/WI, Media Library
         Route::get('/material-management',function(){
-            return view('material-management');
+            return view('admin.material-management');
         })->name('material-management');
 
         // GET /evaluation-and-exam - Halaman Evaluation & Exam
         // Fungsi: Mengelola soal ujian, setup ujian, dan hasil ujian
         // Submenu: Bank Soal, Setup Ujian, Hasil Ujian
         Route::get('/evaluation-and-exam',function(){
-            return view('evaluation-and-exam');
+            return view('admin.evaluation-and-exam');
         })->name('evaluation-and-exam');
-
-        // GET /socialization-and-news - Halaman Socialization & News
-        // Fungsi: Mengelola pengumuman ke karyawan dan tracking pembacaan
-        // Submenu: Buat Pengumuman, Status Baca
-        Route::get('/socialization-and-news',function(){
-            return view('socialization-and-news');
-        })->name('socialization-and-news');
 
         // GET /report-and-audit - Halaman Report & Audit
         // Fungsi: Reporting dan compliance untuk audit ISO 9001
         // Submenu: Matriks Kompetensi, Riwayat Pelatihan, Cetak Sertifikat
         Route::get('/report-and-audit',function(){
-            return view('report-and-audit');
+            return view('admin.report-and-audit');
         })->name('report-and-audit');
 
         // GET /settings - Halaman Settings
         // Fungsi: Pengaturan sistem dan manajemen user admin
         // Submenu: Admin Management, Audit Log
         Route::get('/settings',function(){
-            return view('settings');
+            return view('admin.settings');
         })->name('settings');
 
         // ============================================
@@ -224,7 +217,7 @@ Route::middleware(['auth'])->group(function(){
                 // GET /machining/monitoring/ - Halaman monitoring proses produksi
                 // Fungsi: Monitoring real-time status mesin dan line produksi
                 Route::get('/',function(){
-                    return view('machining.monitoring.index');
+                    return view('admin.machining.monitoring.index');
                 })->name('index');
 
             });
@@ -243,19 +236,19 @@ Route::middleware(['auth'])->group(function(){
 
         // GET /my-training - Halaman pelatihan saya
         // Fungsi: Menampilkan daftar pelatihan yang ditugaskan ke user
-        Route::get('/my-training', [UserDashboardController::class, 'myTraining'])->name('my-training');
+        Route::get('/my-training', [EmployeeDashboardController::class, 'myTraining'])->name('my-training');
 
         // GET /training-history - Halaman riwayat pelatihan
         // Fungsi: Menampilkan riwayat pelatihan yang sudah dikerjakan user
-        Route::get('/training-history', [UserDashboardController::class, 'trainingHistory'])->name('training-history');
+        Route::get('/training-history', [EmployeeDashboardController::class, 'trainingHistory'])->name('training-history');
 
         // GET /my-profile - Halaman profil saya
         // Fungsi: Menampilkan dan mengedit profil user
-        Route::get('/my-profile', [UserDashboardController::class, 'myProfile'])->name('my-profile');
+        Route::get('/my-profile', [EmployeeDashboardController::class, 'myProfile'])->name('my-profile');
 
         // GET /my-competencies - Halaman kompetensi saya
         // Fungsi: Menampilkan kompetensi/skill yang dimiliki user
-        Route::get('/my-competencies', [UserDashboardController::class, 'myCompetencies'])->name('my-competencies');
+        Route::get('/my-competencies', [EmployeeDashboardController::class, 'myCompetencies'])->name('my-competencies');
 
     });
 

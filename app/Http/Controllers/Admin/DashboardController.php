@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ExamSession;
@@ -74,7 +75,7 @@ class DashboardController extends Controller
                 ->take(4)
                 ->get();
 
-            return view('dashboard', compact('stats', 'skillStats', 'recentActivities', 'skillPassingRates')); // Admin dashboard
+            return view('admin.dashboard', compact('stats', 'skillStats', 'recentActivities', 'skillPassingRates')); // Admin dashboard
         } elseif ($user->role === 'user') {
             // Initialize stats for employee
             $stats = [
@@ -119,6 +120,6 @@ class DashboardController extends Controller
         }
 
         // Default jika role tidak ada atau tidak valid
-        return view('dashboard');
+        return view('admin.dashboard');
     }
 }

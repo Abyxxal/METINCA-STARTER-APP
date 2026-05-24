@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Employee;
 
 use Illuminate\Http\Request;
 use App\Models\ExamSession;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 
-class UserDashboardController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Display the user dashboard

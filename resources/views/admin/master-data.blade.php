@@ -4050,10 +4050,10 @@
 @endpush
 
 {{-- Include Department Modals --}}
-@include('departments.modals.edit-department')
-@include('departments.modals.detail-department')
+@include('admin.departments.modals.edit-department')
+@include('admin.departments.modals.detail-department')
 
 {{-- Include Employee Modals --}}
-@include('employees.modals.edit-employee')
+@include('admin.employees.modals.edit-employee')
 
 

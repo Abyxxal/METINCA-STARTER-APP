@@ -1,0 +1,166 @@
+' ============================================
+' METINCA DATABASE DIAGRAM - COLORED VERSION
+' Copy-paste ke https://www.plantuml.com/plantuml/uml/
+' ============================================
+
+@startuml METINCA_Colored
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam linetype ortho
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #333333
+
+' Define colors untuk setiap layer
+!define ORGANIZATION_COLOR #FFE5E5
+!define AUTH_COLOR #E5F3FF
+!define COMPETENCY_COLOR #E5FFE5
+!define EXAM_COLOR #FFF5E5
+
+' Organization Layer
+class departments << (T,ORGANIZATION_COLOR) >> {
+  id: INT [PK]
+  code: VARCHAR
+  name: VARCHAR
+}
+
+class divisions << (T,ORGANIZATION_COLOR) >> {
+  id: INT [PK]
+  code: VARCHAR
+  name: VARCHAR
+  department_id: INT [FK]
+}
+
+class positions << (T,ORGANIZATION_COLOR) >> {
+  id: INT [PK]
+  code: VARCHAR
+  name: VARCHAR
+}
+
+class employees << (T,ORGANIZATION_COLOR) >> {
+  nik: VARCHAR [PK]
+  name: VARCHAR
+  email: VARCHAR
+  department_id: INT [FK]
+  division_id: INT [FK]
+  position_id: INT [FK]
+}
+
+' Authentication Layer
+class users << (T,AUTH_COLOR) >> {
+  id: INT [PK]
+  email: VARCHAR
+  password: VARCHAR
+  role: ENUM
+  employee_nik: VARCHAR [FK]
+}
+
+class personal_access_tokens << (T,AUTH_COLOR) >> {
+  id: INT [PK]
+  tokenable_id: INT
+  name: VARCHAR
+  token: VARCHAR
+  expires_at: TIMESTAMP
+}
+
+' Competency Layer
+class skills << (T,COMPETENCY_COLOR) >> {
+  id: INT [PK]
+  code: VARCHAR
+  name: VARCHAR
+  division_id: INT [FK]
+}
+
+class employee_competencies << (T,COMPETENCY_COLOR) >> {
+  id: INT [PK]
+  employee_nik: VARCHAR [FK]
+  skill_id: INT [FK]
+  level: INT (0-4)
+  verified_by: INT [FK]
+}
+
+class division_skills << (T,COMPETENCY_COLOR) >> {
+  id: INT [PK]
+  division_id: INT [FK]
+  skill_id: INT [FK]
+  required_level: INT
+  is_mandatory: BOOLEAN
+}
+
+' Examination Layer
+class exams << (T,EXAM_COLOR) >> {
+  id: INT [PK]
+  skill_id: INT [FK]
+  title: VARCHAR
+  passing_score: INT
+  target_level: INT
+  is_published: BOOLEAN
+}
+
+class questions << (T,EXAM_COLOR) >> {
+  id: INT [PK]
+  skill_id: INT [FK]
+  type: ENUM (mc|essay|tf)
+  question_text: TEXT
+  correct_answer: VARCHAR
+  for_level: INT
+}
+
+class exam_question << (T,EXAM_COLOR) >> {
+  exam_id: INT [PK,FK]
+  question_id: INT [PK,FK]
+  order: INT
+  weight: INT
+}
+
+class exam_sessions << (T,EXAM_COLOR) >> {
+  id: INT [PK]
+  exam_id: INT [FK]
+  employee_nik: VARCHAR [FK]
+  score: INT
+  status: ENUM
+  answers: JSON
+  verified_by: INT [FK]
+  decided_by: INT [FK]
+}
+
+class exam_answers << (T,EXAM_COLOR) >> {
+  id: INT [PK]
+  exam_session_id: INT [FK]
+  question_id: INT [FK]
+  selected_answer: VARCHAR
+  is_correct: BOOLEAN
+  score_earned: INT
+}
+
+' ============================================
+' RELATIONSHIPS
+' ============================================
+
+' Organization
+departments "1" -- "*" divisions : contains
+divisions "1" -- "*" employees : has
+positions "1" -- "*" employees : assigned
+employees "1" -- "1" users : account
+
+' Competency
+skills "1" -- "*" employee_competencies
+employees "1" -- "*" employee_competencies
+divisions "1" -- "*" division_skills
+skills "1" -- "*" division_skills
+
+' Examination
+skills "1" -- "*" exams
+skills "1" -- "*" questions
+exams "1" -- "*" exam_question
+questions "1" -- "*" exam_question
+employees "1" -- "*" exam_sessions
+exams "1" -- "*" exam_sessions
+exam_sessions "1" -- "*" exam_answers
+questions "1" -- "*" exam_answers
+
+' Cross-layer
+users "1" -- "*" employee_competencies : verifies
+users "1" -- "*" exam_sessions : verifies/decides
+exam_sessions "*" ..> "*" employee_competencies : updates
+
+@enduml

@@ -1,0 +1,51 @@
+' ============================================
+' METINCA DATABASE DIAGRAM - MINIMAL SYNTAX
+' Copy-paste ke https://www.plantuml.com/plantuml/uml/
+' ============================================
+
+@startuml
+skinparam linetype ortho
+
+' Organization
+class departments { id:INT; code; name; description }
+class divisions { id:INT; code; name; department_id }
+class positions { id:INT; code; name }
+class employees { nik:VARCHAR(PK); name; email; department_id; division_id; position_id }
+
+' Authentication
+class users { id:INT; email; password; role; employee_nik }
+class personal_access_tokens { id:INT; tokenable_id; name; token }
+
+' Competency
+class skills { id:INT; code; name; description; division_id }
+class employee_competencies { id:INT; employee_nik; skill_id; level }
+class division_skills { id:INT; division_id; skill_id; required_level; is_mandatory }
+
+' Examination
+class exams { id:INT; skill_id; title; duration_minutes; passing_score; target_level }
+class questions { id:INT; skill_id; type; question_text; correct_answer; for_level }
+class exam_question { exam_id; question_id; order; weight }
+class exam_sessions { id:INT; exam_id; employee_nik; score; status; answers }
+class exam_answers { id:INT; exam_session_id; question_id; selected_answer; is_correct }
+
+' Relationships
+departments "1" -- "*" divisions
+divisions "1" -- "*" employees
+positions "1" -- "*" employees
+employees "1" -- "1" users
+
+skills "1" -- "*" employee_competencies
+employees "1" -- "*" employee_competencies
+divisions "1" -- "*" division_skills
+skills "1" -- "*" division_skills
+
+skills "1" -- "*" exams
+skills "1" -- "*" questions
+exams "1" -- "*" exam_question
+questions "1" -- "*" exam_question
+employees "1" -- "*" exam_sessions
+exams "1" -- "*" exam_sessions
+exam_sessions "1" -- "*" exam_answers
+questions "1" -- "*" exam_answers
+
+@enduml

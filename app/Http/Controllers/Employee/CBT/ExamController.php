@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\CBT;
+namespace App\Http\Controllers\Employee\CBT;
 
+use App\Events\DashboardStatsUpdated;
+use App\Events\SessionStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\ExamAnswer;
@@ -13,12 +15,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
- * EmployeeExamController
+ * ExamController
  * 
  * Controller for employee-facing CBT exam features.
  * Handles: taking exams, viewing results, my competencies.
  */
-class EmployeeExamController extends Controller
+class ExamController extends Controller
 {
     /**
      * Dashboard - Show employee's assigned exams and competencies.
@@ -62,7 +64,7 @@ class EmployeeExamController extends Controller
             ->with(['skill', 'verifier'])
             ->get();
 
-        return view('cbt.employee.dashboard', compact(
+        return view('user.cbt.dashboard', compact(
             'employee',
             'pendingExams',
             'completedExams',
@@ -99,7 +101,7 @@ class EmployeeExamController extends Controller
 
         $session->load(['exam.skill', 'exam.questions']);
 
-        return view('cbt.employee.exam-info', compact('session'));
+        return view('user.cbt.exam-info', compact('session'));
     }
 
     /**
@@ -127,7 +129,7 @@ class EmployeeExamController extends Controller
 
         $exam->load(['skill', 'questions']);
 
-        return view('cbt.employee.exam-preview', compact('exam', 'employee'));
+        return view('user.cbt.exam-preview', compact('exam', 'employee'));
     }
 
     /**
@@ -208,6 +210,7 @@ class EmployeeExamController extends Controller
                 'status' => ExamSession::STATUS_STARTED,
                 'started_at' => now(),
             ]);
+            SessionStatusUpdated::dispatch($session->fresh(), 'started');
         }
 
         return redirect()->route('cbt.employee.take', $session);
@@ -237,7 +240,7 @@ class EmployeeExamController extends Controller
         // Get existing answers
         $answers = $session->answers->keyBy('question_id');
 
-        return view('cbt.employee.take-exam', compact('session', 'answers'));
+        return view('user.cbt.take-exam', compact('session', 'answers'));
     }
 
     /**
@@ -402,6 +405,9 @@ class EmployeeExamController extends Controller
 
             DB::commit();
 
+            SessionStatusUpdated::dispatch($session->fresh(), 'submitted');
+            DashboardStatsUpdated::dispatch();
+
             // Redirect to result page with success message
             return redirect()
                 ->route('cbt.employee.result', $session)
@@ -499,7 +505,7 @@ class EmployeeExamController extends Controller
             'manager',
         ]);
 
-        return view('cbt.employee.result', compact('session'));
+        return view('user.cbt.result', compact('session'));
     }
 
     /**
@@ -525,7 +531,7 @@ class EmployeeExamController extends Controller
             ->where('is_active', true)
             ->get();
 
-        return view('cbt.employee.competencies', compact('employee', 'competencies', 'availableSkills'));
+        return view('user.cbt.competencies', compact('employee', 'competencies', 'availableSkills'));
     }
 
     /**
@@ -562,7 +568,7 @@ class EmployeeExamController extends Controller
                 ->where('status', ExamSession::STATUS_SUBMITTED)->count(),
         ];
 
-        return view('cbt.employee.history', compact('sessions', 'stats'));
+        return view('user.cbt.history', compact('sessions', 'stats'));
     }
 
     /**

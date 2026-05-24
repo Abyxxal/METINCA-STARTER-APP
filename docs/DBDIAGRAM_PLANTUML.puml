@@ -1,0 +1,278 @@
+@startuml METINCA_Database_Diagram
+!define TABLENAME(x) entity x << (T, FF6B6B) >>
+!define COLUMN(x) x : varchar/int/datetime
+
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontColor #333
+skinparam linetype ortho
+
+' ============================================
+' ORGANIZATION LAYER
+' ============================================
+
+TABLENAME(departments) {
+  PK id : INT
+  --
+  code : VARCHAR
+  name : VARCHAR
+  description : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(divisions) {
+  PK id : INT
+  --
+  code : VARCHAR
+  name : VARCHAR
+  department_id : INT FK
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(positions) {
+  PK id : INT
+  --
+  code : VARCHAR
+  name : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(employees) {
+  PK nik : VARCHAR
+  --
+  name : VARCHAR
+  email : VARCHAR
+  phone : VARCHAR
+  department_id : INT FK
+  division_id : INT FK
+  position_id : INT FK
+  status : ENUM
+  hire_date : DATE
+  photo : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ============================================
+' AUTHENTICATION LAYER
+' ============================================
+
+TABLENAME(users) {
+  PK id : INT
+  --
+  name : VARCHAR
+  email : VARCHAR UNIQUE
+  password : VARCHAR
+  role : ENUM [admin/manager/employee]
+  employee_nik : VARCHAR FK
+  remember_token : VARCHAR
+  email_verified_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(personal_access_tokens) {
+  PK id : INT
+  --
+  tokenable_type : VARCHAR
+  tokenable_id : INT
+  name : VARCHAR
+  token : VARCHAR UNIQUE
+  abilities : TEXT
+  last_used_at : TIMESTAMP
+  expires_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ============================================
+' COMPETENCY LAYER
+' ============================================
+
+TABLENAME(skills) {
+  PK id : INT
+  --
+  code : VARCHAR UNIQUE
+  name : VARCHAR
+  description : TEXT
+  division_id : INT FK
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(employee_competencies) {
+  PK id : INT
+  --
+  employee_nik : VARCHAR FK
+  skill_id : INT FK
+  level : INT [0-4]
+  verified_by : INT FK
+  verified_at : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(division_skills) {
+  PK id : INT
+  --
+  division_id : INT FK
+  skill_id : INT FK
+  required_level : INT [1-4]
+  is_mandatory : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ============================================
+' CBT EXAMINATION LAYER
+' ============================================
+
+TABLENAME(exams) {
+  PK id : INT
+  --
+  skill_id : INT FK
+  title : VARCHAR
+  description : TEXT
+  duration_minutes : INT
+  passing_score : INT
+  target_level : INT [1-4]
+  is_published : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(questions) {
+  PK id : INT
+  --
+  skill_id : INT FK
+  type : ENUM [mc/essay/tf]
+  question_text : TEXT
+  image_url : VARCHAR
+  for_level : INT [1-4]
+  status : ENUM [draft/active/archived]
+  correct_answer : VARCHAR
+  explanation : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(exam_question) {
+  PK exam_id : INT FK
+  PK question_id : INT FK
+  --
+  order : INT
+  weight : INT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(exam_sessions) {
+  PK id : INT
+  --
+  exam_id : INT FK
+  employee_nik : VARCHAR FK
+  score : INT
+  status : ENUM [assigned/started/submitted/verified_pass/verified_fail]
+  answers : JSON
+  submitted_at : TIMESTAMP
+  verified_by : INT FK
+  verified_at : TIMESTAMP
+  verification_notes : TEXT
+  started_at : TIMESTAMP
+  finished_at : TIMESTAMP
+  deadline_at : TIMESTAMP
+  scheduled_start_at : TIMESTAMP
+  manager_decision : ENUM [pending/approved/rejected]
+  decided_by : INT FK
+  decided_at : TIMESTAMP
+  manager_notes : TEXT
+  admin_notes : TEXT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+TABLENAME(exam_answers) {
+  PK id : INT
+  --
+  exam_session_id : INT FK
+  question_id : INT FK
+  selected_answer : VARCHAR
+  is_correct : BOOLEAN
+  score_earned : INT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ============================================
+' RELATIONSHIPS: ORGANIZATION
+' ============================================
+
+departments ||--o{ divisions : "contains"
+divisions ||--o{ employees : "has"
+positions ||--o{ employees : "assigned_to"
+employees ||--o{ users : "has_account"
+
+' ============================================
+' RELATIONSHIPS: AUTHENTICATION
+' ============================================
+
+users ||--o{ employee_competencies : "verifies"
+users ||--o{ exam_sessions : "verified_by"
+users ||--o{ exam_sessions : "decided_by"
+
+' ============================================
+' RELATIONSHIPS: COMPETENCY
+' ============================================
+
+skills ||--o{ employee_competencies : "tracks"
+employees ||--o{ employee_competencies : "has"
+divisions ||--o{ division_skills : "requires"
+skills ||--o{ division_skills : "assigned_to"
+
+' ============================================
+' RELATIONSHIPS: EXAMINATION
+' ============================================
+
+skills ||--o{ exams : "tests"
+skills ||--o{ questions : "contains"
+exams ||--o{ exam_question : "includes"
+questions ||--o{ exam_question : "part_of"
+
+employees ||--o{ exam_sessions : "takes"
+exams ||--o{ exam_sessions : "has"
+exam_sessions ||--o{ exam_answers : "contains"
+questions ||--o{ exam_answers : "answers_to"
+
+' ============================================
+' COMPETENCY UPDATE TRIGGER
+' ============================================
+
+exam_sessions ||..o{ employee_competencies : "updates_on_pass"
+
+note left of users
+  **Authentication**
+  Dual auth system:
+  - Breeze (session/web)
+  - Sanctum (token/API)
+end note
+
+note right of exam_sessions
+  **Verification Workflow**
+  Status flow:
+  assigned → started → submitted
+  ↓
+  verified_pass → updates competency
+  OR
+  verified_fail → requires retest
+end note
+
+note left of exams
+  **Auto Grading**
+  Multiple choice: auto-graded
+  Essay: flagged for manual review
+  Score stored immediately
+end note
+
+@enduml

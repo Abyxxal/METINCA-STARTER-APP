@@ -1,0 +1,223 @@
+' ============================================
+' METINCA DATABASE - CROW'S FOOT NOTATION
+' Copy-paste ke https://www.plantuml.com/plantuml/uml/
+' ============================================
+
+@startuml METINCA_CrowsFoot
+skinparam linetype ortho
+skinparam backgroundColor #FAFAFA
+
+' Crow's Foot Notation
+' ||--|| One to One
+' ||--o| Zero or One
+' ||--|{ One to Many
+' o|--o| Zero or One to Zero or One
+' o|--|{ Zero or One to Many
+
+' ORGANIZATION LAYER
+entity departments {
+  * id : int <<generated>>
+  --
+  * code : varchar(50)
+  * name : varchar(100)
+    description : text
+    timestamps
+}
+
+entity divisions {
+  * id : int <<generated>>
+  --
+  * code : varchar(50)
+  * name : varchar(100)
+  * department_id : int <<FK>>
+    timestamps
+}
+
+entity positions {
+  * id : int <<generated>>
+  --
+  * code : varchar(50)
+  * name : varchar(100)
+    timestamps
+}
+
+entity employees {
+  * nik : varchar(20) <<PK>>
+  --
+  * name : varchar(100)
+  * email : varchar(100)
+    phone : varchar(15)
+  * department_id : int <<FK>>
+  * division_id : int <<FK>>
+  * position_id : int <<FK>>
+    status : enum
+    hire_date : date
+    photo : varchar(255)
+    timestamps
+}
+
+' AUTHENTICATION LAYER
+entity users {
+  * id : int <<generated>>
+  --
+  * name : varchar(100)
+  * email : varchar(100) <<UNIQUE>>
+  * password : varchar(255)
+  * role : enum(admin|manager|employee)
+    employee_nik : varchar(20) <<FK>>
+    remember_token : varchar(100)
+    email_verified_at : timestamp
+    timestamps
+}
+
+entity personal_access_tokens {
+  * id : int <<generated>>
+  --
+  * tokenable_type : varchar(255)
+  * tokenable_id : bigint
+  * name : varchar(255)
+  * token : varchar(80) <<UNIQUE>>
+    abilities : text
+    last_used_at : timestamp
+    expires_at : timestamp
+    timestamps
+}
+
+' COMPETENCY LAYER
+entity skills {
+  * id : int <<generated>>
+  --
+  * code : varchar(50) <<UNIQUE>>
+  * name : varchar(100)
+    description : text
+    division_id : int <<FK>>
+    timestamps
+}
+
+entity employee_competencies {
+  * id : int <<generated>>
+  --
+  * employee_nik : varchar(20) <<FK>>
+  * skill_id : int <<FK>>
+  * level : int (0-4)
+    verified_by : int <<FK>>
+    verified_at : timestamp
+    timestamps
+}
+
+entity division_skills {
+  * id : int <<generated>>
+  --
+  * division_id : int <<FK>>
+  * skill_id : int <<FK>>
+  * required_level : int (1-4)
+  * is_mandatory : boolean
+    timestamps
+}
+
+' EXAMINATION LAYER
+entity exams {
+  * id : int <<generated>>
+  --
+  * skill_id : int <<FK>>
+  * title : varchar(255)
+    description : text
+  * duration_minutes : int
+  * passing_score : int
+  * target_level : int (1-4)
+  * is_published : boolean
+    timestamps
+}
+
+entity questions {
+  * id : int <<generated>>
+  --
+  * skill_id : int <<FK>>
+  * type : enum(mc|essay|tf)
+  * question_text : text
+    image_url : varchar(255)
+  * for_level : int (1-4)
+  * status : enum(draft|active|archived)
+  * correct_answer : varchar(255)
+    explanation : text
+    timestamps
+}
+
+entity exam_question {
+  * exam_id : int <<FK>>
+  * question_id : int <<FK>>
+  --
+  * order : int
+    weight : int
+    timestamps
+}
+
+entity exam_sessions {
+  * id : int <<generated>>
+  --
+  * exam_id : int <<FK>>
+  * employee_nik : varchar(20) <<FK>>
+    score : int
+  * status : enum
+    answers : json
+    submitted_at : timestamp
+    verified_by : int <<FK>>
+    verified_at : timestamp
+    verification_notes : text
+    started_at : timestamp
+    finished_at : timestamp
+    deadline_at : timestamp
+    scheduled_start_at : timestamp
+    manager_decision : enum(pending|approved|rejected)
+    decided_by : int <<FK>>
+    decided_at : timestamp
+    manager_notes : text
+    admin_notes : text
+    timestamps
+}
+
+entity exam_answers {
+  * id : int <<generated>>
+  --
+  * exam_session_id : int <<FK>>
+  * question_id : int <<FK>>
+  * selected_answer : varchar(255)
+    is_correct : boolean
+    score_earned : int
+    timestamps
+}
+
+' ============================================
+' RELATIONSHIPS
+' ============================================
+
+' Organization relationships
+departments ||--|{ divisions : ""
+divisions ||--|{ employees : ""
+positions ||--|{ employees : ""
+employees ||--|| users : ""
+
+' Competency relationships
+skills ||--|{ employee_competencies : ""
+employees ||--|{ employee_competencies : ""
+divisions ||--|{ division_skills : ""
+skills ||--|{ division_skills : ""
+
+' Examination relationships
+skills ||--|{ exams : ""
+skills ||--|{ questions : ""
+exams ||--|{ exam_question : ""
+questions ||--|{ exam_question : ""
+employees ||--|{ exam_sessions : ""
+exams ||--|{ exam_sessions : ""
+exam_sessions ||--|{ exam_answers : ""
+questions ||--|{ exam_answers : ""
+
+' Cross-layer relationships
+users ||--o{ employee_competencies : verifies
+users ||--o{ exam_sessions : verifies/decides
+
+' Business logic
+exam_sessions }o..|| employee_competencies : updates
+
+@enduml

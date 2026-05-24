@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CBT;
+namespace App\Http\Controllers\Admin\CBT;
 
 use App\Http\Controllers\Controller;
 use App\Models\Division;
@@ -35,7 +35,7 @@ class DivisionSkillController extends Controller
                 ->get();
         }
         
-        return view('cbt.admin.division-skills.index', compact(
+        return view('admin.cbt.division-skills.index', compact(
             'divisions', 
             'selectedDivisionId', 
             'selectedDivision',

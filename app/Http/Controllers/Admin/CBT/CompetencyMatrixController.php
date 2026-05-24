@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CBT;
+namespace App\Http\Controllers\Admin\CBT;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
@@ -54,6 +54,6 @@ class CompetencyMatrixController extends Controller
                 ->groupBy('employee_nik');
         }
 
-        return view('cbt.admin.matrix.index', compact('employees', 'skills', 'competencies', 'divisions', 'divisionId'));
+        return view('admin.cbt.matrix.index', compact('employees', 'skills', 'competencies', 'divisions', 'divisionId'));
     }
 }

@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Events\DashboardStatsUpdated;
+use App\Events\EmployeeDataUpdated;
+use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
@@ -101,6 +104,9 @@ class MasterDataController extends Controller
                 throw new \Exception('Gagal membuat user account: ' . $userError->getMessage());
             }
 
+            EmployeeDataUpdated::dispatch('created', $employee->nik, $employee->name);
+            DashboardStatsUpdated::dispatch();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Karyawan berhasil ditambahkan',
@@ -171,6 +177,9 @@ class MasterDataController extends Controller
             // Update record karyawan
             $employee->update($validated);
 
+            EmployeeDataUpdated::dispatch('updated', $employee->nik, $employee->name);
+            DashboardStatsUpdated::dispatch();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Karyawan berhasil diperbarui',
@@ -206,6 +215,9 @@ class MasterDataController extends Controller
             // Renumber IDs di employees dan users table
             $this->renumberTableIds('users');
             $this->renumberTableIds('employees');
+
+            EmployeeDataUpdated::dispatch('deleted', $id, $name);
+            DashboardStatsUpdated::dispatch();
 
             return response()->json([
                 'success' => true,
@@ -278,6 +290,8 @@ class MasterDataController extends Controller
             // Clear cache setelah create
             Cache::forget('departments_list');
             Cache::forget('departments_with_counts');
+
+            DashboardStatsUpdated::dispatch();
 
             return response()->json([
                 'success' => true,
@@ -375,6 +389,8 @@ class MasterDataController extends Controller
             // Clear cache
             Cache::forget('departments_list');
             Cache::forget('departments_with_counts');
+
+            DashboardStatsUpdated::dispatch();
 
             return response()->json([
                 'success' => true,
@@ -1313,7 +1329,7 @@ class MasterDataController extends Controller
     }
 
     /**
-     * Renumber semua ID di tabel (fill gaps setelah delete)
+     * Renumber semua ID di table (fill gaps setelah delete)
      * Menyalin data lama ke table baru dengan ID baru, hapus yang lama, rename
      */
     private function renumberTableIds($tableName)

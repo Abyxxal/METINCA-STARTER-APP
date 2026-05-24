@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\CBT;
+namespace App\Http\Controllers\Admin\CBT;
 
+use App\Events\DashboardStatsUpdated;
+use App\Events\SessionStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\EmployeeCompetency;
@@ -44,7 +46,7 @@ class ExamSessionController extends Controller
 
         $sessions = $query->latest()->paginate(20);
 
-        return view('cbt.admin.sessions.index', compact('sessions'));
+        return view('admin.cbt.sessions.index', compact('sessions'));
     }
 
     /**
@@ -76,7 +78,7 @@ class ExamSessionController extends Controller
 
         $divisions = \App\Models\Division::orderBy('name')->get();
 
-        return view('cbt.admin.sessions.create', compact('questionSets', 'employees', 'divisions'));
+        return view('admin.cbt.sessions.create', compact('questionSets', 'employees', 'divisions'));
     }
 
     /**
@@ -218,6 +220,14 @@ class ExamSessionController extends Controller
 
             DB::commit();
 
+            $sessions = ExamSession::where('exam_id', $exam->id)
+                ->whereIn('employee_nik', $validated['employee_niks'])
+                ->get();
+            foreach ($sessions as $s) {
+                SessionStatusUpdated::dispatch($s, 'assigned');
+            }
+            DashboardStatsUpdated::dispatch();
+
             $totalSoal = $order - 1;
             $totalSets = count($validated['question_set_ids']);
             $message = "Ujian '{$exam->title}' berhasil dibuat dengan {$totalSets} set soal ({$totalSoal} soal). {$assigned} karyawan ditugaskan.";
@@ -314,7 +324,7 @@ class ExamSessionController extends Controller
             'manager',
         ]);
 
-        return view('cbt.admin.sessions.show', compact('session'));
+        return view('admin.cbt.sessions.show', compact('session'));
     }
 
     /**
@@ -379,6 +389,9 @@ class ExamSessionController extends Controller
             }
 
             DB::commit();
+
+            SessionStatusUpdated::dispatch($session->fresh(), 'verified');
+            DashboardStatsUpdated::dispatch();
 
             $statusText = $passed ? 'LULUS' : 'TIDAK LULUS';
             return back()->with('success', "Sesi ujian berhasil diverifikasi: {$statusText}");
@@ -454,7 +467,7 @@ class ExamSessionController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('cbt.admin.sessions.pending', compact('sessions'));
+        return view('admin.cbt.sessions.pending', compact('sessions'));
     }
 
     /**
@@ -502,7 +515,7 @@ class ExamSessionController extends Controller
             ->latest('verified_at')
             ->paginate(20);
 
-        return view('cbt.admin.sessions.pending-approval', compact('sessions'));
+        return view('admin.cbt.sessions.pending-approval', compact('sessions'));
     }
 
     /**
@@ -532,6 +545,8 @@ class ExamSessionController extends Controller
             $this->updateEmployeeSkillLevel($session);
 
             DB::commit();
+            SessionStatusUpdated::dispatch($session->fresh(), 'approved');
+            DashboardStatsUpdated::dispatch();
             return back()->with('success', "Kenaikan level karyawan {$session->employee->name} telah DISETUJUI.");
         } catch (\Exception $e) {
             DB::rollBack();
@@ -559,6 +574,9 @@ class ExamSessionController extends Controller
             'decided_by' => Auth::id(),
             'decided_at' => now(),
         ]);
+
+        SessionStatusUpdated::dispatch($session->fresh(), 'rejected');
+        DashboardStatsUpdated::dispatch();
 
         return back()->with('success', "Kenaikan level karyawan {$session->employee->name} telah DITOLAK.");
     }

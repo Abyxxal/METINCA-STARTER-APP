@@ -1,0 +1,241 @@
+@startuml METINCA_ERD
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam linetype ortho
+skinparam classBorderColor #333
+skinparam arrowColor #666
+
+' ============================================
+' ORGANIZATION LAYER
+' ============================================
+
+class departments {
+  id: INT [PK]
+  --
+  code: VARCHAR
+  name: VARCHAR
+  description: TEXT
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class divisions {
+  id: INT [PK]
+  --
+  code: VARCHAR
+  name: VARCHAR
+  department_id: INT [FK]
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class positions {
+  id: INT [PK]
+  --
+  code: VARCHAR
+  name: VARCHAR
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class employees {
+  nik: VARCHAR [PK]
+  --
+  name: VARCHAR
+  email: VARCHAR
+  phone: VARCHAR
+  department_id: INT [FK]
+  division_id: INT [FK]
+  position_id: INT [FK]
+  status: ENUM
+  hire_date: DATE
+  photo: VARCHAR
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+' ============================================
+' AUTHENTICATION LAYER
+' ============================================
+
+class users {
+  id: INT [PK]
+  --
+  name: VARCHAR
+  email: VARCHAR [UNIQUE]
+  password: VARCHAR
+  role: ENUM (admin|manager|employee)
+  employee_nik: VARCHAR [FK]
+  remember_token: VARCHAR
+  email_verified_at: TIMESTAMP
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class personal_access_tokens {
+  id: INT [PK]
+  --
+  tokenable_type: VARCHAR
+  tokenable_id: INT
+  name: VARCHAR
+  token: VARCHAR [UNIQUE]
+  abilities: TEXT
+  last_used_at: TIMESTAMP
+  expires_at: TIMESTAMP
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+' ============================================
+' COMPETENCY LAYER
+' ============================================
+
+class skills {
+  id: INT [PK]
+  --
+  code: VARCHAR [UNIQUE]
+  name: VARCHAR
+  description: TEXT
+  division_id: INT [FK]
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class employee_competencies {
+  id: INT [PK]
+  --
+  employee_nik: VARCHAR [FK]
+  skill_id: INT [FK]
+  level: INT (0-4)
+  verified_by: INT [FK]
+  verified_at: TIMESTAMP
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class division_skills {
+  id: INT [PK]
+  --
+  division_id: INT [FK]
+  skill_id: INT [FK]
+  required_level: INT (1-4)
+  is_mandatory: BOOLEAN
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+' ============================================
+' CBT EXAMINATION LAYER
+' ============================================
+
+class exams {
+  id: INT [PK]
+  --
+  skill_id: INT [FK]
+  title: VARCHAR
+  description: TEXT
+  duration_minutes: INT
+  passing_score: INT
+  target_level: INT (1-4)
+  is_published: BOOLEAN
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class questions {
+  id: INT [PK]
+  --
+  skill_id: INT [FK]
+  type: ENUM (mc|essay|tf)
+  question_text: TEXT
+  image_url: VARCHAR
+  for_level: INT (1-4)
+  status: ENUM (draft|active|archived)
+  correct_answer: VARCHAR
+  explanation: TEXT
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class exam_question {
+  exam_id: INT [PK, FK]
+  question_id: INT [PK, FK]
+  --
+  order: INT
+  weight: INT
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class exam_sessions {
+  id: INT [PK]
+  --
+  exam_id: INT [FK]
+  employee_nik: VARCHAR [FK]
+  score: INT
+  status: ENUM (assigned|started|submitted|verified_pass|verified_fail)
+  answers: JSON
+  submitted_at: TIMESTAMP
+  verified_by: INT [FK]
+  verified_at: TIMESTAMP
+  verification_notes: TEXT
+  started_at: TIMESTAMP
+  finished_at: TIMESTAMP
+  deadline_at: TIMESTAMP
+  scheduled_start_at: TIMESTAMP
+  manager_decision: ENUM (pending|approved|rejected)
+  decided_by: INT [FK]
+  decided_at: TIMESTAMP
+  manager_notes: TEXT
+  admin_notes: TEXT
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+class exam_answers {
+  id: INT [PK]
+  --
+  exam_session_id: INT [FK]
+  question_id: INT [FK]
+  selected_answer: VARCHAR
+  is_correct: BOOLEAN
+  score_earned: INT
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+}
+
+' ============================================
+' RELATIONSHIPS
+' ============================================
+
+' Organization relationships
+departments "1" -- "*" divisions : contains
+divisions "1" -- "*" employees : has
+positions "1" -- "*" employees : assigned_to
+employees "1" -- "1" users : creates_account
+
+' Authentication relationships
+users "1" -- "*" employee_competencies : verifies >
+users "1" -- "*" exam_sessions : verified_by >
+users "1" -- "*" exam_sessions : decided_by >
+
+' Competency relationships
+skills "1" -- "*" employee_competencies : tracks
+employees "1" -- "*" employee_competencies : has
+divisions "1" -- "*" division_skills : requires
+skills "1" -- "*" division_skills : assigned_to
+
+' Examination relationships
+skills "1" -- "*" exams : tests
+skills "1" -- "*" questions : contains
+exams "1" -- "*" exam_question : includes
+questions "1" -- "*" exam_question : part_of
+employees "1" -- "*" exam_sessions : takes
+exams "1" -- "*" exam_sessions : has
+exam_sessions "1" -- "*" exam_answers : contains
+questions "1" -- "*" exam_answers : answers_to
+
+' Competency update trigger
+exam_sessions "*" ..> "*" employee_competencies : updates_on_pass
+
+@enduml

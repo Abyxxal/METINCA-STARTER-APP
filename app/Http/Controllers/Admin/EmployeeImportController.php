@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Exports\EmployeeTemplate;
 use App\Imports\EmployeeImport;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class EmployeeImportController extends Controller
      */
     public function showImportForm()
     {
-        return view('employee-import');
+        return view('admin.employee-import');
     }
 
     /**

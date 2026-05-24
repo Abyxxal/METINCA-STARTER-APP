@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\CBT\ExamController;
-use App\Http\Controllers\CBT\QuestionController;
-use App\Http\Controllers\CBT\ExamSessionController;
-use App\Http\Controllers\CBT\EmployeeExamController;
-use App\Http\Controllers\CBT\CompetencyMatrixController;
-use App\Http\Controllers\CBT\DivisionSkillController;
-use App\Http\Controllers\CBT\EmployeeCompetencyController;
+use App\Http\Controllers\Admin\CBT\ExamController;
+use App\Http\Controllers\Admin\CBT\QuestionController;
+use App\Http\Controllers\Admin\CBT\ExamSessionController;
+use App\Http\Controllers\Admin\CBT\CompetencyMatrixController;
+use App\Http\Controllers\Admin\CBT\DivisionSkillController;
+use App\Http\Controllers\Admin\CBT\EmployeeCompetencyController;
+use App\Http\Controllers\Employee\CBT\ExamController as EmployeeExamController;
 use Illuminate\Support\Facades\Route;
 
 /**

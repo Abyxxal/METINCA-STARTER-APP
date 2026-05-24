@@ -142,7 +142,9 @@
                                             $pendingCount = \App\Models\ExamSession::where('status', 'submitted')->count();
                                         @endphp
                                         @if($pendingCount > 0)
-                                            <span class="badge bg-danger ms-auto">{{ $pendingCount }}</span>
+                                            <span class="badge bg-danger ms-auto" data-badge="pending-verification">{{ $pendingCount }}</span>
+                                        @else
+                                            <span class="badge bg-danger ms-auto" data-badge="pending-verification" style="display:none">0</span>
                                         @endif
                                     </a>
                                 </li>
@@ -160,7 +162,9 @@
                                                 ->count();
                                         @endphp
                                         @if($pendingApprovalCount > 0)
-                                            <span class="badge bg-warning ms-auto">{{ $pendingApprovalCount }}</span>
+                                            <span class="badge bg-warning ms-auto" data-badge="pending-approval">{{ $pendingApprovalCount }}</span>
+                                        @else
+                                            <span class="badge bg-warning ms-auto" data-badge="pending-approval" style="display:none">0</span>
                                         @endif
                                     </a>
                                 </li>
@@ -231,7 +235,7 @@
                         <li class="sidebar-item {{ request()->routeIs('user.training-history') ? 'active' : '' }}">
                             <a href="{{ route('user.training-history') }}" class='sidebar-link'>
                                 <i class="bi bi-clock-history"></i>
-                                <span>Training History</span>
+                                <span>Riwayat Ujian</span>
                             </a>
                         </li>
 
@@ -385,6 +389,60 @@
      <!-- App JS -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    @auth
+    @if(in_array(Auth::user()->role, ['admin', 'manager']))
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pusher = new Pusher('{{ env("REVERB_APP_KEY") }}', {
+            wsHost: '{{ env("REVERB_HOST", "localhost") }}',
+            wsPort: {{ env("REVERB_PORT", 8080) }},
+            wssPort: {{ env("REVERB_PORT", 8080) }},
+            forceTLS: false,
+            encrypted: false,
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        const adminChannel = pusher.subscribe('admin.dashboard');
+        adminChannel.bind('App\\Events\\DashboardStatsUpdated', function(data) {
+            if (data.pending_verification !== undefined) {
+                const el = document.querySelector('[data-badge="pending-verification"]');
+                if (el) {
+                    el.textContent = data.pending_verification;
+                    el.style.display = data.pending_verification > 0 ? '' : 'none';
+                }
+            }
+            if (data.pending_approval !== undefined) {
+                const el = document.querySelector('[data-badge="pending-approval"]');
+                if (el) {
+                    el.textContent = data.pending_approval;
+                    el.style.display = data.pending_approval > 0 ? '' : 'none';
+                }
+            }
+        });
+
+        adminChannel.bind('App\\Events\\EmployeeDataUpdated', function(data) {
+            const isMasterData = window.location.pathname.includes('/master-data')
+                || window.location.pathname.includes('/departments')
+                || window.location.pathname.includes('/employee-import');
+
+            if (isMasterData) {
+                if (typeof loadBothTables === 'function') {
+                    loadBothTables();
+                } else if (typeof loadKaryawanTable === 'function') {
+                    loadKaryawanTable();
+                }
+            } else {
+                App.toast('info', 'Data karyawan telah diperbarui. Segarkan halaman jika perlu.');
+            }
+        });
+    });
+    </script>
+    @endif
+    @endauth
+
     <script>
         // Global: Disable "leave site" warning for auto-submit forms
         (function() {

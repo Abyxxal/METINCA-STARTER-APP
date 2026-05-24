@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CBT;
+namespace App\Http\Controllers\Admin\CBT;
 
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
@@ -32,7 +32,7 @@ class ExamController extends Controller
             return Skill::where('is_active', true)->get();
         });
 
-        return view('cbt.admin.exams.index', compact('exams', 'skills'));
+        return view('admin.cbt.exams.index', compact('exams', 'skills'));
     }
 
     /**
@@ -51,7 +51,7 @@ class ExamController extends Controller
             ->get()
             ->groupBy('skill_id');
 
-        return view('cbt.admin.exams.create', compact('divisions', 'questionSets'));
+        return view('admin.cbt.exams.create', compact('divisions', 'questionSets'));
     }
 
     /**
@@ -118,7 +118,7 @@ class ExamController extends Controller
             $query->orderBy('exam_question.order');
         }, 'sessions.employee']);
 
-        return view('cbt.admin.exams.show', compact('exam'));
+        return view('admin.cbt.exams.show', compact('exam'));
     }
 
     /**
@@ -138,7 +138,7 @@ class ExamController extends Controller
             ->where('for_level', '<=', $exam->target_level)
             ->get();
 
-        return view('cbt.admin.exams.edit', compact('exam', 'skills', 'availableQuestions'));
+        return view('admin.cbt.exams.edit', compact('exam', 'skills', 'availableQuestions'));
     }
 
     /**

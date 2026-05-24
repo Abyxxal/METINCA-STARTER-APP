@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CBT;
+namespace App\Http\Controllers\Admin\CBT;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
@@ -41,7 +41,7 @@ class EmployeeCompetencyController extends Controller
 
         $employees = $query->orderBy('name')->paginate(20);
 
-        return view('cbt.admin.competencies.index', compact('employees', 'divisions', 'divisionId'));
+        return view('admin.cbt.competencies.index', compact('employees', 'divisions', 'divisionId'));
     }
 
     /**
@@ -55,7 +55,7 @@ class EmployeeCompetencyController extends Controller
         $divisionSkills = $this->competencyService->getDivisionSkills($employee);
         $existingCompetencies = $this->competencyService->getEmployeeCompetencies($employee);
 
-        return view('cbt.admin.competencies.edit', compact('employee', 'divisionSkills', 'existingCompetencies'));
+        return view('admin.cbt.competencies.edit', compact('employee', 'divisionSkills', 'existingCompetencies'));
     }
 
     /**
