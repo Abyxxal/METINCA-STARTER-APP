@@ -87,14 +87,14 @@
                     {{-- SECTION: Tab Navigation untuk Master Data --}}
                     {{-- Fungsi: Navigasi untuk mengelola 2 master data: Data Karyawan dan Departemen --}}
                     <!-- Nav tabs dengan styling distinction -->
-                    <ul class="nav nav-tabs nav-justified border-bottom-2" id="masterDataTab" role="tablist" style="border-bottom: 3px solid #f0f0f0;">
+                    <ul class="nav nav-tabs nav-justified border-bottom-2" id="masterDataTab" role="tablist">
                         {{-- TAB 1: Data Karyawan --}}
                         {{-- Isi: Daftar karyawan dengan NIK, nama, departemen, jabatan, shift, status (Active/Inactive) - support CRUD dan import Excel --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="karyawan-tab" data-bs-toggle="tab"
                                 data-bs-target="#karyawan" type="button" role="tab" aria-controls="karyawan"
-                                aria-selected="true" style="border-bottom: 3px solid transparent; padding-bottom: 12px;">
-                                <i class="bi bi-people-fill me-2" style="color: #6366f1;"></i><span style="font-weight: 600; color: #1f2937;">Data Karyawan</span>
+                                aria-selected="true">
+                                <i class="bi bi-people-fill me-2" style="color: #6366f1;"></i><span style="font-weight: 600;">Data Karyawan</span>
                             </button>
                         </li>
                         {{-- TAB 2: Data Departemen --}}
@@ -102,8 +102,8 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="departemen-tab" data-bs-toggle="tab"
                                 data-bs-target="#departemen" type="button" role="tab" aria-controls="departemen"
-                                aria-selected="false" style="border-bottom: 3px solid transparent; padding-bottom: 12px;">
-                                <i class="bi bi-building me-2" style="color: #8b5cf6;"></i><span style="font-weight: 600; color: #6b7280;">Departemen</span>
+                                aria-selected="false">
+                                <i class="bi bi-building me-2" style="color: #8b5cf6;"></i><span style="font-weight: 600;">Departemen</span>
                             </button>
                         </li>
                     </ul>
@@ -114,7 +114,6 @@
                             color: #6366f1 !important;
                         }
                         .nav-link:hover {
-                            background-color: #f9fafb;
                             border-radius: 4px 4px 0 0;
                         }
                     </style>
@@ -134,10 +133,10 @@
                                 {{-- Header dengan tombol Tambah Karyawan --}}
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <div>
-                                        <h5 class="mb-1" style="color: #1f2937;"><i class="bi bi-people-fill me-2" style="color: #6366f1;"></i>Data Karyawan</h5>
+                                        <h5 class="mb-1"><i class="bi bi-people-fill me-2" style="color: #6366f1;"></i>Data Karyawan</h5>
                                         <p class="text-muted mb-0" style="font-size: 0.875rem;">Kelola informasi dan profil semua karyawan</p>
                                     </div>
-                                    <button id="btnTambahKaryawan" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahKaryawan" style="background-color: #6366f1; border-color: #6366f1;">
+                                    <button id="btnTambahKaryawan" type="button" class="btn btn-primary btn-sm btn-indigo" data-bs-toggle="modal" data-bs-target="#modalTambahKaryawan">
                                         <i class="bi bi-plus-circle me-1"></i>Tambah Karyawan
                                     </button>
                                 </div>
@@ -406,10 +405,10 @@
                             <div class="mt-4 px-3" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0) 100%); border-radius: 8px; padding: 20px;">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <div>
-                                        <h5 class="mb-1" style="color: #1f2937;"><i class="bi bi-building me-2" style="color: #8b5cf6;"></i>Daftar Departemen</h5>
+                                        <h5 class="mb-1"><i class="bi bi-building me-2" style="color: #8b5cf6;"></i>Daftar Departemen</h5>
                                         <p class="text-muted mb-0" style="font-size: 0.875rem;">Kelola struktur organisasi dan departemen</p>
                                     </div>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="openTambahDepartemenModal()" style="background-color: #8b5cf6; border-color: #8b5cf6;">
+                                    <button type="button" class="btn btn-primary btn-sm btn-violet" onclick="openTambahDepartemenModal()">
                                         <i class="bi bi-plus-circle me-1"></i>Tambah Departemen
                                     </button>
                                 </div>
@@ -1312,7 +1311,6 @@
                         <div class="card bg-light">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-3">
-                                    <img id="hapusFotoKaryawan" src="" alt="Foto" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
                                     <div>
                                         <h6 class="mb-0" id="hapusNamaKaryawan"></h6>
                                         <small class="text-muted" id="hapusNikKaryawan"></small>
@@ -2067,28 +2065,6 @@
             console.log('✅ Both tables reload initiated');
         };
 
-        // $(document).ready starts here
-                            <div class="col-md-10">
-                                <input type="text" class="form-control form-control-sm position-name-input" placeholder="Nama jabatan (contoh: Senior Support)" required>
-                            </div>
-                            <div class="col-md-2 text-end">
-                                <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.position-field').remove()">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
-                console.log('✅ Position field added successfully');
-                return true;
-            } catch(error) {
-                console.error('❌ Error in tambahFieldPositionTambah:', error.message);
-                console.error('Stack:', error.stack);
-                return false;
-            }
-        };
-
         // Simpan department dengan semua divisions & positions
         window.simpanDept = function() {
             var nama = document.getElementById('namaDeptTambah').value.trim();
@@ -2636,7 +2612,6 @@
             
             try {
                 $('#formTambahKaryawan')[0].reset();
-                $('#imageFotoPreview').hide();
                 
                 // Get dropdown elements
                 var deptSelect = $('#departemenKaryawan');
@@ -2843,11 +2818,15 @@
                         }
                     });
                 }
+                
+                // Reload table with new filter
+                window.loadBothTables();
             });
             
             // Event handler: Ketika filter divisi berubah
             $('#filterDivisiKaryawan').on('change', function() {
                 console.log('Filter divisi changed:', $(this).val());
+                window.loadBothTables();
             });
             
             // Load filter saat halaman ready
@@ -3106,11 +3085,22 @@
                     return;
                 }
                 
+                // Baca nilai filter
+                var deptId = $('#filterDepartemenKaryawan').val();
+                var divId = $('#filterDivisiKaryawan').val();
+                var search = $('#searchKaryawan').val();
+                
                 console.log('📡 Fetching from /api/employees...');
+                console.log('   Filters - dept:', deptId, 'div:', divId, 'search:', search);
                 
                 $.ajax({
                     url: '/api/employees',
                     type: 'GET',
+                    data: {
+                        department_id: deptId || '',
+                        division_id: divId || '',
+                        search: search || ''
+                    },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -3120,7 +3110,6 @@
                         if (response.success && response.data) {
                             console.log('📦 Data count:', response.data.length);
                             
-                            // Tampilkan semua data tanpa filter dulu
                             window.renderKaryawanTable(response.data, tableBody);
                         } else {
                             console.warn('⚠️ No data in response');
@@ -3195,23 +3184,7 @@
                 
                 console.log('✅ Table rendered successfully');
             };
-                                } else {
-                                    console.error('❌ No data in response');
-                                }
-                            },
-                            error: function(xhr) {
-                                console.error('❌ AJAX error:', xhr);
-                                Swal.fire({
-                                    title: 'Gagal!',
-                                    text: 'Gagal memuat data karyawan',
-                                    icon: 'error',
-                                    confirmButtonColor: '#dc3545'
-                                });
-                            }
-                        });
-                    });
-                });
-                
+
                 // Helper function untuk load divisions saat edit modal
                 function loadDivisionsForEdit(departmentId, divisionId, positionId) {
                     console.log('📊 Loading divisions for edit - Dept:', departmentId, 'Div:', divisionId, 'Pos:', positionId);
@@ -3294,20 +3267,6 @@
                     });
                 }
                 
-                // Preview foto ketika file dipilih di modal edit
-                document.getElementById('editFotoKaryawan').addEventListener('change', function(e) {
-                    var file = e.target.files[0];
-                    if (file) {
-                        var reader = new FileReader();
-                        reader.onload = function(event) {
-                            document.getElementById('editImageFotoPreview').src = event.target.result;
-                            document.getElementById('editImageFotoPreview').style.display = 'block';
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            };
-
             // ===== MODAL TAMBAH KARYAWAN EVENT HANDLERS - Backdrop Cleanup =====
             var modalTambahKaryawan = document.getElementById('modalTambahKaryawan');
             if (modalTambahKaryawan) {
@@ -3321,12 +3280,6 @@
                     var form = document.getElementById('formTambahKaryawan');
                     if (form) {
                         form.reset();
-                    }
-                    
-                    // Hide preview foto
-                    var previewFoto = document.getElementById('imageFotoPreview');
-                    if (previewFoto) {
-                        previewFoto.style.display = 'none';
                     }
                     
                     // Force cleanup backdrop dan body classes
@@ -3345,12 +3298,6 @@
                     console.log('✅ Backdrop dan body classes cleaned up');
                 });
             }
-
-            // Filter divisi karyawan dropdown
-            $('#filterDivisiKaryawan').on('change', function() {
-                // Reload table when division filter changes
-                window.loadBothTables();
-            });
 
             // editKaryawan and hapusKaryawan are now defined globally at the top of the page
 
@@ -3419,18 +3366,6 @@
             });
 
             // Positions akan dimuat dinamis dari API berdasarkan Division yang dipilih
-
-            // Preview foto ketika file dipilih
-            $('#fotoKaryawan').on('change', function(e) {
-                var file = e.target.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function(event) {
-                        $('#imageFotoPreview').attr('src', event.target.result).show();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
 
             // Button handlers
             // Handle Tambah Karyawan button click (Backup jQuery handler)
@@ -3609,14 +3544,6 @@
                             $('#editStatusAktif').prop('checked', false);
                         }
                         
-                        // Set photo if exists
-                        if (emp.photo) {
-                            $('#editImageFotoLama').attr('src', '/storage/' + emp.photo).show();
-                        } else {
-                            $('#editImageFotoLama').hide();
-                        }
-                        $('#editImageFotoPreview').hide();
-                        
                         // Fetch and set competency level
                         $.ajax({
                             url: '/api/competencies?nik=' + employeeNik,
@@ -3651,21 +3578,8 @@
                     }
                 });
             });
-            });
 
             // Update handler moved to inline script near modal edit for better performance
-
-            // Preview foto pada edit modal ketika file dipilih
-            $('#editFotoKaryawan').on('change', function(e) {
-                var file = e.target.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function(event) {
-                        $('#editImageFotoPreview').attr('src', event.target.result).show();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
 
             // ===== EVENT HANDLERS FOR EDIT KARYAWAN CASCADING DROPDOWNS =====
             $('#editDepartemenKaryawan').off('change').on('change', function() {
@@ -3868,7 +3782,7 @@
                                                 var item = $(`
                                                     <div class="row mb-2 edit-jabatan-item" data-position-id="${position.id}">
                                                         <div class="col-10">
-                                                            <input type="text" class="form-control input-edit-jabatan" value="${position.name}" readonly style="background-color: #f8f9fa;">
+                                                            <input type="text" class="form-control input-edit-jabatan" value="${position.name}" readonly>
                                                         </div>
                                                         <div class="col-2 d-flex justify-content-end">
                                                             <button type="button" class="btn btn-sm btn-outline-danger btn-hapus-jabatan-edit">

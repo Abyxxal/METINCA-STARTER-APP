@@ -113,6 +113,7 @@ class QuestionController extends Controller
                 'questions.*.type' => 'required|in:multiple_choice,true_false,essay',
                 'questions.*.options' => 'nullable|array',
                 'questions.*.correct_answer' => 'nullable|string',
+                'questions.*.default_weight' => 'nullable|integer|min:1|max:999',
             ]);
 
             // Generate unique question_set_id
@@ -144,6 +145,7 @@ class QuestionController extends Controller
                     'question_text' => $q['question_text'],
                     'options' => !empty($options) ? $options : null,
                     'correct_answer' => $q['correct_answer'] ?? null,
+                    'default_weight' => $q['default_weight'] ?? null,
                     'status' => 'active',
                 ]);
 
@@ -169,6 +171,7 @@ class QuestionController extends Controller
             'target_position' => 'nullable|exists:positions,id',
             'options' => 'required_if:type,multiple_choice|array',
             'correct_answer' => 'required_unless:type,essay|string',
+            'default_weight' => 'nullable|integer|min:1|max:999',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -229,6 +232,7 @@ class QuestionController extends Controller
             'options.C' => 'required_if:type,multiple_choice|nullable|string',
             'options.D' => 'required_if:type,multiple_choice|nullable|string',
             'correct_answer' => 'required_unless:type,essay|string',
+            'default_weight' => 'nullable|integer|min:1|max:999',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -521,6 +525,7 @@ class QuestionController extends Controller
             'questions.*.type' => 'required|in:multiple_choice,true_false,essay',
             'questions.*.options' => 'nullable|array',
             'questions.*.correct_answer' => 'nullable|string',
+            'questions.*.default_weight' => 'nullable|integer|min:1|max:999',
             'delete_questions' => 'nullable|array',
             'delete_questions.*' => 'exists:questions,id',
         ]);
@@ -562,6 +567,7 @@ class QuestionController extends Controller
                 'type' => $qData['type'],
                 'options' => !empty($options) ? $options : null,
                 'correct_answer' => $qData['correct_answer'] ?? null,
+                'default_weight' => $qData['default_weight'] ?? null,
             ];
 
             if (!empty($qData['id'])) {

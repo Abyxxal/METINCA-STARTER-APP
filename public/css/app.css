@@ -1030,3 +1030,98 @@
         right: 0;
     }
 }
+
+/* ========================================
+   DARK MODE - Tab Navigation & Components
+   ======================================== */
+
+/* Nav Tabs */
+[data-bs-theme="dark"] .nav-tabs {
+    border-bottom-color: #495057;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link:hover {
+    border-color: #495057 #495057 transparent;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link.active {
+    color: #6366f1 !important;
+    background-color: #2c3034 !important;
+    border-color: #495057 #495057 #2c3034 !important;
+}
+
+/* Custom Primary Buttons */
+.btn-indigo {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+    color: #fff !important;
+}
+
+.btn-indigo:hover {
+    background-color: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+}
+
+.btn-violet {
+    background-color: #8b5cf6 !important;
+    border-color: #8b5cf6 !important;
+    color: #fff !important;
+}
+
+.btn-violet:hover {
+    background-color: #7c3aed !important;
+    border-color: #7c3aed !important;
+}
+
+[data-bs-theme="dark"] .btn-indigo {
+    background-color: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+    color: #fff !important;
+}
+
+[data-bs-theme="dark"] .btn-indigo:hover {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+}
+
+[data-bs-theme="dark"] .btn-violet {
+    background-color: #7c3aed !important;
+    border-color: #7c3aed !important;
+    color: #fff !important;
+}
+
+[data-bs-theme="dark"] .btn-violet:hover {
+    background-color: #8b5cf6 !important;
+    border-color: #8b5cf6 !important;
+}
+
+/* Readonly Inputs */
+[data-bs-theme="dark"] input[readonly],
+[data-bs-theme="dark"] .form-control[readonly] {
+    background-color: #2c3034 !important;
+    color: #dee2e6 !important;
+}
+
+/* Modal Backdrop - adjust dark mode opacity */
+[data-bs-theme="dark"] .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Tab Pane Content */
+[data-bs-theme="dark"] .tab-pane {
+    color: #dee2e6;
+}
+
+/* Gradient section in departemen tab */
+[data-bs-theme="dark"] div[style*="linear-gradient"] {
+    background: rgba(139, 92, 246, 0.1) !important;
+}
+
+/* DataTable info text */
+[data-bs-theme="dark"] div.dataTables_info {
+    color: #adb5bd !important;
+}

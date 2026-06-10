@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * EmployeeCompetency Model
@@ -66,6 +67,14 @@ class EmployeeCompetency extends Model
     public function skill(): BelongsTo
     {
         return $this->belongsTo(Skill::class);
+    }
+
+    /**
+     * Competency has many history records
+     */
+    public function histories(): HasMany
+    {
+        return $this->hasMany(EmployeeCompetencyHistory::class, 'employee_competency_id');
     }
 
     /**

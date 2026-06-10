@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Employee;
 use App\Models\EmployeeCompetency;
+use App\Models\EmployeeCompetencyHistory;
 use App\Models\Skill;
 use App\Models\DivisionSkill;
 use App\Models\ExamSession;
@@ -73,6 +74,13 @@ class EmployeeCompetencyService
         DB::beginTransaction();
 
         try {
+            // Get existing competency before update
+            $existing = EmployeeCompetency::where('employee_nik', $employee->nik)
+                ->where('skill_id', $skillId)
+                ->first();
+
+            $previousLevel = $existing?->level;
+
             // Prepare notes
             $finalNotes = $notes ?: "Manual update oleh admin: " . Auth::user()->name;
 
@@ -89,6 +97,30 @@ class EmployeeCompetencyService
                     'notes' => $finalNotes,
                 ]
             );
+
+            // Determine change type & source
+            if ($previousLevel === null) {
+                $changeType = 'initial';
+                $changeSource = 'admin_manual';
+            } elseif ($level > $previousLevel) {
+                $changeType = 'up';
+                $changeSource = 'admin_manual';
+            } else {
+                $changeType = 'down';
+                $changeSource = 'admin_downgrade';
+            }
+
+            // Save history record
+            EmployeeCompetencyHistory::create([
+                'employee_competency_id' => $competency->id,
+                'previous_level' => $previousLevel,
+                'new_level' => $level,
+                'change_type' => $changeType,
+                'change_source' => $changeSource,
+                'changed_by' => Auth::id(),
+                'notes' => $finalNotes,
+                'created_at' => now(),
+            ]);
 
             DB::commit();
 

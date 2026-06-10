@@ -129,7 +129,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label">Tipe Soal</label>
                         <select name="type" id="mainQuestionType" class="form-select question-type" data-index="main">
                             <option value="multiple_choice" {{ old('type', $question->type) == 'multiple_choice' ? 'selected' : '' }}>Pilihan Ganda</option>
@@ -138,7 +138,24 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4 mb-3 correct-answer-wrap" data-index="main">
+                    {{-- Bobot (hanya untuk Essay) --}}
+                    <div class="col-md-3 mb-3 default-weight-wrap" data-index="main" style="{{ $question->type !== 'essay' ? 'display:none;' : '' }}">
+                        <label class="form-label">
+                            Bobot Soal
+                            <small class="text-muted">(Essay)</small>
+                        </label>
+                        <input type="number" name="default_weight" 
+                            class="form-control @error('default_weight') is-invalid @enderror" 
+                            min="1" max="999"
+                            placeholder="Contoh: 20"
+                            value="{{ old('default_weight', $question->default_weight) }}">
+                        @error('default_weight')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Nilai bobot untuk perhitungan skor essay</small>
+                    </div>
+
+                    <div class="col-md-3 mb-3 correct-answer-wrap" data-index="main" style="{{ $question->type === 'essay' ? 'display:none;' : '' }}">
                         <label class="form-label">Jawaban Benar <span class="text-danger">*</span></label>
                         <select name="correct_answer" id="mainCorrectAnswer" class="form-select correct-answer" data-index="main" {{ $question->type == 'essay' ? '' : 'required' }}>
                             @if($question->type == 'true_false')
@@ -229,6 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainOptionsWrap = document.querySelector('.options-wrap[data-index="main"]');
     const mainCorrectAnswerWrap = document.querySelector('.correct-answer-wrap[data-index="main"]');
     const mainCorrectAnswer = document.getElementById('mainCorrectAnswer');
+    const mainDefaultWeightWrap = document.querySelector('.default-weight-wrap[data-index="main"]');
     
     mainTypeSelect.addEventListener('change', function() {
         const type = this.value;
@@ -238,17 +256,20 @@ document.addEventListener('DOMContentLoaded', function() {
             mainOptionsWrap.style.display = 'none';
             mainCorrectAnswerWrap.style.display = 'none';
             mainCorrectAnswer.removeAttribute('required');
+            mainDefaultWeightWrap.style.display = 'block';
             optionInputs.forEach(i => i.removeAttribute('required'));
         } else if (type === 'true_false') {
             mainOptionsWrap.style.display = 'none';
             mainCorrectAnswerWrap.style.display = 'block';
             mainCorrectAnswer.setAttribute('required', 'required');
+            mainDefaultWeightWrap.style.display = 'none';
             mainCorrectAnswer.innerHTML = '<option value="A">Benar</option><option value="B">Salah</option>';
             optionInputs.forEach(i => i.removeAttribute('required'));
         } else {
             mainOptionsWrap.style.display = 'block';
             mainCorrectAnswerWrap.style.display = 'block';
             mainCorrectAnswer.setAttribute('required', 'required');
+            mainDefaultWeightWrap.style.display = 'none';
             mainCorrectAnswer.innerHTML = '<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>';
             mainOptionsWrap.querySelectorAll('input[name="options[A]"], input[name="options[B]"]').forEach(i => i.setAttribute('required', 'required'));
         }
@@ -282,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     <div class="row">
                         <!-- Tipe Soal -->
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label">Tipe Soal</label>
                             <select name="new_questions[${index}][type]" class="form-select question-type" data-index="${index}">
                                 <option value="multiple_choice" selected>Pilihan Ganda</option>
@@ -291,8 +312,22 @@ document.addEventListener('DOMContentLoaded', function() {
                             </select>
                         </div>
 
+                        <!-- Bobot (hanya untuk Essay) -->
+                        <div class="col-md-4 mb-3 default-weight-wrap" data-index="${index}" style="display:none;">
+                            <label class="form-label">
+                                Bobot Soal
+                                <small class="text-muted">(Essay)</small>
+                            </label>
+                            <input type="number" name="new_questions[${index}][default_weight]" 
+                                class="form-control" 
+                                min="1" max="999"
+                                placeholder="Contoh: 20"
+                                value="">
+                            <small class="text-muted">Nilai bobot untuk perhitungan skor essay</small>
+                        </div>
+
                         <!-- Jawaban Benar -->
-                        <div class="col-md-6 mb-3 correct-answer-wrap" data-index="${index}">
+                        <div class="col-md-4 mb-3 correct-answer-wrap" data-index="${index}">
                             <label class="form-label">Jawaban Benar <span class="text-danger">*</span></label>
                             <select name="new_questions[${index}][correct_answer]" class="form-select correct-answer" data-index="${index}" required>
                                 <option value="A">A</option>
@@ -346,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const optionsWrap = container.querySelector(`.options-wrap[data-index="${questionIndex}"]`);
         const correctAnswerWrap = container.querySelector(`.correct-answer-wrap[data-index="${questionIndex}"]`);
         const correctAnswer = container.querySelector(`.correct-answer[data-index="${questionIndex}"]`);
+        const defaultWeightWrap = container.querySelector(`.default-weight-wrap[data-index="${questionIndex}"]`);
         const optionInputs = optionsWrap.querySelectorAll('input[required]');
         
         typeSelect.addEventListener('change', function() {
@@ -354,17 +390,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 optionsWrap.style.display = 'none';
                 correctAnswerWrap.style.display = 'none';
                 correctAnswer.removeAttribute('required');
+                defaultWeightWrap.style.display = 'block';
                 optionInputs.forEach(i => i.removeAttribute('required'));
             } else if (type === 'true_false') {
                 optionsWrap.style.display = 'none';
                 correctAnswerWrap.style.display = 'block';
                 correctAnswer.setAttribute('required', 'required');
+                defaultWeightWrap.style.display = 'none';
                 correctAnswer.innerHTML = '<option value="A">Benar</option><option value="B">Salah</option>';
                 optionInputs.forEach(i => i.removeAttribute('required'));
             } else {
                 optionsWrap.style.display = 'block';
                 correctAnswerWrap.style.display = 'block';
                 correctAnswer.setAttribute('required', 'required');
+                defaultWeightWrap.style.display = 'none';
                 correctAnswer.innerHTML = '<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>';
                 optionInputs.forEach(i => i.setAttribute('required', 'required'));
             }

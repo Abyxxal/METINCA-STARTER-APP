@@ -460,6 +460,7 @@
             // Global helper function for auto-submit
             window.autoSubmitForm = function(form) {
                 if (!form) return;
+                window.__autoSubmitting = true;
                 isAutoSubmitting = true;
                 setTimeout(() => {
                     if (form && typeof form.submit === 'function') {

@@ -24,6 +24,10 @@
 </div>
 
 <section class="section">
+    @if($session->status === 'submitted')
+    <form action="{{ route('cbt.admin.sessions.verify', $session) }}" method="POST">
+        @csrf
+    @endif
     <div class="row">
         <div class="col-md-8">
             {{-- Session Info --}}
@@ -92,7 +96,7 @@
                             @php
                                 $answer = $session->answers->where('question_id', $question->id)->first();
                             @endphp
-                            <div class="mb-4 p-3 border rounded {{ $answer?->is_correct ? 'border-success bg-light' : ($answer ? 'border-danger' : 'border-secondary') }}">
+                            <div class="mb-4 p-3 border rounded {{ $question->type === 'essay' ? ($answer?->score_earned > 0 ? 'border-success bg-light' : 'border-secondary') : ($answer?->is_correct ? 'border-success bg-light' : ($answer ? 'border-danger' : 'border-secondary')) }}">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <strong>{{ $i + 1 }}. {{ $question->question_text }}</strong>
                                     @if($question->type !== 'essay')
@@ -129,49 +133,43 @@
                                                     {{ $answer?->selected_answer ?? 'Tidak dijawab' }}
                                                 </div>
                                                 
+                                                @php
+                                                    $bobot = $question->pivot?->weight ?? 0;
+                                                @endphp
+
                                                 @if($session->status === 'submitted')
-                                                    {{-- Manual Grading for Essay --}}
+                                                    {{-- Manual Grading for Essay (0 to bobot) --}}
                                                     <hr>
                                                     <div class="mt-3">
                                                         <label class="form-label fw-bold">
-                                                            <i class="bi bi-star"></i> Penilaian Essay:
+                                                            <i class="bi bi-star"></i> Penilaian Essay (Bobot: {{ $bobot }}):
                                                         </label>
-                                                        <div class="row g-2">
-                                                            <div class="col-6">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio" 
-                                                                        name="essay_grade_{{ $question->id }}" 
-                                                                        id="correct_{{ $question->id }}"
-                                                                        value="1"
-                                                                        {{ $answer?->is_correct ? 'checked' : '' }}>
-                                                                    <label class="form-check-label text-success fw-bold" for="correct_{{ $question->id }}">
-                                                                        <i class="bi bi-check-circle-fill"></i> Benar
-                                                                    </label>
-                                                                </div>
+                                                        <div class="row g-2 align-items-center">
+                                                            <div class="col-auto">
+                                                                <input type="number" 
+                                                                    class="form-control" 
+                                                                    style="width: 120px;"
+                                                                    name="essay_score_{{ $question->id }}" 
+                                                                    id="score_{{ $question->id }}"
+                                                                    min="0" max="{{ $bobot }}"
+                                                                    value="{{ old('essay_score_' . $question->id, $answer?->score_earned ?? 0) }}"
+                                                                    required>
                                                             </div>
-                                                            <div class="col-6">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio" 
-                                                                        name="essay_grade_{{ $question->id }}" 
-                                                                        id="incorrect_{{ $question->id }}"
-                                                                        value="0"
-                                                                        {{ $answer && !$answer->is_correct ? 'checked' : '' }}>
-                                                                    <label class="form-check-label text-danger fw-bold" for="incorrect_{{ $question->id }}">
-                                                                        <i class="bi bi-x-circle-fill"></i> Salah
-                                                                    </label>
-                                                                </div>
+                                                            <div class="col-auto">
+                                                                <span class="text-muted">/ {{ $bobot }}</span>
                                                             </div>
                                                         </div>
                                                         <small class="text-muted d-block mt-2">
-                                                            <i class="bi bi-info-circle"></i> Pilih penilaian untuk essay ini. Nilai akan tersimpan saat Anda klik tombol verifikasi.
+                                                            <i class="bi bi-info-circle"></i> Beri nilai 0–{{ $bobot }} untuk jawaban essay ini. Nilai akan langsung menjadi skor akhir tanpa dikalikan bobot.
                                                         </small>
                                                     </div>
                                                 @else
                                                     {{-- Display grading result after verification --}}
                                                     @if($answer)
-                                                        <div class="alert alert-{{ $answer->is_correct ? 'success' : 'danger' }} mt-3 mb-0">
-                                                            <i class="bi bi-{{ $answer->is_correct ? 'check-circle-fill' : 'x-circle-fill' }}"></i>
-                                                            <strong>Penilaian: {{ $answer->is_correct ? 'Benar' : 'Salah' }}</strong>
+                                                        <div class="alert alert-{{ $answer->score_earned > 0 ? 'success' : 'secondary' }} mt-3 mb-0">
+                                                            <i class="bi bi-{{ $answer->score_earned > 0 ? 'check-circle-fill' : 'dash-circle' }}"></i>
+                                                            <strong>Nilai: {{ $answer->score_earned }} / {{ $bobot }}</strong>
+                                                            <span class="text-muted ms-2">(Bobot: {{ $bobot }})</span>
                                                         </div>
                                                     @endif
                                                 @endif
@@ -304,25 +302,22 @@
                             </strong>
                         </div>
 
-                        <form action="{{ route('cbt.admin.sessions.verify', $session) }}" method="POST">
-                            @csrf
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="bi bi-chat-left-text"></i> Catatan untuk Karyawan 
-                                    <small class="text-muted">(Opsional)</small>
-                                </label>
-                                <textarea name="notes" class="form-control" rows="4" 
-                                    placeholder="Tuliskan catatan, saran, atau feedback untuk karyawan. Misalnya: area yang perlu diperbaiki, hal yang sudah bagus, atau rekomendasi untuk pelatihan berikutnya."></textarea>
-                                <small class="text-muted">
-                                    <i class="bi bi-info-circle"></i> Catatan ini akan terlihat oleh karyawan setelah verifikasi.
-                                </small>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button type="submit" name="action" value="approve" class="btn btn-success btn-lg">
-                                    <i class="bi bi-check-circle"></i> Verifikasi & Simpan Hasil
-                                </button>
-                            </div>
-                        </form>
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-chat-left-text"></i> Catatan untuk Karyawan 
+                                <small class="text-muted">(Opsional)</small>
+                            </label>
+                            <textarea name="notes" class="form-control" rows="4" 
+                                placeholder="Tuliskan catatan, saran, atau feedback untuk karyawan. Misalnya: area yang perlu diperbaiki, hal yang sudah bagus, atau rekomendasi untuk pelatihan berikutnya."></textarea>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i> Catatan ini akan terlihat oleh karyawan setelah verifikasi.
+                            </small>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Verifikasi & Simpan Hasil
+                            </button>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -377,5 +372,8 @@
             </div>
         </div>
     </div>
+    @if($session->status === 'submitted')
+    </form>
+    @endif
 </section>
 @endsection

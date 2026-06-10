@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     <div class="row">
                         <!-- Tipe Soal -->
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label">Tipe Soal</label>
                             <select name="questions[${index}][type]" class="form-select question-type" data-index="${index}">
                                 <option value="multiple_choice" selected>Pilihan Ganda</option>
@@ -224,8 +224,22 @@ document.addEventListener('DOMContentLoaded', function() {
                             </select>
                         </div>
 
+                        <!-- Bobot (hanya untuk Essay) -->
+                        <div class="col-md-4 mb-3 default-weight-wrap" data-index="${index}" style="display:none;">
+                            <label class="form-label">
+                                Bobot Soal
+                                <small class="text-muted">(Essay)</small>
+                            </label>
+                            <input type="number" name="questions[${index}][default_weight]" 
+                                class="form-control" 
+                                min="1" max="999"
+                                placeholder="Contoh: 20"
+                                value="">
+                            <small class="text-muted">Nilai bobot untuk perhitungan skor essay</small>
+                        </div>
+
                         <!-- Jawaban Benar -->
-                        <div class="col-md-6 mb-3 correct-answer-wrap" data-index="${index}">
+                        <div class="col-md-4 mb-3 correct-answer-wrap" data-index="${index}">
                             <label class="form-label">Jawaban Benar <span class="text-danger">*</span></label>
                             <select name="questions[${index}][correct_answer]" class="form-select correct-answer" data-index="${index}" required>
                                 <option value="A">A</option>
@@ -279,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const optionsWrap = container.querySelector(`.options-wrap[data-index="${questionIndex}"]`);
         const correctAnswerWrap = container.querySelector(`.correct-answer-wrap[data-index="${questionIndex}"]`);
         const correctAnswer = container.querySelector(`.correct-answer[data-index="${questionIndex}"]`);
+        const defaultWeightWrap = container.querySelector(`.default-weight-wrap[data-index="${questionIndex}"]`);
         const optionInputs = optionsWrap.querySelectorAll('input[required]');
         
         typeSelect.addEventListener('change', function() {
@@ -287,17 +302,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 optionsWrap.style.display = 'none';
                 correctAnswerWrap.style.display = 'none';
                 correctAnswer.removeAttribute('required');
+                defaultWeightWrap.style.display = 'block';
                 optionInputs.forEach(i => i.removeAttribute('required'));
             } else if (type === 'true_false') {
                 optionsWrap.style.display = 'none';
                 correctAnswerWrap.style.display = 'block';
                 correctAnswer.setAttribute('required', 'required');
+                defaultWeightWrap.style.display = 'none';
                 correctAnswer.innerHTML = '<option value="A">Benar</option><option value="B">Salah</option>';
                 optionInputs.forEach(i => i.removeAttribute('required'));
             } else {
                 optionsWrap.style.display = 'block';
                 correctAnswerWrap.style.display = 'block';
                 correctAnswer.setAttribute('required', 'required');
+                defaultWeightWrap.style.display = 'none';
                 correctAnswer.innerHTML = '<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>';
                 optionInputs.forEach(i => i.setAttribute('required', 'required'));
             }

@@ -76,6 +76,16 @@
                         <a href="{{ route('cbt.admin.division-skills.index') }}" class="btn btn-outline-primary">
                             <i class="bi bi-gear me-1"></i> Customisasi Skill Divisi
                         </a>
+                        @if($divisionId)
+                            <a href="{{ route('cbt.admin.competency-history.print', ['division_id' => $divisionId]) }}"
+                               class="btn btn-success" target="_blank">
+                                <i class="bi bi-printer me-1"></i> Print Tabel
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-success" disabled title="Pilih divisi terlebih dahulu">
+                                <i class="bi bi-printer me-1"></i> Print Tabel
+                            </button>
+                        @endif
                     </div>
                 </div>
 
@@ -309,7 +319,9 @@
         gap: 0.5rem !important;
     }
 </style>
+@endpush
 
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const divisionFilter = document.getElementById('divisionFilter');
@@ -317,7 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (divisionFilter && filterForm) {
         divisionFilter.addEventListener('change', function() {
-            // Use global autoSubmitForm helper
             window.autoSubmitForm(filterForm);
         });
     }

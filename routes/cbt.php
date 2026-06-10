@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CBT\ExamController;
 use App\Http\Controllers\Admin\CBT\QuestionController;
 use App\Http\Controllers\Admin\CBT\ExamSessionController;
+use App\Http\Controllers\Admin\CBT\CompetencyHistoryController;
 use App\Http\Controllers\Admin\CBT\CompetencyMatrixController;
 use App\Http\Controllers\Admin\CBT\DivisionSkillController;
 use App\Http\Controllers\Admin\CBT\EmployeeCompetencyController;
@@ -76,6 +77,9 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
 
     // ----- COMPETENCY MATRIX (Matriks Kompetensi) -----
     Route::get('/competency-matrix', [CompetencyMatrixController::class, 'index'])->name('competency-matrix');
+
+    // ----- COMPETENCY HISTORY PRINT (Riwayat Level Skill) -----
+    Route::get('/competency-history/print', [CompetencyHistoryController::class, 'print'])->name('competency-history.print');
 
     // ----- DIVISION SKILLS (Customisasi Skill per Divisi) -----
     Route::prefix('division-skills')->name('division-skills.')->group(function () {

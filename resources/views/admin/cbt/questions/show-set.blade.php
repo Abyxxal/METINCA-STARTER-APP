@@ -82,6 +82,7 @@
                         @break
                     @case('essay')
                         <span class="badge bg-success"><i class="bi bi-pencil"></i> Essay</span>
+                        <span class="badge bg-warning text-dark ms-1"><i class="bi bi-weight"></i> Bobot: {{ $question->default_weight ?? '-' }}</span>
                         @break
                 @endswitch
             </div>
@@ -109,16 +110,18 @@
             @endif
 
             @if($question->type === 'essay')
-                <div class="alert alert-info mt-3">
-                    <i class="bi bi-info-circle"></i> Soal essay - akan dinilai manual oleh penguji
+                <div class="text-muted small mt-2">
+                    <i class="bi bi-info-circle"></i> Soal essay - dinilai manual oleh penguji
                 </div>
             @endif
 
+            @if($question->type !== 'essay')
             <div class="mt-3 pt-3 border-top">
                 <small class="text-muted">
-                    Jawaban yang benar: <strong class="text-success">{{ $question->correct_answer ?? '-' }}</strong>
+                    Jawaban yang benar: <strong class="text-success">{{ $question->correct_answer }}</strong>
                 </small>
             </div>
+            @endif
         </div>
         <div class="card-footer text-end">
             <a href="{{ route('cbt.admin.questions.edit', $question) }}" class="btn btn-sm btn-warning">

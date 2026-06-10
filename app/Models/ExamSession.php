@@ -249,18 +249,18 @@ class ExamSession extends Model
     }
 
     /**
-     * Calculate score from answers
+     * Calculate final score using simple sum of score_earned.
+     *
+     * - MC/TF correct: score_earned = weight (set by grade())
+     * - MC/TF wrong:   score_earned = 0
+     * - Essay:         score_earned = admin score (0 to question weight)
+     *
+     * Since total essay weight is designed to equal 100,
+     * the sum naturally falls in the 0–100 range.
      */
     public function calculateScore(): int
     {
-        $totalWeight = $this->exam->getTotalWeight();
-        $earnedPoints = $this->answers()->sum('score_earned');
-        
-        if ($totalWeight === 0) {
-            return 0;
-        }
-        
-        return (int) round(($earnedPoints / $totalWeight) * 100);
+        return (int) round($this->answers()->sum('score_earned'));
     }
 
     /**

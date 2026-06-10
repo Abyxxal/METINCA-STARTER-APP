@@ -7,7 +7,9 @@ use App\Events\SessionStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\EmployeeCompetency;
+use App\Models\EmployeeCompetencyHistory;
 use App\Models\Exam;
+use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Question;
 use App\Models\User;
@@ -15,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * ExamSessionController
@@ -145,7 +148,7 @@ class ExamSessionController extends Controller
             $order = 1;
             foreach ($questions as $question) {
                 $exam->questions()->attach($question->id, [
-                    'weight' => 1,
+                    'weight' => $question->default_weight ?? 1,
                     'order' => $order++,
                 ]);
             }
@@ -335,7 +338,7 @@ class ExamSessionController extends Controller
         $validated = $request->validate([
             'action' => 'required|in:approve,reject',
             'notes' => 'nullable|string|max:500',
-            'essay_grade_*' => 'nullable|in:0,1',
+            'essay_score_*' => 'nullable|integer|min:0',
         ]);
 
         if (!in_array($session->status, [ExamSession::STATUS_SUBMITTED])) {
@@ -347,15 +350,24 @@ class ExamSessionController extends Controller
         try {
             // Process essay grading first
             foreach ($request->all() as $key => $value) {
-                if (strpos($key, 'essay_grade_') === 0) {
-                    $questionId = str_replace('essay_grade_', '', $key);
+                if (strpos($key, 'essay_score_') === 0) {
+                    $questionId = str_replace('essay_score_', '', $key);
                     $answer = ExamAnswer::where('exam_session_id', $session->id)
                         ->where('question_id', $questionId)
                         ->first();
                     
-                    if ($answer) {
+                    if ($answer && $value !== null) {
+                        $question = $session->exam->questions->find($questionId);
+                        $maxScore = (int) ($question?->pivot->weight ?? 0);
+
+                        if ((int) $value > $maxScore) {
+                            throw ValidationException::withMessages([
+                                $key => "Nilai essay tidak boleh melebihi bobot soal ({$maxScore}).",
+                            ]);
+                        }
+
                         $answer->update([
-                            'is_correct' => (bool) $value,
+                            'score_earned' => (int) $value,
                         ]);
                     }
                 }
@@ -403,19 +415,11 @@ class ExamSessionController extends Controller
     }
 
     /**
-     * Recalculate session score based on all answers (including essay)
+     * Recalculate session score using weighted scoring (delegates to model)
      */
     private function recalculateScore(ExamSession $session): void
     {
-        $totalQuestions = $session->exam->questions()->count();
-        
-        if ($totalQuestions === 0) {
-            return;
-        }
-
-        $correctAnswers = $session->answers()->where('is_correct', true)->count();
-        $score = round(($correctAnswers / $totalQuestions) * 100, 2);
-
+        $score = $session->calculateScore();
         $session->update(['score' => $score]);
     }
 
@@ -428,8 +432,15 @@ class ExamSessionController extends Controller
         $skill = $session->exam->skill;
         $targetLevel = $session->exam->target_level;
 
+        // Get existing level before update
+        $existing = EmployeeCompetency::where('employee_nik', $employee->nik)
+            ->where('skill_id', $skill->id)
+            ->first();
+
+        $previousLevel = $existing?->level;
+
         // Update or create employee competency
-        EmployeeCompetency::updateOrCreate(
+        $competency = EmployeeCompetency::updateOrCreate(
             [
                 'employee_nik' => $employee->nik,
                 'skill_id' => $skill->id,
@@ -441,6 +452,19 @@ class ExamSessionController extends Controller
                 'notes' => "Naik ke Level {$targetLevel} setelah lulus ujian: {$session->exam->title}",
             ]
         );
+
+        // Save history record
+        EmployeeCompetencyHistory::create([
+            'employee_competency_id' => $competency->id,
+            'previous_level' => $previousLevel,
+            'new_level' => $targetLevel,
+            'change_type' => $previousLevel === null ? 'initial' : 'up',
+            'change_source' => 'exam_pass',
+            'changed_by' => Auth::id(),
+            'exam_session_id' => $session->id,
+            'notes' => $competency->notes,
+            'created_at' => now(),
+        ]);
     }
 
     /**

@@ -499,17 +499,30 @@ class MasterDataController extends Controller
      * 
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getEmployees()
+    public function getEmployees(Request $request)
     {
         try {
-            // Query dengan eager loading relasi
-            $employees = Employee::with([
+            $query = Employee::with([
                 'department:id,name', 
                 'division:id,name', 
                 'position:id,name,division_id'
             ])
-            ->select('nik', 'name', 'email', 'department_id', 'division_id', 'position_id', 'status', 'created_at', 'updated_at')
-            ->get();
+            ->select('nik', 'name', 'email', 'department_id', 'division_id', 'position_id', 'status', 'created_at', 'updated_at');
+
+            if ($request->filled('department_id')) {
+                $query->where('department_id', $request->department_id);
+            }
+            if ($request->filled('division_id')) {
+                $query->where('division_id', $request->division_id);
+            }
+            if ($search = $request->search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('nik', 'like', "%{$search}%");
+                });
+            }
+
+            $employees = $query->get();
 
             return response()->json([
                 'success' => true,

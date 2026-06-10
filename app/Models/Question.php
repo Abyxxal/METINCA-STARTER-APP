@@ -27,12 +27,14 @@ class Question extends Model
         'type',
         'options',
         'correct_answer',
+        'default_weight',
         'status',
     ];
 
     protected $casts = [
         'options' => 'array',
         'for_level' => 'integer',
+        'default_weight' => 'integer',
     ];
 
     // ============================================

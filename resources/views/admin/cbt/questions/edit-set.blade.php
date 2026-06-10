@@ -174,6 +174,20 @@
                     <textarea name="questions[{{ $index }}][question_text]" class="form-control" rows="3" required>{{ old("questions.$index.question_text", $question->question_text) }}</textarea>
                 </div>
 
+                @if($question->type === 'essay')
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Bobot Soal</label>
+                        <input type="number" name="questions[{{ $index }}][default_weight]" 
+                            class="form-control" 
+                            min="1" max="999"
+                            placeholder="Contoh: 20"
+                            value="{{ old("questions.$index.default_weight", $question->default_weight) }}">
+                        <small class="text-muted">Nilai bobot untuk perhitungan skor essay</small>
+                    </div>
+                </div>
+                @endif
+
                 <div class="options-container" data-index="{{ $index }}">
                     @if($question->type === 'multiple_choice')
                         <div class="row">
@@ -334,8 +348,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const index = this.dataset.index;
             const type = this.value;
             const container = document.querySelector(`.options-container[data-index="${index}"]`);
+            const weightWrap = document.querySelector(`.default-weight-wrap[data-index="${index}"]`);
             
             updateOptionsContainer(container, index, type);
+
+            if (weightWrap) {
+                weightWrap.style.display = (type === 'essay') ? 'flex' : 'none';
+            }
         });
     });
 
@@ -443,6 +462,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         <textarea name="questions[${index}][question_text]" class="form-control" rows="3" required></textarea>
                     </div>
 
+                    <div class="row mb-3 default-weight-wrap" data-index="${index}" style="display:none;">
+                        <div class="col-md-3">
+                            <label class="form-label">Bobot Soal <small class="text-muted">(Essay)</small></label>
+                            <input type="number" name="questions[${index}][default_weight]" 
+                                class="form-control" 
+                                min="1" max="999"
+                                placeholder="Contoh: 20"
+                                value="">
+                            <small class="text-muted">Nilai bobot untuk perhitungan skor essay</small>
+                        </div>
+                    </div>
+
                     <div class="options-container" data-index="${index}">
                         <div class="row">
                             <div class="col-md-6 mb-2">
@@ -488,6 +519,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const type = this.value;
                 const optContainer = document.querySelector(`.options-container[data-index="${index}"]`);
                 updateOptionsContainer(optContainer, index, type);
+
+                const weightWrap = document.querySelector(`.default-weight-wrap[data-index="${index}"]`);
+                if (weightWrap) {
+                    weightWrap.style.display = (type === 'essay') ? 'flex' : 'none';
+                }
             });
         }
 

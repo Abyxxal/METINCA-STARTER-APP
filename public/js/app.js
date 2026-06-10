@@ -213,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     window.addEventListener('beforeunload', function(e) {
+        if (window.__autoSubmitting) return;
         if (formChanged) {
             e.preventDefault();
             e.returnValue = 'Ada perubahan yang belum disimpan. Yakin ingin keluar?';
