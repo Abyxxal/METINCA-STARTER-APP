@@ -11,6 +11,7 @@ use App\Models\EmployeeCompetencyHistory;
 use App\Models\Exam;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
+use App\Models\ManagerAssessment;
 use App\Models\Question;
 use App\Models\User;
 use Carbon\Carbon;
@@ -528,20 +529,70 @@ class ExamSessionController extends Controller
     // ============================================
 
     /**
-     * Display sessions pending manager approval.
+     * Display sessions pending manager approval, or history (with tab param).
      */
-    public function pendingApproval()
+    public function pendingApproval(Request $request)
     {
-        $sessions = ExamSession::with(['exam.skill', 'employee.division', 'employee.position', 'verifier'])
-            ->where('status', ExamSession::STATUS_VERIFIED_PASS)
-            ->where(function ($q) {
-                $q->where('manager_decision', ExamSession::DECISION_PENDING)
-                  ->orWhereNull('manager_decision');
-            })
-            ->latest('verified_at')
-            ->paginate(20);
+        $tab = $request->get('tab', 'pending');
 
-        return view('admin.cbt.sessions.pending-approval', compact('sessions'));
+        if ($tab === 'history') {
+            $sessions = ExamSession::with([
+                'exam.skill',
+                'employee.division',
+                'employee.position',
+                'manager',
+                'managerAssessment',
+                'verifier',
+            ])
+                ->whereIn('status', [ExamSession::STATUS_APPROVED, ExamSession::STATUS_REJECTED])
+                ->whereNotNull('manager_decision')
+                ->whereIn('manager_decision', [ExamSession::DECISION_APPROVED, ExamSession::DECISION_REJECTED])
+                ->latest('decided_at')
+                ->paginate(20);
+        } else {
+            $sessions = ExamSession::with(['exam.skill', 'exam.questions', 'employee.division', 'employee.position', 'verifier', 'managerAssessment'])
+                ->where('status', ExamSession::STATUS_VERIFIED_PASS)
+                ->where(function ($q) {
+                    $q->where('manager_decision', ExamSession::DECISION_PENDING)
+                      ->orWhereNull('manager_decision');
+                })
+                ->latest('verified_at')
+                ->paginate(20);
+        }
+
+        return view('admin.cbt.sessions.pending-approval', compact('sessions', 'tab'));
+    }
+
+    /**
+     * Redirect to pending-approval with history tab.
+     */
+    public function approvalHistory(Request $request)
+    {
+        return redirect()->route('cbt.admin.sessions.pending-approval', array_merge($request->query(), ['tab' => 'history']));
+    }
+
+    /**
+     * Display qualitative assessment form for manager.
+     */
+    public function qualitativeAssessment(ExamSession $session)
+    {
+        if (!$session->isPendingManagerApproval()) {
+            return redirect()->route('cbt.admin.sessions.pending-approval')
+                ->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
+        }
+
+        $session->load([
+            'exam.skill',
+            'exam.questions',
+            'employee.division',
+            'employee.position',
+            'verifier',
+            'manager',
+            'managerAssessment',
+            'answers.question',
+        ]);
+
+        return view('admin.cbt.sessions.qualitative-assessment', compact('session'));
     }
 
     /**
@@ -550,12 +601,15 @@ class ExamSessionController extends Controller
     public function approveLevel(Request $request, ExamSession $session)
     {
         $validated = $request->validate([
-            'manager_notes' => 'nullable|string|max:500',
+            'manager_notes' => 'nullable|string|max:1000',
         ]);
 
         if (!$session->isPendingManagerApproval()) {
             return back()->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
         }
+
+        // Save assessment data if any
+        $this->saveAssessmentData($request, $session);
 
         DB::beginTransaction();
         try {
@@ -573,7 +627,8 @@ class ExamSessionController extends Controller
             DB::commit();
             SessionStatusUpdated::dispatch($session->fresh(), 'approved');
             DashboardStatsUpdated::dispatch();
-            return back()->with('success', "Kenaikan level karyawan {$session->employee->name} telah DISETUJUI.");
+            return redirect()->route('cbt.admin.sessions.pending-approval')
+                ->with('success', "Kenaikan level karyawan {$session->employee->name} telah DISETUJUI.");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menyetujui: ' . $e->getMessage());
@@ -586,12 +641,15 @@ class ExamSessionController extends Controller
     public function rejectLevel(Request $request, ExamSession $session)
     {
         $validated = $request->validate([
-            'manager_notes' => 'required|string|max:500',
+            'manager_notes' => 'required|string|max:1000',
         ]);
 
         if (!$session->isPendingManagerApproval()) {
             return back()->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
         }
+
+        // Save assessment data if any
+        $this->saveAssessmentData($request, $session);
 
         $session->update([
             'status' => ExamSession::STATUS_REJECTED,
@@ -604,6 +662,36 @@ class ExamSessionController extends Controller
         SessionStatusUpdated::dispatch($session->fresh(), 'rejected');
         DashboardStatsUpdated::dispatch();
 
-        return back()->with('success', "Kenaikan level karyawan {$session->employee->name} telah DITOLAK.");
+        return redirect()->route('cbt.admin.sessions.pending-approval')
+            ->with('success', "Kenaikan level karyawan {$session->employee->name} telah DITOLAK.");
+    }
+
+    /**
+     * Save assessment data from request.
+     */
+    private function saveAssessmentData(Request $request, ExamSession $session): ?ManagerAssessment
+    {
+        $assessmentRules = [
+            'assessment_method' => 'nullable|in:interview,observation,both',
+            'sop_understanding' => 'nullable|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'competency_application' => 'nullable|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'independence' => 'nullable|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'problem_solving' => 'nullable|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'readiness' => 'nullable|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'verification_date' => 'nullable|date',
+        ];
+
+        $hasAssessmentData = $request->hasAny(array_keys($assessmentRules));
+        if (!$hasAssessmentData) {
+            return null;
+        }
+
+        $assessmentData = $request->validate($assessmentRules);
+        $assessmentData['created_by'] = Auth::id();
+
+        return ManagerAssessment::updateOrCreate(
+            ['exam_session_id' => $session->id],
+            $assessmentData
+        );
     }
 }

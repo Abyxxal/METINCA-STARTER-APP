@@ -336,29 +336,76 @@
                             Skill <strong>{{ $session->exam->skill->name ?? '-' }}</strong> akan dinaikkan ke <strong>Level {{ $session->exam->target_level }}</strong>.
                         </div>
 
-                        {{-- Approve Form --}}
-                        <form action="{{ route('cbt.admin.sessions.approve-level', $session) }}" method="POST" class="mb-3">
-                            @csrf
-                            <div class="mb-3">
-                                <label class="form-label">Catatan (Opsional)</label>
-                                <textarea name="manager_notes" class="form-control" rows="2" placeholder="Catatan persetujuan..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100 mb-2">
+                        <a href="{{ route('cbt.admin.sessions.assessment', $session) }}" class="btn btn-primary w-100 mb-3">
+                            <i class="bi bi-clipboard-data"></i> Kelola Penilaian Kualitatif
+                        </a>
+
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $session->id }}">
                                 <i class="bi bi-check-circle"></i> Setujui Kenaikan Level
                             </button>
-                        </form>
-
-                        {{-- Reject Form --}}
-                        <form action="{{ route('cbt.admin.sessions.reject-level', $session) }}" method="POST">
-                            @csrf
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Alasan Penolakan <span class="text-danger">*</span></label>
-                                <textarea name="manager_notes" class="form-control" rows="2" placeholder="Alasan penolakan..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-danger w-100">
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $session->id }}">
                                 <i class="bi bi-x-circle"></i> Tolak Kenaikan Level
                             </button>
-                        </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Quick Approve Modal --}}
+                <div class="modal fade" id="approveModal{{ $session->id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="{{ route('cbt.admin.sessions.approve-level', $session) }}" method="POST">
+                                @csrf
+                                <div class="modal-header bg-success text-white">
+                                    <h5 class="modal-title"><i class="bi bi-check-circle"></i> Setujui Kenaikan Level</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-info mb-3">
+                                        <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->score }}%</strong>.<br>
+                                        Skill <strong>{{ $session->exam->skill->name ?? '-' }}</strong> akan dinaikkan ke <strong>Level {{ $session->exam->target_level }}</strong>.
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Catatan (Opsional)</label>
+                                        <textarea name="manager_notes" class="form-control" rows="2" placeholder="Catatan persetujuan..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Setujui</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Quick Reject Modal --}}
+                <div class="modal fade" id="rejectModal{{ $session->id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="{{ route('cbt.admin.sessions.reject-level', $session) }}" method="POST">
+                                @csrf
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title"><i class="bi bi-x-circle"></i> Tolak Kenaikan Level</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-warning mb-3">
+                                        <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->score }}%</strong>,
+                                        namun level <strong>TIDAK</strong> akan dinaikkan.
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Alasan Penolakan <span class="text-danger">*</span></label>
+                                        <textarea name="manager_notes" class="form-control" rows="3" placeholder="Alasan penolakan..." required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i> Tolak</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @endif

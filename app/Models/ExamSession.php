@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * ExamSession Model
@@ -104,6 +105,14 @@ class ExamSession extends Model
     public function manager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');
+    }
+
+    /**
+     * Session has one Manager Assessment (qualitative)
+     */
+    public function managerAssessment(): HasOne
+    {
+        return $this->hasOne(ManagerAssessment::class, 'exam_session_id');
     }
 
     /**
@@ -368,5 +377,122 @@ class ExamSession extends Model
     public function isRejectedByManager(): bool
     {
         return $this->status === self::STATUS_REJECTED;
+    }
+
+    // ============================================
+    // SCORING BREAKDOWN HELPERS
+    // ============================================
+
+    /**
+     * Get exam type based on questions: 'pilihan_ganda', 'esai', or 'campuran'
+     */
+    public function getExamType(): string
+    {
+        if (!$this->exam || !$this->exam->questions->count()) {
+            return 'pilihan_ganda';
+        }
+
+        $hasMc = $this->exam->questions->contains(fn($q) => in_array($q->type, ['multiple_choice', 'true_false']));
+        $hasEssay = $this->exam->questions->contains(fn($q) => $q->type === 'essay');
+
+        if ($hasMc && $hasEssay) {
+            return 'campuran';
+        }
+
+        return $hasEssay ? 'esai' : 'pilihan_ganda';
+    }
+
+    /**
+     * Get exam type label in Indonesian
+     */
+    public function getExamTypeLabel(): string
+    {
+        $labels = [
+            'pilihan_ganda' => 'Pilihan Ganda',
+            'esai' => 'Esai',
+            'campuran' => 'Pilihan Ganda & Esai',
+        ];
+
+        return $labels[$this->getExamType()] ?? 'Pilihan Ganda';
+    }
+
+    /**
+     * Sum of MC/TF score_earned from answers
+     */
+    public function getMcScore(): int
+    {
+        return (int) $this->answers()->whereHas('question', function ($q) {
+            $q->whereIn('type', ['multiple_choice', 'true_false']);
+        })->sum('score_earned');
+    }
+
+    /**
+     * Sum of essay score_earned from answers
+     */
+    public function getEssayScore(): int
+    {
+        return (int) $this->answers()->whereHas('question', function ($q) {
+            $q->where('type', 'essay');
+        })->sum('score_earned');
+    }
+
+    /**
+     * Total weight of MC/TF questions in the exam
+     */
+    public function getMcTotalWeight(): int
+    {
+        if (!$this->exam) {
+            return 0;
+        }
+
+        return (int) $this->exam->questions()
+            ->whereIn('type', ['multiple_choice', 'true_false'])
+            ->sum('exam_question.weight');
+    }
+
+    /**
+     * Total weight of essay questions in the exam
+     */
+    public function getEssayTotalWeight(): int
+    {
+        if (!$this->exam) {
+            return 0;
+        }
+
+        return (int) $this->exam->questions()
+            ->where('type', 'essay')
+            ->sum('exam_question.weight');
+    }
+
+    /**
+     * Check if exam uses MC/TF questions
+     */
+    public function hasMcQuestions(): bool
+    {
+        if (!$this->exam) {
+            return false;
+        }
+
+        return $this->exam->questions->contains(fn($q) => in_array($q->type, ['multiple_choice', 'true_false']));
+    }
+
+    /**
+     * Check if exam uses essay questions
+     */
+    public function hasEssayQuestions(): bool
+    {
+        if (!$this->exam) {
+            return false;
+        }
+
+        return $this->exam->questions->contains(fn($q) => $q->type === 'essay');
+    }
+
+    /**
+     * Check if session has been decided by manager (approved or rejected)
+     */
+    public function hasBeenDecided(): bool
+    {
+        return in_array($this->status, [self::STATUS_APPROVED, self::STATUS_REJECTED]);
     }
 }
