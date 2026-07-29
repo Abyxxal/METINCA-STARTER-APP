@@ -323,15 +323,7 @@
                     axios.post('{{ route('logout') }}', {
                         _token: '{{ csrf_token() }}'
                     }).then(response => {
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: 'Anda telah logout.',
-                            icon: 'success',
-                            timer: 1500,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.href = '{{ route('login') }}';
-                        });
+                        window.location.href = '{{ route('login') }}';
                     }).catch(error => {
                         console.log(error);
                         Swal.fire('Gagal!', 'Terjadi kesalahan saat logout.', 'error');

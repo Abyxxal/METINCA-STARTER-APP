@@ -60,7 +60,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nama Pelatihan</th>
+                            <th>Nama Ujian</th>
                             <th>Kategori</th>
                             <th>Level</th>
                             <th>Status</th>

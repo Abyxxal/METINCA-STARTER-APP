@@ -53,7 +53,7 @@
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                         <h6 class="text-muted font-semibold">Total Karyawan Aktif</h6>
-                                        <h6 class="font-extrabold mb-0">{{ $stats['total_employees'] }}</h6>
+                                        <h6 class="font-extrabold mb-0" id="total-employees">{{ $stats['total_employees'] }}</h6>
                                         <small class="text-muted">Karyawan aktif</small>
                                     </div>
                                 </div>
@@ -74,7 +74,7 @@
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                         <h6 class="text-muted font-semibold">Total Soal Aktif</h6>
-                                        <h6 class="font-extrabold mb-0">{{ $stats['total_questions'] }}</h6>
+                                        <h6 class="font-extrabold mb-0" id="total-questions">{{ $stats['total_questions'] }}</h6>
                                         <small class="text-muted">Bank Soal CBT</small>
                                     </div>
                                 </div>
@@ -95,7 +95,7 @@
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                         <h6 class="text-muted font-semibold">Pending Verifikasi</h6>
-                                        <h6 class="font-extrabold mb-0 text-warning">{{ $stats['pending_verification'] }}</h6>
+                                        <h6 class="font-extrabold mb-0 text-warning" id="pending-verification">{{ $stats['pending_verification'] }}</h6>
                                         <small class="text-warning">Perlu diverifikasi</small>
                                     </div>
                                 </div>
@@ -116,7 +116,7 @@
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                         <h6 class="text-muted font-semibold">Ujian Aktif</h6>
-                                        <h6 class="font-extrabold mb-0">{{ $stats['active_exams_this_month'] }}</h6>
+                                        <h6 class="font-extrabold mb-0" id="active-exams">{{ $stats['active_exams_this_month'] }}</h6>
                                         <small class="text-muted">Bulan ini ({{ now()->format('M Y') }})</small>
                                     </div>
                                 </div>
@@ -420,5 +420,31 @@
 
         var chartNilaiDepartemen = new ApexCharts(document.querySelector("#chartNilaiDepartemen"), optionsNilaiDepartemen);
         chartNilaiDepartemen.render();
+
+        // Realtime dashboard update via Pusher
+        var pusherDashboard = new Pusher('{{ env("REVERB_APP_KEY") }}', {
+            wsHost: '{{ env("REVERB_HOST", "localhost") }}',
+            wsPort: {{ env("REVERB_PORT", 8080) }},
+            wssPort: {{ env("REVERB_PORT", 8080) }},
+            forceTLS: false,
+            encrypted: false,
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        var dashChannel = pusherDashboard.subscribe('admin.dashboard');
+        dashChannel.bind('App\\Events\\DashboardStatsUpdated', function(data) {
+            var el = document.getElementById('total-employees');
+            if (el) el.textContent = data.total_employees;
+
+            el = document.getElementById('total-questions');
+            if (el) el.textContent = data.total_questions;
+
+            el = document.getElementById('pending-verification');
+            if (el) el.textContent = data.pending_verification;
+
+            el = document.getElementById('active-exams');
+            if (el) el.textContent = data.active_exams_this_month;
+        });
     </script>
 @endpush

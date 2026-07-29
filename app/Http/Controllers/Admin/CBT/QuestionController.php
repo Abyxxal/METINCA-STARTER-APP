@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\CBT;
 
 use App\Http\Controllers\Controller;
+use App\Events\DashboardStatsUpdated;
 use App\Models\Question;
 use App\Models\Skill;
 use App\Models\Division;
@@ -157,6 +158,8 @@ class QuestionController extends Controller
                 $count++;
             }
 
+            DashboardStatsUpdated::dispatch();
+
             return redirect()
                 ->route('cbt.admin.questions.index')
                 ->with('success', "Set soal \"{$setTitle}\" dengan {$count} soal berhasil ditambahkan!");
@@ -189,6 +192,8 @@ class QuestionController extends Controller
         if (!empty($validated['target_position'])) {
             $question->positions()->attach($validated['target_position']);
         }
+
+        DashboardStatsUpdated::dispatch();
 
         return redirect()
             ->route('cbt.admin.questions.index')
@@ -305,6 +310,8 @@ class QuestionController extends Controller
         }
 
         $question->delete();
+
+        DashboardStatsUpdated::dispatch();
 
         return redirect()
             ->route('cbt.admin.questions.index')
@@ -596,6 +603,8 @@ class QuestionController extends Controller
             }
         }
 
+        DashboardStatsUpdated::dispatch();
+
         return redirect()
             ->route('cbt.admin.questions.show-set', $questionSetId)
             ->with('success', 'Set soal berhasil diperbarui!');
@@ -623,6 +632,8 @@ class QuestionController extends Controller
         $setTitle = $questions->first()->set_title;
 
         Question::where('question_set_id', $questionSetId)->delete();
+
+        DashboardStatsUpdated::dispatch();
 
         return redirect()
             ->route('cbt.admin.questions.index')

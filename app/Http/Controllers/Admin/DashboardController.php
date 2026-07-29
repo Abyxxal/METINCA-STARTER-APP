@@ -29,7 +29,10 @@ class DashboardController extends Controller
             // Ambil data statistik untuk admin dashboard
             $stats = [
                 'total_employees' => Employee::where('status', 'Aktif')->count(),
-                'total_questions' => Question::where('status', 'active')->count(),
+                'total_questions' => Question::where('status', 'active')
+                    ->whereNotNull('question_set_id')
+                    ->distinct()
+                    ->count('question_set_id'),
                 'pending_verification' => ExamSession::where('status', 'submitted')->count(),
                 'pending_approval' => ExamSession::where('status', 'verified_pass')
                     ->where(function($q) { $q->where('manager_decision', 'pending')->orWhereNull('manager_decision'); })

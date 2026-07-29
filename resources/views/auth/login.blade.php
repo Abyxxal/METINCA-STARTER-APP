@@ -27,14 +27,6 @@
                 <span id="errorMessage">Username atau password salah!</span>
             </div>
 
-            <!-- Success Alert -->
-            @if (session('success'))
-                <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
-
             <!-- Login Form -->
             <form id="loginForm">
                 <!-- Email/NIK -->
@@ -149,22 +141,12 @@
                 // Show success message (in real app, this would be an API call)
                 //console.log('Login attempt:', { username, password, remember });
 
-                App.loading('Proses login');
-
                 App.ajax('{{ route('login.store') }}', 'POST',formData).then(response => {
                     // Handle successful login
                     // For example, redirect to dashboard
-                    Swal.fire({
-                        title: 'Login Berhasil',
-                        text: 'Selamat datang kembali!',
-                        icon: 'success',
-                        confirmButtonText: 'Lanjutkan'
-                    }).then(() => {
                     window.location.href = '{{ route('dashboard') }}';
-                    });
                 }).catch(error => {
                     // Handle login error
-                    App.closeLoading();
                     App.error('Gagal Login',error.response.data.message || 'Terjadi kesalahan saat login.');
                 });
                 // Example: Show error

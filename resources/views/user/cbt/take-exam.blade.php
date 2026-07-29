@@ -1,9 +1,14 @@
 @extends('layouts.app')
 
+@section('fullscreen', true)
+
 @section('title', 'Kerjakan Ujian')
 
 @push('styles')
 <style>
+    #main {
+        margin-left: 0 !important;
+    }
     .timer-display {
         position: sticky;
         top: 10px;

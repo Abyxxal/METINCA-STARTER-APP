@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Penilaian Hasil Ujian')
+@section('title', 'Verifikasi Ujian')
 
 @section('content')
 <div class="page-heading">
     <div class="page-title">
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
-                <h3>Penilaian Hasil Ujian</h3>
+                <h3>Verifikasi Ujian</h3>
                 <p class="text-subtitle text-muted">Ujian yang menunggu verifikasi</p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -62,18 +62,9 @@
                                         {{ $session->finished_at?->format('d M Y') }}
                                         <br><small class="text-muted">{{ $session->finished_at?->format('H:i') }}</small>
                                     </td>
+                                    <td class="text-muted">-</td>
                                     <td>
-                                        <span class="fw-bold fs-5 {{ $session->score >= $session->exam->passing_score ? 'text-success' : 'text-danger' }}">
-                                            {{ $session->score }}
-                                        </span>
-                                        <br><small class="text-muted">KKM: {{ $session->exam->passing_score }}</small>
-                                    </td>
-                                    <td>
-                                        @if($session->score >= $session->exam->passing_score)
-                                            <span class="badge bg-success">LULUS</span>
-                                        @else
-                                            <span class="badge bg-danger">TIDAK LULUS</span>
-                                        @endif
+                                        <span class="badge bg-warning text-dark">Belum Dinilai</span>
                                     </td>
                                     <td>
                                         <a href="{{ route('cbt.admin.sessions.show', $session) }}" class="btn btn-sm btn-primary">

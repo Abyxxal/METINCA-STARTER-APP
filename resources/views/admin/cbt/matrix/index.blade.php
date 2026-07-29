@@ -74,7 +74,7 @@
                             <i class="bi bi-person-lines-fill me-1"></i> Level Skill Karyawan
                         </a>
                         <a href="{{ route('cbt.admin.division-skills.index') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-gear me-1"></i> Customisasi Skill Divisi
+                            <i class="bi bi-gear me-1"></i> Customisasi Kompetensi Divisi
                         </a>
                         @if($divisionId)
                             <a href="{{ route('cbt.admin.competency-history.print', ['division_id' => $divisionId]) }}"
@@ -98,7 +98,7 @@
                 @elseif($skills->isEmpty())
                     <div class="alert alert-warning">
                         <i class="bi bi-exclamation-triangle me-2"></i>
-                        Belum ada skill yang ditambahkan untuk divisi ini. Silakan tambahkan skill terlebih dahulu di halaman <a href="{{ route('cbt.admin.division-skills.index') }}" class="alert-link">Skill per Divisi</a>.
+                        Belum ada kompetensi yang ditambahkan untuk divisi ini. Silakan tambahkan kompetensi terlebih dahulu di halaman <a href="{{ route('cbt.admin.division-skills.index') }}" class="alert-link">Kompetensi Divisi</a>.
                     </div>
                 @elseif($employees->isEmpty())
                     <div class="alert alert-warning">

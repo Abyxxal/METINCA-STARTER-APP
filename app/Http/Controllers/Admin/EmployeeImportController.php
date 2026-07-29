@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Events\DashboardStatsUpdated;
+use App\Events\EmployeeDataUpdated;
 use App\Exports\EmployeeTemplate;
 use App\Imports\EmployeeImport;
 use Illuminate\Http\Request;
@@ -29,6 +31,9 @@ class EmployeeImportController extends Controller
 
         try {
             Excel::import(new EmployeeImport(), $request->file('file'));
+
+            DashboardStatsUpdated::dispatch();
+            EmployeeDataUpdated::dispatch('imported', null, null);
 
             return back()->with('success', 'Data karyawan berhasil diimport!');
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {

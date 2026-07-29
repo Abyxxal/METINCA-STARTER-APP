@@ -31,6 +31,8 @@
 <body>
     <script src="{{ asset('assets/static/js/initTheme.js') }}"></script>
     <div id="app">
+        @hasSection('fullscreen')
+        @else
         <div id="sidebar">
             <div class="sidebar-wrapper active">
                 <div class="sidebar-header position-relative">
@@ -119,7 +121,7 @@
 
                         {{-- Menu Item 3: Evaluation & Exam --}}
                         {{-- Fungsi: Manajemen soal ujian dan tracking hasil ujian karyawan --}}
-                        {{-- Submenu: Bank Soal, Sesi Ujian, Penilaian Hasil Ujian, Hasil Ujian --}}
+                        {{-- Submenu: Bank Soal, Sesi Ujian, Verifikasi Ujian, Hasil Ujian --}}
                         <li class="sidebar-item has-sub {{ request()->is('evaluation-and-exam*') || request()->is('cbt/admin*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-clipboard-check-fill"></i>
@@ -137,7 +139,7 @@
                                 {{-- CBT: Verifikasi (Pending) --}}
                                 <li class="submenu-item {{ request()->is('cbt/admin/sessions/pending*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.sessions.pending') }}" class="submenu-link">
-                                        Penilaian Hasil Ujian
+                                        Verifikasi Ujian
                                         @php
                                             $pendingCount = \App\Models\ExamSession::where('status', 'submitted')->count();
                                         @endphp
@@ -254,6 +256,7 @@
                 <!-- END SIDEBAR MENU -->
             </div>
         </div>
+        @endif
         <div id="main">
             {{-- ========================================
                  TOPBAR - Rebuilt from scratch
@@ -288,7 +291,7 @@
                             
                             <div class="topbar-dropdown" id="notificationDropdown">
                                 <div class="topbar-dropdown-header">
-                                    <h6 class="mb-0">Penilaian Hasil Ujian</h6>
+                                    <h6 class="mb-0">Verifikasi Ujian</h6>
                                 </div>
                                 <div class="topbar-dropdown-body">
                                     @forelse($pendingSessions as $session)
@@ -584,16 +587,7 @@
                 // Hanya logout jika user klik "Ya, Logout"
                 if (result.isConfirmed) {
                     App.ajax('{{ route('logout') }}', 'POST', new FormData(form)).then(response => {
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: 'Anda telah logout.',
-                            icon: 'success',
-                            timer: 1500,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.href = '{{ route('login') }}';
-                        });
-                        
+                        window.location.href = '{{ route('login') }}';
                     }).catch(error => {
                         console.log(error);
                         App.error('Gagal Logout' || 'Terjadi kesalahan saat logout.');

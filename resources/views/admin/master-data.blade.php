@@ -785,6 +785,18 @@
                 
                 console.log('✅ CASCADE INIT COMPLETE');
                 
+                // Reset dropdowns saat modal dibuka
+                var modalTambah = document.getElementById('modalTambahKaryawan');
+                if (modalTambah) {
+                    modalTambah.addEventListener('shown.bs.modal', function() {
+                        document.getElementById('departmentTambah').value = '';
+                        divSelect.innerHTML = '<option value="">-- Pilih Divisi --</option>';
+                        divSelect.disabled = true;
+                        posSelect.innerHTML = '<option value="">-- Pilih Divisi Dulu --</option>';
+                        posSelect.disabled = true;
+                    });
+                }
+                
                 // ============================================
                 // HANDLER SIMPAN KARYAWAN
                 // ============================================
@@ -881,24 +893,14 @@
                                 document.body.style.paddingRight = '';
                             }, 200);
                             
-                            // Show success & auto reload
-                            console.log('✅ Menampilkan SweetAlert...');
+                            // Refresh table tanpa popup
+                            console.log('🔄 Refreshing table...');
                             
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Karyawan "' + data.name + '" berhasil ditambahkan',
-                                timer: 1200,
-                                showConfirmButton: false,
-                                allowOutsideClick: false,
-                                allowEscapeKey: false
-                            });
-                            
-                            // Force reload setelah 1.3 detik (sedikit setelah SweetAlert tutup)
-                            setTimeout(function() {
-                                console.log('🔄 Forcing reload now...');
-                                location.reload(true);
-                            }, 1300);
+                            if (typeof loadBothTables === 'function') {
+                                loadBothTables();
+                            } else {
+                                location.reload();
+                            }
                         } else {
                             console.error('❌ Error:', result.body);
                             var errorMsg = result.body.message || 'Gagal menyimpan data';
@@ -3889,74 +3891,8 @@
             
             console.log('✅ Initialization complete');
 
-            // ===== TAMBAH KARYAWAN BARU: CASCADE DROPDOWN HANDLERS =====
-            console.log('🔧 CASCADE: Initializing dropdown handlers...');
-            console.log('   📦 Divisions available:', window.allDivisions ? window.allDivisions.length : 'NOT LOADED');
-            console.log('   📦 Positions available:', window.allPositions ? window.allPositions.length : 'NOT LOADED');
-            
-            // Function to populate division dropdown
-            function populateDivisions(deptId) {
-                var $select = $('#divisionTambah');
-                $select.empty().append('<option value="">-- Pilih Divisi --</option>');
-                
-                if (deptId && window.allDivisions) {
-                    var count = 0;
-                    window.allDivisions.forEach(function(div) {
-                        if (div.department_id == deptId) {
-                            $select.append('<option value="' + div.id + '">' + div.name + '</option>');
-                            count++;
-                        }
-                    });
-                    console.log('   → Added ' + count + ' divisions for dept ' + deptId);
-                }
-            }
-            
-            // Function to populate position dropdown
-            function populatePositions(divId) {
-                var $select = $('#positionTambah');
-                $select.empty().append('<option value="">-- Pilih Jabatan --</option>');
-                
-                if (divId && window.allPositions) {
-                    var count = 0;
-                    window.allPositions.forEach(function(pos) {
-                        if (pos.division_id == divId) {
-                            $select.append('<option value="' + pos.id + '">' + pos.name + '</option>');
-                            count++;
-                        }
-                    });
-                    console.log('   → Added ' + count + ' positions for div ' + divId);
-                }
-            }
-            
-            // Reset modal saat dibuka
-            $('#modalTambahKaryawan').on('shown.bs.modal', function() {
-                console.log('🔄 CASCADE: Modal opened, resetting...');
-                $('#departmentTambah').val('');
-                populateDivisions(null);
-                populatePositions(null);
-            });
-            
-            // Department berubah -> populate Division
-            $(document).on('change', '#departmentTambah', function() {
-                const deptId = $(this).val();
-                console.log('📦 CASCADE: Department changed to ' + deptId);
-                
-                populateDivisions(deptId);
-                populatePositions(null);
-            });
-            
-            // Division berubah -> populate Position
-            $(document).on('change', '#divisionTambah', function() {
-                const divId = $(this).val();
-                console.log('📦 CASCADE: Division changed to ' + divId);
-                
-                populatePositions(divId);
-            });
-            
-            console.log('✅ Cascade dropdown handlers ready (dynamic populate from JS array)');
-            
+            // NOTE: Cascade dropdown sudah di-handle oleh vanilla JS di inline script modal
             // NOTE: Handler simpan karyawan sudah dipindahkan ke inline script di dalam modal
-            // Untuk menghindari duplikasi dan memastikan script ter-execute dengan benar
 
         }); // End document.ready
 

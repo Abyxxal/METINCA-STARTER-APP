@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin\CBT;
 
 use App\Http\Controllers\Controller;
+use App\Events\DashboardStatsUpdated;
 use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Skill;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
@@ -97,6 +99,8 @@ class ExamController extends Controller
 
             DB::commit();
 
+            DashboardStatsUpdated::dispatch();
+
             return redirect()
                 ->route('cbt.admin.exams.show', $exam)
                 ->with('success', 'Ujian berhasil dibuat!');
@@ -184,6 +188,8 @@ class ExamController extends Controller
 
             DB::commit();
 
+            DashboardStatsUpdated::dispatch();
+
             return redirect()
                 ->route('cbt.admin.exams.show', $exam)
                 ->with('success', 'Ujian berhasil diperbarui!');
@@ -209,6 +215,8 @@ class ExamController extends Controller
         $exam->questions()->detach();
         $exam->delete();
 
+        DashboardStatsUpdated::dispatch();
+
         return redirect()
             ->route('cbt.admin.exams.index')
             ->with('success', 'Ujian berhasil dihapus!');
@@ -220,6 +228,8 @@ class ExamController extends Controller
     public function togglePublish(Exam $exam)
     {
         $exam->update(['is_published' => !$exam->is_published]);
+
+        DashboardStatsUpdated::dispatch();
 
         $status = $exam->is_published ? 'dipublikasikan' : 'di-unpublish';
         return back()->with('success', "Ujian berhasil {$status}!");

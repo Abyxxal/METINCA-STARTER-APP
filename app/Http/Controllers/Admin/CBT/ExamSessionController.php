@@ -478,6 +478,8 @@ class ExamSessionController extends Controller
 
         $session->delete();
 
+        DashboardStatsUpdated::dispatch();
+
         return back()->with('success', 'Penugasan ujian berhasil dibatalkan!');
     }
 

@@ -16,14 +16,28 @@ class DashboardStatsUpdated implements ShouldBroadcast
 
     public function __construct()
     {
-        $pendingVerification = \App\Models\ExamSession::where('status', 'submitted')->count();
-        $pendingApproval = \App\Models\ExamSession::where('status', 'verified_pass')
+        $employee = new \App\Models\Employee;
+        $question = new \App\Models\Question;
+        $session = new \App\Models\ExamSession;
+        $carbon = new \Carbon\Carbon;
+
+        $pendingVerification = $session->where('status', 'submitted')->count();
+        $pendingApproval = $session->where('status', 'verified_pass')
             ->where(function($q) { $q->where('manager_decision', 'pending')->orWhereNull('manager_decision'); })
             ->count();
 
         $this->stats = [
-            'pending_verification' => $pendingVerification,
-            'pending_approval' => $pendingApproval,
+            'total_employees'        => $employee->where('status', 'Aktif')->count(),
+            'total_questions'        => $question->where('status', 'active')
+                                        ->whereNotNull('question_set_id')
+                                        ->distinct()
+                                        ->count('question_set_id'),
+            'pending_verification'   => $pendingVerification,
+            'pending_approval'       => $pendingApproval,
+            'active_exams_this_month'=> $session->whereMonth('created_at', $carbon::now()->month)
+                                        ->whereYear('created_at', $carbon::now()->year)
+                                        ->whereIn('status', ['assigned', 'started', 'submitted'])
+                                        ->count(),
         ];
     }
 
