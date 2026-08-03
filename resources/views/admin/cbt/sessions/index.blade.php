@@ -24,8 +24,27 @@
 
 <section class="section">
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title">Daftar Sesi</h4>
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab === 'berlangsung' ? 'active' : '' }}"
+                       href="{{ route('cbt.admin.sessions.index', ['tab' => 'berlangsung']) }}" role="tab">
+                        <i class="bi bi-hourglass-split"></i> Ujian Berlangsung
+                        @if($ongoingCount > 0)
+                            <span class="badge bg-primary">{{ $ongoingCount }}</span>
+                        @endif
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab === 'selesai' ? 'active' : '' }}"
+                       href="{{ route('cbt.admin.sessions.index', ['tab' => 'selesai']) }}" role="tab">
+                        <i class="bi bi-clock-history"></i> Ujian Selesai
+                        @if($completedCount > 0)
+                            <span class="badge bg-secondary">{{ $completedCount }}</span>
+                        @endif
+                    </a>
+                </li>
+            </ul>
             <a href="{{ route('cbt.admin.sessions.create') }}" class="btn btn-primary">
                 <i class="bi bi-person-plus"></i> Tugaskan Ujian
             </a>
@@ -37,13 +56,16 @@
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="">Semua Status</option>
-                        <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>Ditugaskan</option>
-                        <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>Dikerjakan</option>
-                        <option value="submitted" {{ request('status') == 'submitted' ? 'selected' : '' }}>Selesai (Pending)</option>
-                        <option value="verified_pass" {{ request('status') == 'verified_pass' ? 'selected' : '' }}>Lulus - Menunggu Approval</option>
-                        <option value="verified_fail" {{ request('status') == 'verified_fail' ? 'selected' : '' }}>Tidak Lulus</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui Manager</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak Manager</option>
+                        @if($tab === 'berlangsung')
+                            <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>Ditugaskan</option>
+                            <option value="started" {{ request('status') == 'started' ? 'selected' : '' }}>Dikerjakan</option>
+                        @else
+                            <option value="submitted" {{ request('status') == 'submitted' ? 'selected' : '' }}>Selesai (Pending)</option>
+                            <option value="verified_pass" {{ request('status') == 'verified_pass' ? 'selected' : '' }}>Lulus - Menunggu Approval</option>
+                            <option value="verified_fail" {{ request('status') == 'verified_fail' ? 'selected' : '' }}>Tidak Lulus</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui Manager</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak Manager</option>
+                        @endif
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -206,7 +228,11 @@
                             <tr>
                                 <td colspan="10" class="text-center text-muted py-4">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                    Belum ada sesi ujian.
+                                    @if($tab === 'berlangsung')
+                                        Tidak ada ujian berlangsung.
+                                    @else
+                                        Belum ada riwayat ujian selesai.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse

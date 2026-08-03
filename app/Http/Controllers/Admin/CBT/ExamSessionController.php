@@ -32,7 +32,24 @@ class ExamSessionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ExamSession::with(['exam.skill', 'employee', 'verifier']);
+        $ongoingStatuses = [
+            ExamSession::STATUS_ASSIGNED,
+            ExamSession::STATUS_STARTED,
+        ];
+
+        $completedStatuses = [
+            ExamSession::STATUS_SUBMITTED,
+            ExamSession::STATUS_VERIFIED_PASS,
+            ExamSession::STATUS_VERIFIED_FAIL,
+            ExamSession::STATUS_APPROVED,
+            ExamSession::STATUS_REJECTED,
+        ];
+
+        $tab = $request->get('tab', 'berlangsung');
+        $tabStatuses = $tab === 'selesai' ? $completedStatuses : $ongoingStatuses;
+
+        $query = ExamSession::with(['exam.skill', 'employee', 'verifier'])
+            ->whereIn('status', $tabStatuses);
 
         // Filter by status
         if ($request->status) {
@@ -49,7 +66,10 @@ class ExamSessionController extends Controller
 
         $sessions = $query->latest()->paginate(20);
 
-        return view('admin.cbt.sessions.index', compact('sessions'));
+        $ongoingCount = ExamSession::whereIn('status', $ongoingStatuses)->count();
+        $completedCount = ExamSession::whereIn('status', $completedStatuses)->count();
+
+        return view('admin.cbt.sessions.index', compact('sessions', 'tab', 'ongoingCount', 'completedCount'));
     }
 
     /**
