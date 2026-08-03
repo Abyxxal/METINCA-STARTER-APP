@@ -812,6 +812,11 @@ body {
                 @endforeach
             </div>
 
+            {{-- Rekomendasi Otomatis --}}
+            <div class="qa-recommendation" id="qaRecommendation" style="display:none;">
+                <div class="recommendation-badge" id="recommendationBadge"></div>
+            </div>
+
             {{-- Form fields --}}
             <div class="form-grid">
                 <div class="field">
@@ -830,7 +835,7 @@ body {
             <div class="decision-box">
                 <h3>Ketentuan Keputusan</h3>
                 <p>
-                    Pilih <strong>Setujui Kenaikan Level</strong> apabila hasil kuantitatif memenuhi threshold dan seluruh
+                    Pilih <strong>Setujui</strong> apabila hasil kuantitatif memenuhi threshold dan seluruh
                     kriteria utama dinilai memenuhi. Pilih <strong>Tolak</strong> apabila karyawan belum memenuhi kompetensi
                     yang dipersyaratkan untuk level berikutnya.
                 </p>
@@ -845,7 +850,7 @@ body {
                     <i class="bi bi-x-circle"></i> Tolak
                 </button>
                 <button type="submit" class="qa-btn primary" formaction="{{ route('cbt.admin.sessions.approve-level', $session) }}" id="btnSetujui">
-                    <i class="bi bi-check-circle"></i> Setujui Kenaikan Level
+                    <i class="bi bi-check-circle"></i> Setujui
                 </button>
             </div>
         </form>
@@ -853,15 +858,96 @@ body {
 </div>
 
 @push('scripts')
+<style>
+.qa-recommendation {
+    margin: 16px 0;
+}
+.recommendation-badge {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.recommendation-badge small {
+    font-weight: 400;
+    font-size: 13px;
+    opacity: 0.9;
+}
+.recommendation-badge.warning {
+    background: var(--warning-soft, #fff7ed);
+    color: var(--warning, #b45309);
+    border: 1px solid #fed7aa;
+}
+.recommendation-badge.danger {
+    background: var(--danger-soft, #fff1f0);
+    color: var(--danger, #b42318);
+    border: 1px solid #fecaca;
+}
+</style>
 <script>
+function countTidakMemenuhi() {
+    const fields = ['sop_understanding', 'competency_application', 'independence', 'problem_solving', 'readiness'];
+    let count = 0;
+    fields.forEach(function(f) {
+        var selected = document.querySelector('input[name="' + f + '"]:checked');
+        if (selected && selected.value === 'tidak_memenuhi') count++;
+    });
+    return count;
+}
+
+function updateRecommendation() {
+    var count = countTidakMemenuhi();
+    var badge = document.getElementById('recommendationBadge');
+    var container = document.getElementById('qaRecommendation');
+
+    if (count === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'block';
+    if (count === 1) {
+        badge.className = 'recommendation-badge warning';
+        badge.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Setujui dengan Catatan' +
+            '<small>1 dari 5 kriteria Tidak Memenuhi. Catatan manager wajib diisi.</small>';
+    } else {
+        badge.className = 'recommendation-badge danger';
+        badge.innerHTML = '<i class="bi bi-x-octagon"></i> Pertimbangkan Ulang' +
+            '<small>' + count + ' dari 5 kriteria Tidak Memenuhi. Catatan manager wajib diisi.</small>';
+    }
+}
+
+document.querySelectorAll('.choice-group input[type="radio"]').forEach(function(r) {
+    r.addEventListener('change', updateRecommendation);
+});
+
 document.getElementById('btnSetujui')?.addEventListener('click', function(e) {
-    if (!confirm('Yakin ingin menyetujui kenaikan level karyawan ini?')) {
+    var count = countTidakMemenuhi();
+    var notes = document.getElementById('manager_notes')?.value?.trim();
+
+    if (count >= 1 && !notes) {
+        alert('Catatan Manager wajib diisi karena ada kriteria yang Tidak Memenuhi.');
+        e.preventDefault();
+        return;
+    }
+
+    var msg = 'Yakin ingin menyetujui kenaikan level karyawan ini?';
+    if (count >= 2) {
+        msg = count + ' dari 5 kriteria Tidak Memenuhi. Yakin tetap ingin menyetujui kenaikan level?';
+    } else if (count === 1) {
+        msg = 'Ada 1 kriteria yang Tidak Memenuhi. Yakin ingin menyetujui dengan catatan?';
+    }
+
+    if (!confirm(msg)) {
         e.preventDefault();
     }
 });
 
 document.getElementById('btnTolak')?.addEventListener('click', function(e) {
-    const notes = document.getElementById('manager_notes')?.value?.trim();
+    var notes = document.getElementById('manager_notes')?.value?.trim();
     if (!notes) {
         alert('Alasan penolakan wajib diisi pada Catatan Manager.');
         e.preventDefault();
@@ -869,6 +955,8 @@ document.getElementById('btnTolak')?.addEventListener('click', function(e) {
         e.preventDefault();
     }
 });
+
+updateRecommendation();
 </script>
 @endpush
 @endsection

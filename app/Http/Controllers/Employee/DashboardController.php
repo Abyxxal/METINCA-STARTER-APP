@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Employee;
 
-use Illuminate\Http\Request;
-use App\Models\ExamSession;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Models\ExamSession;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -16,32 +16,32 @@ class DashboardController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        
+
         // Initialize stats
         $stats = [
             'active' => 0,
             'completed' => 0,
             'in_progress' => 0,
         ];
-        
+
         $recentSessions = collect();
-        
+
         if ($user->employee) {
             // Count active trainings
             $stats['active'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->whereIn('status', ['assigned', 'started'])
                 ->count();
-            
+
             // Count completed trainings
             $stats['completed'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->whereIn('status', ['submitted', 'verified_pass', 'verified_fail', 'approved', 'rejected'])
                 ->count();
-            
+
             // Count in progress
             $stats['in_progress'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->where('status', 'started')
                 ->count();
-            
+
             // Get recent 3 training sessions
             $recentSessions = ExamSession::with(['exam.skill'])
                 ->where('employee_nik', $user->employee->nik)
@@ -49,7 +49,7 @@ class DashboardController extends Controller
                 ->take(3)
                 ->get();
         }
-        
+
         return view('user.employee-dashboard', compact('stats', 'recentSessions'));
     }
 
@@ -61,9 +61,9 @@ class DashboardController extends Controller
     public function myTraining(Request $request)
     {
         $user = Auth::user();
-        
+
         // Pastikan user memiliki employee record
-        if (!$user->employee) {
+        if (! $user->employee) {
             return redirect()->route('dashboard')->with('error', 'Anda belum terdaftar sebagai karyawan.');
         }
 
@@ -80,18 +80,18 @@ class DashboardController extends Controller
 
         // Filter by level (via exam->target_level)
         if ($request->level) {
-            $query->whereHas('exam', function($q) use ($request) {
+            $query->whereHas('exam', function ($q) use ($request) {
                 $q->where('target_level', $request->level);
             });
         }
 
         // Search by exam title or skill name
         if ($request->search) {
-            $query->whereHas('exam', function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('skill', function($sq) use ($request) {
-                      $sq->where('name', 'like', '%' . $request->search . '%');
-                  });
+            $query->whereHas('exam', function ($q) use ($request) {
+                $q->where('title', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('skill', function ($sq) use ($request) {
+                        $sq->where('name', 'like', '%'.$request->search.'%');
+                    });
             });
         }
 
@@ -108,8 +108,8 @@ class DashboardController extends Controller
     public function trainingHistory(Request $request)
     {
         $user = Auth::user();
-        
-        if (!$user->employee) {
+
+        if (! $user->employee) {
             return redirect()->route('dashboard')->with('error', 'Anda belum terdaftar sebagai karyawan.');
         }
 
@@ -120,26 +120,26 @@ class DashboardController extends Controller
 
         // Filter by year
         if ($request->year) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->whereYear('verified_at', $request->year)
-                  ->orWhere(function($sq) use ($request) {
-                      $sq->whereYear('submitted_at', $request->year)
-                         ->whereNull('verified_at');
-                  });
+                    ->orWhere(function ($sq) use ($request) {
+                        $sq->whereYear('submitted_at', $request->year)
+                            ->whereNull('verified_at');
+                    });
             });
         }
 
         // Filter by level
         if ($request->level) {
-            $query->whereHas('exam', function($q) use ($request) {
+            $query->whereHas('exam', function ($q) use ($request) {
                 $q->where('target_level', $request->level);
             });
         }
 
         // Search by exam title
         if ($request->search) {
-            $query->whereHas('exam', function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%');
+            $query->whereHas('exam', function ($q) use ($request) {
+                $q->where('title', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -156,28 +156,28 @@ class DashboardController extends Controller
     public function myProfile()
     {
         $user = Auth::user();
-        
+
         // Calculate statistics
         $stats = [
             'active' => 0,
             'completed' => 0,
-            'certificates' => 0
+            'certificates' => 0,
         ];
-        
+
         if ($user->employee) {
             $stats['active'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->whereIn('status', ['assigned', 'started'])
                 ->count();
-                
+
             $stats['completed'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->whereIn('status', ['verified_pass', 'verified_fail'])
                 ->count();
-                
+
             $stats['certificates'] = ExamSession::where('employee_nik', $user->employee->nik)
-                ->where('status', 'verified_pass')
+                ->where('status', 'approved')
                 ->count();
         }
-        
+
         return view('user.my-profile', compact('stats'));
     }
 
@@ -189,31 +189,31 @@ class DashboardController extends Controller
     public function myCompetencies()
     {
         $user = Auth::user();
-        
-        if (!$user->employee) {
+
+        if (! $user->employee) {
             return redirect()->route('dashboard')->with('error', 'Anda belum terdaftar sebagai karyawan.');
         }
 
         // Get all passed exams grouped by skill
         $competencies = ExamSession::with(['exam.skill'])
             ->where('employee_nik', $user->employee->nik)
-            ->where('status', 'verified_pass')
+            ->where('status', 'approved')
             ->get()
-            ->groupBy(function($session) {
+            ->groupBy(function ($session) {
                 return $session->exam->skill->name;
             })
-            ->map(function($sessions, $skillName) {
+            ->map(function ($sessions, $skillName) {
                 $skill = $sessions->first()->exam->skill;
-                $maxLevel = $sessions->max(function($session) {
+                $maxLevel = $sessions->max(function ($session) {
                     return $session->exam->target_level;
                 });
-                
+
                 return [
                     'skill' => $skill,
                     'current_level' => $maxLevel,
                     'certificates_count' => $sessions->count(),
                     'latest_date' => $sessions->max('verified_at'),
-                    'sessions' => $sessions
+                    'sessions' => $sessions,
                 ];
             });
 

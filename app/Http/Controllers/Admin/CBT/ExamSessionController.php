@@ -13,7 +13,6 @@ use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\ManagerAssessment;
 use App\Models\Question;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +21,7 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * ExamSessionController
- * 
+ *
  * Admin controller for managing CBT Exam Sessions.
  * Handles: assigning exams to employees, verification, results.
  */
@@ -69,9 +68,10 @@ class ExamSessionController extends Controller
             ->selectRaw('COUNT(*) as total_questions')
             ->groupBy('question_set_id', 'set_title', 'skill_id', 'for_level')
             ->get()
-            ->map(function($set) {
+            ->map(function ($set) {
                 // Load skill for division info
                 $set->skill = \App\Models\Skill::with('division')->find($set->skill_id);
+
                 return $set;
             });
 
@@ -122,9 +122,9 @@ class ExamSessionController extends Controller
                 ->distinct()
                 ->pluck('set_title')
                 ->toArray();
-            
-            $examTitle = count($setTitles) === 1 
-                ? $setTitles[0] 
+
+            $examTitle = count($setTitles) === 1
+                ? $setTitles[0]
                 : implode(' + ', $setTitles);
 
             // Get target level from question level (for_level)
@@ -137,7 +137,7 @@ class ExamSessionController extends Controller
             $exam = Exam::create([
                 'skill_id' => $skillId,
                 'title' => $examTitle,
-                'description' => 'Ujian dibuat otomatis dari Sesi Ujian (' . count($validated['question_set_ids']) . ' set soal)',
+                'description' => 'Ujian dibuat otomatis dari Sesi Ujian ('.count($validated['question_set_ids']).' set soal)',
                 'target_level' => $targetLevel,
                 'passing_score' => $validated['passing_score'],
                 'duration_minutes' => $validated['duration_minutes'],
@@ -164,13 +164,14 @@ class ExamSessionController extends Controller
                 // Get employee with competencies
                 $employee = Employee::with('competencies')->where('nik', $nik)->first();
 
-                if (!$employee) {
+                if (! $employee) {
                     $skippedList[] = [
-                        'name' => 'NIK: ' . $nik,
+                        'name' => 'NIK: '.$nik,
                         'nik' => $nik,
-                        'reason' => 'Karyawan tidak ditemukan'
+                        'reason' => 'Karyawan tidak ditemukan',
                     ];
                     $skipped++;
+
                     continue;
                 }
 
@@ -188,8 +189,9 @@ class ExamSessionController extends Controller
                         'nik' => $employee->nik,
                         'current_level' => $currentLevel,
                         'required_level' => $requiredLevel,
-                        'target_level' => $targetLevel
+                        'target_level' => $targetLevel,
                     ];
+
                     continue;
                 }
 
@@ -198,7 +200,7 @@ class ExamSessionController extends Controller
                     ->where('employee_nik', $nik)
                     ->whereIn('status', [
                         ExamSession::STATUS_ASSIGNED,
-                        ExamSession::STATUS_STARTED
+                        ExamSession::STATUS_STARTED,
                     ])
                     ->exists();
 
@@ -206,9 +208,10 @@ class ExamSessionController extends Controller
                     $skippedList[] = [
                         'name' => $employee->name,
                         'nik' => $employee->nik,
-                        'reason' => 'Sudah memiliki sesi ujian aktif'
+                        'reason' => 'Sudah memiliki sesi ujian aktif',
                     ];
                     $skipped++;
+
                     continue;
                 }
 
@@ -253,9 +256,10 @@ class ExamSessionController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()
                 ->withInput()
-                ->with('error', 'Gagal membuat ujian: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat ujian: '.$e->getMessage());
         }
     }
 
@@ -265,6 +269,7 @@ class ExamSessionController extends Controller
     public function edit(ExamSession $session)
     {
         $session->load(['exam.skill', 'employee.division']);
+
         return response()->json([
             'id' => $session->id,
             'employee_name' => $session->employee->name ?? $session->employee_nik,
@@ -282,32 +287,32 @@ class ExamSessionController extends Controller
      */
     public function update(Request $request, ExamSession $session)
     {
-        if (!in_array($session->status, [ExamSession::STATUS_ASSIGNED, ExamSession::STATUS_STARTED])) {
+        if (! in_array($session->status, [ExamSession::STATUS_ASSIGNED, ExamSession::STATUS_STARTED])) {
             return back()->with('error', 'Sesi yang sudah selesai atau diverifikasi tidak dapat diedit!');
         }
 
         $validated = $request->validate([
-            'deadline_at'      => 'required|date',
-            'passing_score'    => 'required|integer|min:0|max:100',
+            'deadline_at' => 'required|date',
+            'passing_score' => 'required|integer|min:0|max:100',
             'duration_minutes' => 'required|integer|min:5|max:300',
         ]);
 
         $deadline = Carbon::parse($validated['deadline_at']);
 
         // Read directly from request to avoid nullable validator converting empty -> null
-        $schedStartRaw  = $request->input('scheduled_start_at');
-        $scheduledStart = !empty($schedStartRaw) ? Carbon::parse($schedStartRaw) : null;
+        $schedStartRaw = $request->input('scheduled_start_at');
+        $scheduledStart = ! empty($schedStartRaw) ? Carbon::parse($schedStartRaw) : null;
 
         DB::table('exam_sessions')->where('id', $session->id)->update([
-            'deadline_at'        => $deadline->toDateTimeString(),
+            'deadline_at' => $deadline->toDateTimeString(),
             'scheduled_start_at' => $scheduledStart?->toDateTimeString(),
-            'updated_at'         => now()->toDateTimeString(),
+            'updated_at' => now()->toDateTimeString(),
         ]);
 
         DB::table('exams')->where('id', $session->exam_id)->update([
-            'passing_score'    => $validated['passing_score'],
+            'passing_score' => $validated['passing_score'],
             'duration_minutes' => $validated['duration_minutes'],
-            'updated_at'       => now()->toDateTimeString(),
+            'updated_at' => now()->toDateTimeString(),
         ]);
 
         return back()->with('success', 'Pengaturan sesi ujian berhasil diperbarui!');
@@ -320,7 +325,7 @@ class ExamSessionController extends Controller
     {
         $session->load([
             'exam.skill',
-            'exam.questions' => fn($q) => $q->orderBy('exam_question.order'),
+            'exam.questions' => fn ($q) => $q->orderBy('exam_question.order'),
             'employee.division',
             'employee.position',
             'answers.question',
@@ -342,7 +347,7 @@ class ExamSessionController extends Controller
             'essay_score_*' => 'nullable|integer|min:0',
         ]);
 
-        if (!in_array($session->status, [ExamSession::STATUS_SUBMITTED])) {
+        if (! in_array($session->status, [ExamSession::STATUS_SUBMITTED])) {
             return back()->with('error', 'Sesi ujian tidak dalam status yang dapat diverifikasi!');
         }
 
@@ -356,7 +361,7 @@ class ExamSessionController extends Controller
                     $answer = ExamAnswer::where('exam_session_id', $session->id)
                         ->where('question_id', $questionId)
                         ->first();
-                    
+
                     if ($answer && $value !== null) {
                         $question = $session->exam->questions->find($questionId);
                         $maxScore = (int) ($question?->pivot->weight ?? 0);
@@ -381,8 +386,8 @@ class ExamSessionController extends Controller
 
             if ($validated['action'] === 'approve') {
                 $session->update([
-                    'status' => $passed 
-                        ? ExamSession::STATUS_VERIFIED_PASS 
+                    'status' => $passed
+                        ? ExamSession::STATUS_VERIFIED_PASS
                         : ExamSession::STATUS_VERIFIED_FAIL,
                     'verified_by' => Auth::id(),
                     'verified_at' => now(),
@@ -407,11 +412,13 @@ class ExamSessionController extends Controller
             DashboardStatsUpdated::dispatch();
 
             $statusText = $passed ? 'LULUS' : 'TIDAK LULUS';
+
             return back()->with('success', "Sesi ujian berhasil diverifikasi: {$statusText}");
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal memverifikasi: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal memverifikasi: '.$e->getMessage());
         }
     }
 
@@ -473,7 +480,7 @@ class ExamSessionController extends Controller
      */
     public function cancel(ExamSession $session)
     {
-        if (!in_array($session->status, [ExamSession::STATUS_ASSIGNED])) {
+        if (! in_array($session->status, [ExamSession::STATUS_ASSIGNED])) {
             return back()->with('error', 'Hanya sesi dengan status "Ditugaskan" yang dapat dibatalkan!');
         }
 
@@ -508,9 +515,9 @@ class ExamSessionController extends Controller
         ]);
 
         $employees = Employee::where('division_id', $validated['division_id'])
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->where('employment_status', 'active')
-                  ->orWhere('status', 'active');
+                    ->orWhere('status', 'active');
             })
             ->pluck('nik')
             ->toArray();
@@ -521,6 +528,7 @@ class ExamSessionController extends Controller
 
         // Reuse store logic
         $request->merge(['employee_niks' => $employees]);
+
         return $this->store($request);
     }
 
@@ -554,7 +562,7 @@ class ExamSessionController extends Controller
                 ->where('status', ExamSession::STATUS_VERIFIED_PASS)
                 ->where(function ($q) {
                     $q->where('manager_decision', ExamSession::DECISION_PENDING)
-                      ->orWhereNull('manager_decision');
+                        ->orWhereNull('manager_decision');
                 })
                 ->latest('verified_at')
                 ->paginate(20);
@@ -576,7 +584,7 @@ class ExamSessionController extends Controller
      */
     public function qualitativeAssessment(ExamSession $session)
     {
-        if (!$session->isPendingManagerApproval()) {
+        if (! $session->isPendingManagerApproval()) {
             return redirect()->route('cbt.admin.sessions.pending-approval')
                 ->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
         }
@@ -600,11 +608,15 @@ class ExamSessionController extends Controller
      */
     public function approveLevel(Request $request, ExamSession $session)
     {
-        $validated = $request->validate([
-            'manager_notes' => 'nullable|string|max:1000',
-        ]);
+        $tidakMemenuhiCount = $this->countTidakMemenuhi($request);
 
-        if (!$session->isPendingManagerApproval()) {
+        $rules = [
+            'manager_notes' => $tidakMemenuhiCount > 0 ? 'required|string|max:1000' : 'nullable|string|max:1000',
+        ];
+
+        $validated = $request->validate($rules);
+
+        if (! $session->isPendingManagerApproval()) {
             return back()->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
         }
 
@@ -627,12 +639,30 @@ class ExamSessionController extends Controller
             DB::commit();
             SessionStatusUpdated::dispatch($session->fresh(), 'approved');
             DashboardStatsUpdated::dispatch();
+
             return redirect()->route('cbt.admin.sessions.pending-approval')
                 ->with('success', "Kenaikan level karyawan {$session->employee->name} telah DISETUJUI.");
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal menyetujui: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal menyetujui: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Count how many criteria have 'tidak_memenuhi' value.
+     */
+    private function countTidakMemenuhi(Request $request): int
+    {
+        $fields = ['sop_understanding', 'competency_application', 'independence', 'problem_solving', 'readiness'];
+        $count = 0;
+        foreach ($fields as $field) {
+            if ($request->input($field) === 'tidak_memenuhi') {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     /**
@@ -644,7 +674,7 @@ class ExamSessionController extends Controller
             'manager_notes' => 'required|string|max:1000',
         ]);
 
-        if (!$session->isPendingManagerApproval()) {
+        if (! $session->isPendingManagerApproval()) {
             return back()->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
         }
 
@@ -682,7 +712,7 @@ class ExamSessionController extends Controller
         ];
 
         $hasAssessmentData = $request->hasAny(array_keys($assessmentRules));
-        if (!$hasAssessmentData) {
+        if (! $hasAssessmentData) {
             return null;
         }
 
