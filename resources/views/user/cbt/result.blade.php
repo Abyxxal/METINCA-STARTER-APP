@@ -36,6 +36,11 @@
                             <i class="bi bi-check-circle-fill"></i> LULUS & DISETUJUI
                         </h2>
                         <p class="text-muted">Selamat! Anda telah lulus ujian ini dan kenaikan level telah disetujui oleh Manager.</p>
+                        @if($session->manager_notes)
+                            <div class="alert alert-success mt-3">
+                                <i class="bi bi-chat-left-text"></i> <strong>Catatan Manager:</strong> {{ $session->manager_notes }}
+                            </div>
+                        @endif
                     @elseif($session->status === 'verified_pass')
                         <div class="mb-4">
                             <i class="bi bi-hourglass-split display-1 text-primary"></i>
