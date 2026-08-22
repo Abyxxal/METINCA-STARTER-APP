@@ -69,7 +69,7 @@
                                 </td>
                                 <td>{{ $exam->duration_minutes }} menit</td>
                                 <td>
-                                    <span class="badge bg-primary">{{ $exam->questions_count }} soal</span>
+                                    <span class="badge bg-primary">{{ $exam->exam_questions_count }} soal</span>
                                 </td>
                                 <td>
                                     @if($exam->is_published)

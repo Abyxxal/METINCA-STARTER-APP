@@ -89,12 +89,12 @@
             @if($session->status !== 'assigned')
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Jawaban ({{ $session->answers->count() }} / {{ $session->exam->questions->count() }})</h4>
+                        <h4 class="card-title">Jawaban ({{ $session->answers->count() }} / {{ $session->exam->examQuestions->count() }})</h4>
                     </div>
                     <div class="card-body">
-                        @forelse($session->exam->questions as $i => $question)
+                        @forelse($session->exam->examQuestions as $i => $question)
                             @php
-                                $answer = $session->answers->where('question_id', $question->id)->first();
+                                $answer = $session->answers->where('question_id', $question->question_id)->first();
                             @endphp
                             <div class="mb-4 p-3 border rounded {{ $question->type === 'essay' ? ($answer?->score_earned > 0 ? 'border-success bg-light' : 'border-secondary') : ($answer?->is_correct ? 'border-success bg-light' : ($answer ? 'border-danger' : 'border-secondary')) }}">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -134,7 +134,7 @@
                                                 </div>
                                                 
                                                 @php
-                                                    $bobot = $question->pivot?->weight ?? 0;
+                                                    $bobot = $question->weight ?? 0;
                                                 @endphp
 
                                                 @if($session->status === 'submitted')
@@ -149,10 +149,10 @@
                                                                 <input type="number" 
                                                                     class="form-control" 
                                                                     style="width: 120px;"
-                                                                    name="essay_score_{{ $question->id }}" 
-                                                                    id="score_{{ $question->id }}"
+                                                                    name="essay_score_{{ $question->question_id }}" 
+                                                                    id="score_{{ $question->question_id }}"
                                                                     min="0" max="{{ $bobot }}"
-                                                                    value="{{ old('essay_score_' . $question->id, $answer?->score_earned ?? 0) }}"
+                                                                    value="{{ old('essay_score_' . $question->question_id, $answer?->score_earned ?? 0) }}"
                                                                     required>
                                                             </div>
                                                             <div class="col-auto">
@@ -219,7 +219,7 @@
 
                     @if($session->score !== null)
                         <div class="display-4 fw-bold {{ $session->score >= $session->exam->passing_score ? 'text-success' : 'text-danger' }}">
-                            {{ $session->score }}
+                            {{ $session->formatted_score }}
                         </div>
                         <p class="text-muted">dari 100 (KKM: {{ $session->exam->passing_score }})</p>
                     @endif
@@ -295,7 +295,7 @@
                     <div class="card-body">
                         <div class="alert alert-info mb-3">
                             <strong>Hasil Penilaian Otomatis:</strong><br>
-                            Nilai: <strong class="fs-5">{{ $session->score }}%</strong> | 
+                            Nilai: <strong class="fs-5">{{ $session->formatted_score }}</strong> | 
                             KKM: <strong>{{ $session->exam->passing_score }}%</strong> | 
                             Status: <strong class="{{ $session->isPassed() ? 'text-success' : 'text-danger' }}">
                                 {{ $session->isPassed() ? '✓ LULUS' : '✗ TIDAK LULUS' }}
@@ -332,7 +332,7 @@
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info mb-3">
-                            <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->score }}%</strong>.<br>
+                                        <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->formatted_score }}</strong>.<br>
                             Skill <strong>{{ $session->exam->skill->name ?? '-' }}</strong> akan dinaikkan ke <strong>Level {{ $session->exam->target_level }}</strong>.
                         </div>
 
@@ -363,7 +363,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="alert alert-info mb-3">
-                                        <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->score }}%</strong>.<br>
+                            <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->formatted_score }}</strong>.<br>
                                         Skill <strong>{{ $session->exam->skill->name ?? '-' }}</strong> akan dinaikkan ke <strong>Level {{ $session->exam->target_level }}</strong>.
                                     </div>
                                     <div class="mb-3">
@@ -392,7 +392,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="alert alert-warning mb-3">
-                                        <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->score }}%</strong>,
+                                        <strong>{{ $session->employee->name }}</strong> lulus ujian dengan nilai <strong>{{ $session->formatted_score }}</strong>,
                                         namun level <strong>TIDAK</strong> akan dinaikkan.
                                     </div>
                                     <div class="mb-3">

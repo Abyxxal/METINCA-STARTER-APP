@@ -5,12 +5,12 @@ namespace App\Services;
 use App\Models\Exam;
 use App\Models\ExamSession;
 use App\Models\Question;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * ExamService
- * 
+ *
  * Service layer untuk business logic terkait Exam dan ExamSession
  */
 class ExamService
@@ -34,16 +34,14 @@ class ExamService
 
             // Attach questions if provided
             if (isset($data['questions']) && is_array($data['questions'])) {
-                foreach ($data['questions'] as $index => $questionId) {
-                    $exam->questions()->attach($questionId, ['order' => $index + 1]);
-                }
+                $exam->attachQuestionsWithSnapshot($data['questions']);
             }
 
             DB::commit();
-            
+
             // Clear cache
             Cache::forget('active_exams');
-            
+
             return $exam;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -70,17 +68,14 @@ class ExamService
 
             // Update questions if provided
             if (isset($data['questions']) && is_array($data['questions'])) {
-                $exam->questions()->detach();
-                foreach ($data['questions'] as $index => $questionId) {
-                    $exam->questions()->attach($questionId, ['order' => $index + 1]);
-                }
+                $exam->syncQuestionsWithSnapshot($data['questions']);
             }
 
             DB::commit();
-            
+
             // Clear cache
             Cache::forget('active_exams');
-            
+
             return $exam->fresh();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -102,12 +97,12 @@ class ExamService
         try {
             $exam->questions()->detach();
             $exam->delete();
-            
+
             DB::commit();
-            
+
             // Clear cache
             Cache::forget('active_exams');
-            
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -123,7 +118,7 @@ class ExamService
         DB::beginTransaction();
         try {
             $sessions = [];
-            
+
             foreach ($employeeNiks as $nik) {
                 $session = ExamSession::create([
                     'exam_id' => $exam->id,
@@ -134,7 +129,7 @@ class ExamService
             }
 
             DB::commit();
-            
+
             return $sessions;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -148,15 +143,15 @@ class ExamService
     public function calculateScore(ExamSession $session)
     {
         $answers = json_decode($session->answers, true) ?? [];
-        $questions = $session->exam->questions;
-        
+        $questions = $session->exam->examQuestions;
+
         if ($questions->count() === 0) {
             return ['score' => 0, 'correct' => 0, 'total' => 0];
         }
 
         $correctCount = 0;
         foreach ($questions as $question) {
-            $userAnswer = $answers[$question->id] ?? null;
+            $userAnswer = $answers[$question->question_id] ?? null;
             if ($userAnswer === $question->correct_answer) {
                 $correctCount++;
             }
@@ -167,7 +162,7 @@ class ExamService
         return [
             'score' => round($score, 2),
             'correct' => $correctCount,
-            'total' => $questions->count()
+            'total' => $questions->count(),
         ];
     }
 
@@ -192,7 +187,7 @@ class ExamService
 
             return [
                 'session' => $session,
-                'result' => $result
+                'result' => $result,
             ];
         } catch (\Exception $e) {
             DB::rollBack();
@@ -205,7 +200,7 @@ class ExamService
      */
     public function verifyExamSession(ExamSession $session, int $verifierId, string $status, ?string $notes = null)
     {
-        if (!in_array($status, ['verified_pass', 'verified_fail'])) {
+        if (! in_array($status, ['verified_pass', 'verified_fail'])) {
             throw new \Exception('Status harus verified_pass atau verified_fail');
         }
 
@@ -236,7 +231,7 @@ class ExamService
      */
     private function updateEmployeeCompetency(ExamSession $session)
     {
-        $employeeCompetencyService = new EmployeeCompetencyService();
+        $employeeCompetencyService = new EmployeeCompetencyService;
         $employeeCompetencyService->updateLevel(
             $session->employee_nik,
             $session->exam->skill_id,
@@ -246,15 +241,15 @@ class ExamService
 
     /**
      * Get questions for employee exam (filtered by position)
-     * 
+     *
      * This method retrieves questions that are either:
      * - Universal (no position targeting)
      * - Targeted specifically for the employee's position
-     * 
-     * @param int $skillId The skill ID to filter questions
-     * @param int $forLevel The competency level (1-4)
-     * @param int|null $employeePositionId The employee's position ID (optional)
-     * @param int $limit Maximum number of questions to retrieve
+     *
+     * @param  int  $skillId  The skill ID to filter questions
+     * @param  int  $forLevel  The competency level (1-4)
+     * @param  int|null  $employeePositionId  The employee's position ID (optional)
+     * @param  int  $limit  Maximum number of questions to retrieve
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getQuestionsForEmployee($skillId, $forLevel, $employeePositionId = null, $limit = 10)
@@ -265,13 +260,13 @@ class ExamService
 
         // Filter by position if provided
         if ($employeePositionId) {
-            $query->where(function($q) use ($employeePositionId) {
+            $query->where(function ($q) use ($employeePositionId) {
                 // Get universal questions (no position records)
                 $q->whereDoesntHave('positions')
                   // OR questions targeted for this position
-                  ->orWhereHas('positions', function($q2) use ($employeePositionId) {
-                      $q2->where('position_id', $employeePositionId);
-                  });
+                    ->orWhereHas('positions', function ($q2) use ($employeePositionId) {
+                        $q2->where('position_id', $employeePositionId);
+                    });
             });
         } else {
             // If no position provided, only get universal questions

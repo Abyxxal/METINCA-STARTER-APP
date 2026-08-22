@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin\CBT;
 
-use App\Http\Controllers\Controller;
 use App\Events\DashboardStatsUpdated;
+use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\Question;
 use App\Models\Skill;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * ExamController
- * 
+ *
  * Admin controller for managing CBT Exams.
  * Handles CRUD operations for exams and question assignment.
  */
@@ -24,12 +24,12 @@ class ExamController extends Controller
      */
     public function index()
     {
-        $exams = Exam::with(['skill', 'questions'])
-            ->withCount('questions')
+        $exams = Exam::with(['skill', 'examQuestions'])
+            ->withCount('examQuestions')
             ->latest()
             ->get();
 
-        $skills = Cache::remember('active_skills', 3600, function() {
+        $skills = Cache::remember('active_skills', 3600, function () {
             return Skill::where('is_active', true)->get();
         });
 
@@ -42,7 +42,7 @@ class ExamController extends Controller
     public function create()
     {
         $divisions = \App\Models\Division::all();
-        
+
         // Get question sets grouped by skill_id
         $questionSets = Question::select('question_set_id', 'set_title', 'skill_id', 'for_level', 'status')
             ->selectRaw('COUNT(*) as question_count')
@@ -72,6 +72,19 @@ class ExamController extends Controller
             'questions.*.id' => 'exists:questions,id',
         ]);
 
+        // Ujian tidak boleh mencampur esai dengan PG / benar-salah
+        if (! empty($validated['questions'])) {
+            $types = Question::whereIn('id', collect($validated['questions'])->pluck('id'))->pluck('type');
+            $hasEssay = $types->contains('essay');
+            $hasAuto = $types->contains(fn ($t) => in_array($t, ['multiple_choice', 'true_false']));
+
+            if ($hasEssay && $hasAuto) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Ujian tidak boleh mencampur soal esai dengan pilihan ganda / benar-salah.');
+            }
+        }
+
         DB::beginTransaction();
 
         try {
@@ -86,14 +99,10 @@ class ExamController extends Controller
             ]);
 
             // Attach questions (no weight, percentage-based scoring)
-            if (!empty($validated['questions'])) {
-                $order = 1;
-                foreach ($validated['questions'] as $questionData) {
-                    $exam->questions()->attach($questionData['id'], [
-                        'weight' => 1,
-                        'order' => $order++,
-                    ]);
-                }
+            if (! empty($validated['questions'])) {
+                $questionIds = collect($validated['questions'])->pluck('id')->all();
+                $weights = array_fill_keys($questionIds, 1);
+                $exam->attachQuestionsWithSnapshot($questionIds, $weights);
             }
 
             DB::commit();
@@ -106,9 +115,10 @@ class ExamController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()
                 ->withInput()
-                ->with('error', 'Gagal membuat ujian: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat ujian: '.$e->getMessage());
         }
     }
 
@@ -117,9 +127,7 @@ class ExamController extends Controller
      */
     public function show(Exam $exam)
     {
-        $exam->load(['skill', 'questions' => function ($query) {
-            $query->orderBy('exam_question.order');
-        }, 'sessions.employee']);
+        $exam->load(['skill', 'examQuestions', 'sessions.employee']);
 
         return view('admin.cbt.exams.show', compact('exam'));
     }
@@ -133,7 +141,7 @@ class ExamController extends Controller
             $query->orderBy('exam_question.order');
         }]);
 
-        $skills = Cache::remember('active_skills', 3600, function() {
+        $skills = Cache::remember('active_skills', 3600, function () {
             return Skill::where('is_active', true)->get();
         });
         $availableQuestions = Question::where('status', 'active')
@@ -174,15 +182,9 @@ class ExamController extends Controller
 
             // Sync questions (no weight, percentage-based scoring)
             if (isset($validated['questions'])) {
-                $syncData = [];
-                $order = 1;
-                foreach ($validated['questions'] as $questionData) {
-                    $syncData[$questionData['id']] = [
-                        'weight' => 1,
-                        'order' => $order++,
-                    ];
-                }
-                $exam->questions()->sync($syncData);
+                $questionIds = collect($validated['questions'])->pluck('id')->all();
+                $weights = array_fill_keys($questionIds, 1);
+                $exam->syncQuestionsWithSnapshot($questionIds, $weights);
             }
 
             DB::commit();
@@ -195,9 +197,10 @@ class ExamController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()
                 ->withInput()
-                ->with('error', 'Gagal memperbarui ujian: ' . $e->getMessage());
+                ->with('error', 'Gagal memperbarui ujian: '.$e->getMessage());
         }
     }
 
@@ -226,26 +229,12 @@ class ExamController extends Controller
      */
     public function togglePublish(Exam $exam)
     {
-        $exam->update(['is_published' => !$exam->is_published]);
+        $exam->update(['is_published' => ! $exam->is_published]);
 
         DashboardStatsUpdated::dispatch();
 
         $status = $exam->is_published ? 'dipublikasikan' : 'di-unpublish';
+
         return back()->with('success', "Ujian berhasil {$status}!");
-    }
-
-    /**
-     * Get questions for a skill (AJAX).
-     */
-    public function getQuestionsBySkill(Request $request)
-    {
-        $questions = Question::where('skill_id', $request->skill_id)
-            ->where('status', 'active')
-            ->when($request->level, function ($query) use ($request) {
-                $query->where('for_level', '<=', $request->level);
-            })
-            ->get(['id', 'question_text', 'type', 'for_level']);
-
-        return response()->json($questions);
     }
 }

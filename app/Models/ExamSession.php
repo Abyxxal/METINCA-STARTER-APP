@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * ExamSession Model
- * 
+ *
  * Represents an individual exam attempt by an employee.
  * Tracks status, score, and verification workflow.
  */
@@ -50,17 +50,26 @@ class ExamSession extends Model
 
     // Status constants
     const STATUS_ASSIGNED = 'assigned';
+
     const STATUS_STARTED = 'started';
+
     const STATUS_SUBMITTED = 'submitted';
+
     const STATUS_VERIFIED_PASS = 'verified_pass';
+
     const STATUS_VERIFIED_FAIL = 'verified_fail';
+
     const STATUS_PENDING_APPROVAL = 'pending_approval';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_REJECTED = 'rejected';
 
     // Manager decision constants
     const DECISION_PENDING = 'pending';
+
     const DECISION_APPROVED = 'approved';
+
     const DECISION_REJECTED = 'rejected';
 
     // ============================================
@@ -192,11 +201,12 @@ class ExamSession extends Model
      */
     public function isTimeExpired(): bool
     {
-        if (!$this->started_at || !$this->exam) {
+        if (! $this->started_at || ! $this->exam) {
             return false;
         }
-        
+
         $endTime = $this->started_at->copy()->addMinutes($this->exam->duration_minutes);
+
         return now()->gt($endTime);
     }
 
@@ -213,14 +223,14 @@ class ExamSession extends Model
      */
     public function getRemainingTime(): int
     {
-        if (!$this->started_at || !$this->exam) {
+        if (! $this->started_at || ! $this->exam) {
             return 0;
         }
-        
+
         $endTime = $this->started_at->copy()->addMinutes($this->exam->duration_minutes);
         $remaining = now()->diffInSeconds($endTime, false);
-        
-        return max(0, (int)$remaining);
+
+        return max(0, (int) $remaining);
     }
 
     /**
@@ -237,6 +247,7 @@ class ExamSession extends Model
             self::STATUS_APPROVED => 'Lulus - Disetujui',
             self::STATUS_REJECTED => 'Lulus - Ditolak',
         ];
+
         return $labels[$this->status] ?? 'Unknown';
     }
 
@@ -254,22 +265,39 @@ class ExamSession extends Model
             self::STATUS_APPROVED => 'bg-success',
             self::STATUS_REJECTED => 'bg-dark',
         ];
+
         return $classes[$this->status] ?? 'bg-secondary';
     }
 
     /**
-     * Calculate final score using simple sum of score_earned.
+     * Calculate final score based on exam type (0-100).
      *
-     * - MC/TF correct: score_earned = weight (set by grade())
-     * - MC/TF wrong:   score_earned = 0
-     * - Essay:         score_earned = admin score (0 to question weight)
-     *
-     * Since total essay weight is designed to equal 100,
-     * the sum naturally falls in the 0–100 range.
+     * - Ujian PG/True-False: persentase benar = (benar ÷ jumlah soal) × 100,
+     *   dengan score_earned = 1 per jawaban benar dan 0 untuk salah.
+     * - Ujian Esai: jumlah nilai per soal (maksimal per soal = bobot),
+     *   total bobot esai dirancang 100 sehingga hasil langsung 0-100.
      */
     public function calculateScore(): int
     {
-        return (int) round($this->answers()->sum('score_earned'));
+        if (! $this->exam) {
+            return 0;
+        }
+
+        if ($this->hasEssayQuestions()) {
+            $earned = $this->answers()->sum('score_earned');
+
+            return (int) round($earned);
+        }
+
+        $totalQuestions = $this->exam->examQuestions()->count();
+
+        if ($totalQuestions === 0) {
+            return 0;
+        }
+
+        $correct = $this->answers()->where('is_correct', true)->count();
+
+        return (int) round(($correct / $totalQuestions) * 100);
     }
 
     /**
@@ -277,10 +305,10 @@ class ExamSession extends Model
      */
     public function isPassed(): bool
     {
-        if ($this->score === null || !$this->exam) {
+        if ($this->score === null || ! $this->exam) {
             return false;
         }
-        
+
         return $this->score >= $this->exam->passing_score;
     }
 
@@ -289,7 +317,7 @@ class ExamSession extends Model
      */
     public function isNotStartedYet(): bool
     {
-        if (!$this->scheduled_start_at) {
+        if (! $this->scheduled_start_at) {
             return false;
         }
 
@@ -301,7 +329,7 @@ class ExamSession extends Model
      */
     public function getFormattedScheduledStart(): string
     {
-        if (!$this->scheduled_start_at) {
+        if (! $this->scheduled_start_at) {
             return '-';
         }
 
@@ -313,10 +341,10 @@ class ExamSession extends Model
      */
     public function isDeadlinePassed(): bool
     {
-        if (!$this->deadline_at) {
+        if (! $this->deadline_at) {
             return false;
         }
-        
+
         return now()->isAfter($this->deadline_at);
     }
 
@@ -325,7 +353,7 @@ class ExamSession extends Model
      */
     public function getDeadlineStatus(): array
     {
-        if (!$this->deadline_at) {
+        if (! $this->deadline_at) {
             return ['label' => '', 'class' => ''];
         }
 
@@ -334,7 +362,7 @@ class ExamSession extends Model
         }
 
         $hoursRemaining = now()->diffInHours($this->deadline_at, false);
-        
+
         if ($hoursRemaining <= 24) {
             return ['label' => 'Deadline < 24 jam', 'class' => 'warning'];
         }
@@ -347,7 +375,7 @@ class ExamSession extends Model
      */
     public function getFormattedDeadline(): string
     {
-        if (!$this->deadline_at) {
+        if (! $this->deadline_at) {
             return '-';
         }
 
@@ -388,18 +416,33 @@ class ExamSession extends Model
      */
     public function getExamType(): string
     {
-        if (!$this->exam || !$this->exam->questions->count()) {
+        if (! $this->exam || ! $this->exam->examQuestions->count()) {
             return 'pilihan_ganda';
         }
 
-        $hasMc = $this->exam->questions->contains(fn($q) => in_array($q->type, ['multiple_choice', 'true_false']));
-        $hasEssay = $this->exam->questions->contains(fn($q) => $q->type === 'essay');
+        $hasMc = $this->exam->examQuestions->contains(fn ($q) => in_array($q->type, ['multiple_choice', 'true_false']));
+        $hasEssay = $this->exam->examQuestions->contains(fn ($q) => $q->type === 'essay');
 
         if ($hasMc && $hasEssay) {
             return 'campuran';
         }
 
         return $hasEssay ? 'esai' : 'pilihan_ganda';
+    }
+
+    /**
+     * Get score formatted for display.
+     *
+     * - Ujian PG/True-False: nilai persentase, ditampilkan dengan tanda "%".
+     * - Ujian Esai: jumlah poin (total bobot 100), ditampilkan tanpa tanda "%".
+     */
+    public function getFormattedScoreAttribute(): string
+    {
+        if ($this->score === null) {
+            return '-';
+        }
+
+        return $this->hasEssayQuestions() ? (string) $this->score : $this->score.'%';
     }
 
     /**
@@ -421,9 +464,11 @@ class ExamSession extends Model
      */
     public function getMcScore(): int
     {
-        return (int) $this->answers()->whereHas('question', function ($q) {
-            $q->whereIn('type', ['multiple_choice', 'true_false']);
-        })->sum('score_earned');
+        $questionIds = $this->exam
+            ? $this->exam->examQuestions()->whereIn('type', ['multiple_choice', 'true_false'])->pluck('question_id')
+            : collect();
+
+        return (int) $this->answers()->whereIn('question_id', $questionIds)->sum('score_earned');
     }
 
     /**
@@ -431,9 +476,11 @@ class ExamSession extends Model
      */
     public function getEssayScore(): int
     {
-        return (int) $this->answers()->whereHas('question', function ($q) {
-            $q->where('type', 'essay');
-        })->sum('score_earned');
+        $questionIds = $this->exam
+            ? $this->exam->examQuestions()->where('type', 'essay')->pluck('question_id')
+            : collect();
+
+        return (int) $this->answers()->whereIn('question_id', $questionIds)->sum('score_earned');
     }
 
     /**
@@ -441,13 +488,13 @@ class ExamSession extends Model
      */
     public function getMcTotalWeight(): int
     {
-        if (!$this->exam) {
+        if (! $this->exam) {
             return 0;
         }
 
-        return (int) $this->exam->questions()
+        return (int) $this->exam->examQuestions()
             ->whereIn('type', ['multiple_choice', 'true_false'])
-            ->sum('exam_question.weight');
+            ->sum('weight');
     }
 
     /**
@@ -455,13 +502,13 @@ class ExamSession extends Model
      */
     public function getEssayTotalWeight(): int
     {
-        if (!$this->exam) {
+        if (! $this->exam) {
             return 0;
         }
 
-        return (int) $this->exam->questions()
+        return (int) $this->exam->examQuestions()
             ->where('type', 'essay')
-            ->sum('exam_question.weight');
+            ->sum('weight');
     }
 
     /**
@@ -469,11 +516,11 @@ class ExamSession extends Model
      */
     public function hasMcQuestions(): bool
     {
-        if (!$this->exam) {
+        if (! $this->exam) {
             return false;
         }
 
-        return $this->exam->questions->contains(fn($q) => in_array($q->type, ['multiple_choice', 'true_false']));
+        return $this->exam->examQuestions->contains(fn ($q) => in_array($q->type, ['multiple_choice', 'true_false']));
     }
 
     /**
@@ -481,11 +528,11 @@ class ExamSession extends Model
      */
     public function hasEssayQuestions(): bool
     {
-        if (!$this->exam) {
+        if (! $this->exam) {
             return false;
         }
 
-        return $this->exam->questions->contains(fn($q) => $q->type === 'essay');
+        return $this->exam->examQuestions->contains(fn ($q) => $q->type === 'essay');
     }
 
     /**

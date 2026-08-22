@@ -17,6 +17,7 @@ class ManagerAssessment extends Model
         'independence',
         'problem_solving',
         'readiness',
+        'qualitative_score',
         'verification_date',
         'manager_notes',
         'created_by',
@@ -24,6 +25,7 @@ class ManagerAssessment extends Model
 
     protected $casts = [
         'verification_date' => 'date',
+        'qualitative_score' => 'integer',
     ];
 
     const METHOD_INTERVIEW = 'interview';
@@ -33,6 +35,26 @@ class ManagerAssessment extends Model
     const STATUS_MEMENUHI = 'memenuhi';
     const STATUS_PERLU_PERBAIKAN = 'perlu_perbaikan';
     const STATUS_TIDAK_MEMENUHI = 'tidak_memenuhi';
+
+    const WEIGHT_MEMENUHI = 2;
+    const WEIGHT_PERLU_PERBAIKAN = 1;
+    const WEIGHT_TIDAK_MEMENUHI = 0;
+    const MIN_APPROVAL_SCORE = 7;
+
+    const CRITERIA_FIELDS = [
+        'sop_understanding',
+        'competency_application',
+        'independence',
+        'problem_solving',
+        'readiness',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $assessment) {
+            $assessment->qualitative_score = static::scoreFrom($assessment->only(self::CRITERIA_FIELDS));
+        });
+    }
 
     public static $methodLabels = [
         'interview' => 'Wawancara Kompetensi',
@@ -68,6 +90,35 @@ class ManagerAssessment extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Hitung skor kualitatif dari nilai 5 kriteria (0-10).
+     */
+    public static function scoreFrom(array $values): int
+    {
+        $weights = [
+            self::STATUS_MEMENUHI => self::WEIGHT_MEMENUHI,
+            self::STATUS_PERLU_PERBAIKAN => self::WEIGHT_PERLU_PERBAIKAN,
+            self::STATUS_TIDAK_MEMENUHI => self::WEIGHT_TIDAK_MEMENUHI,
+        ];
+
+        $score = 0;
+
+        foreach (self::CRITERIA_FIELDS as $field) {
+            $score += $weights[$values[$field] ?? ''] ?? 0;
+        }
+
+        return $score;
+    }
+
+    public function getQualitativeScore(): int
+    {
+        if ($this->qualitative_score !== null) {
+            return (int) $this->qualitative_score;
+        }
+
+        return static::scoreFrom($this->only(self::CRITERIA_FIELDS));
     }
 
     public function getOverallResult(): string

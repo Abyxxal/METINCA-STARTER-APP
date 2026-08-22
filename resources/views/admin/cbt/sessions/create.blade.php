@@ -3,6 +3,14 @@
 @section('title', 'Tugaskan Ujian')
 
 @section('content')
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
 <div class="page-heading">
     <div class="page-title">
         <div class="row">
@@ -146,6 +154,11 @@
                             </table>
                         </div>
                     </div>
+                </div>
+
+                <div id="peringatanTipe" class="alert alert-warning d-none" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Set soal dengan tipe berbeda (pilihan ganda / benar-salah dan essay) tidak bisa digabung dalam satu ujian. Hapus salah satu tipe set.
                 </div>
 
                 <div class="card">
@@ -366,6 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             updateCounts();
+            checkSetTypeWarning();
         });
     }
 
@@ -375,7 +389,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 cb.checked = false;
             });
             updateCounts();
+            checkSetTypeWarning();
         });
+    }
+
+    // ============================================
+    // WARNING SET TIPE CAMPURAN
+    // ============================================
+    function checkSetTypeWarning() {
+        const types = new Set();
+        document.querySelectorAll('.question-checkbox:checked').forEach(cb => {
+            const row = cb.closest('tr');
+            if (row && row.dataset.type) types.add(row.dataset.type);
+        });
+        const hasEssay = types.has('essay');
+        const hasAuto = types.has('multiple_choice') || types.has('true_false');
+        const warning = document.getElementById('peringatanTipe');
+        if (warning) warning.classList.toggle('d-none', !(hasEssay && hasAuto));
     }
 
     // ============================================
@@ -462,10 +492,14 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.classList.contains('question-checkbox')) {
             updateCounts();
         }
+        if (e.target.classList.contains('question-checkbox')) {
+            checkSetTypeWarning();
+        }
     });
 
     // Initial count on page load
     updateCounts();
+    checkSetTypeWarning();
 
     // ============================================
     // FORM VALIDATION

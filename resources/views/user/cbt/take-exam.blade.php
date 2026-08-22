@@ -37,6 +37,12 @@
 @endpush
 
 @section('content')
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 <div class="page-heading">
     <div class="page-title">
         <div class="row align-items-center">
@@ -234,6 +240,7 @@ Pastikan jawaban Anda mencakup:
 <script>
     let currentQuestion = 0;
     const totalQuestions = {{ $session->exam->questions->count() }};
+    const questionIds = {{ json_encode($session->exam->questions->pluck('id')->toArray()) }};
     let remainingSeconds = {{ $session->getRemainingTime() }};
     const sessionId = {{ $session->id }};
     const answeredQuestions = new Set([
@@ -246,6 +253,8 @@ Pastikan jawaban Anda mencakup:
     function updateTimer() {
         if (remainingSeconds <= 0) {
             document.getElementById('timer').textContent = '00:00';
+            // Auto-submit saat waktu habis: tanpa validasi kelengkapan jawaban.
+            collectAnswersIntoForm();
             alert('Waktu habis! Ujian akan dikirim otomatis.');
             document.getElementById('submitForm').submit();
             return;
@@ -354,55 +363,70 @@ Pastikan jawaban Anda mencakup:
         document.getElementById('answered-count').textContent = answeredQuestions.size;
     }
 
+    // Masukkan semua jawaban yang terisi dari DOM ke form sebagai input tersembunyi.
+    // Dipakai untuk submit manual maupun auto-submit saat waktu habis.
+    function collectAnswersIntoForm() {
+        const form = document.getElementById('submitForm');
+
+        // Clear existing hidden inputs (if any)
+        form.querySelectorAll('input[type="hidden"]').forEach(input => {
+            if (input.name.startsWith('answers[')) {
+                input.remove();
+            }
+        });
+
+        questionIds.forEach(questionId => {
+            let selectedValue = null;
+
+            // Check for multiple choice or true/false (radio buttons)
+            const radioButton = document.querySelector(`input[name="answer_${questionId}"]:checked`);
+            if (radioButton) {
+                selectedValue = radioButton.value;
+            }
+
+            // Check for essay (textarea)
+            const essayField = document.querySelector(`textarea[name="answer_${questionId}"]`);
+            if (essayField) {
+                selectedValue = essayField.value;
+            }
+
+            // Add to form if answer exists (textarea kosong tidak dianggap jawaban)
+            if (selectedValue !== null && selectedValue.trim() !== '') {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `answers[${questionId}]`;
+                hiddenInput.value = selectedValue;
+                form.appendChild(hiddenInput);
+            }
+        });
+    }
+
     function confirmSubmit() {
-        const unanswered = totalQuestions - answeredQuestions.size;
-        let message = 'Apakah Anda yakin ingin menyelesaikan ujian?';
-        
-        if (unanswered > 0) {
-            message = 'Masih ada ' + unanswered + ' soal yang belum dijawab. Yakin ingin menyelesaikan ujian?';
+        // Hitung jawaban terisi langsung dari DOM (akurat setelah reload).
+        let filledCount = 0;
+        questionIds.forEach(questionId => {
+            const radioButton = document.querySelector(`input[name="answer_${questionId}"]:checked`);
+            const essayField = document.querySelector(`textarea[name="answer_${questionId}"]`);
+            if (radioButton || (essayField && essayField.value.trim() !== '')) {
+                filledCount++;
+            }
+        });
+
+        const unanswered = totalQuestions - filledCount;
+
+        // Saat waktu masih berjalan, semua soal wajib dijawab.
+        if (unanswered > 0 && remainingSeconds > 0) {
+            alert('Masih ada ' + unanswered + ' soal yang belum dijawab. Semua soal wajib dijawab sebelum mengirim.');
+            return;
         }
 
+        const message = unanswered > 0
+            ? 'Waktu sudah habis, ' + unanswered + ' soal yang belum dijawab akan dianggap 0. Yakin ingin mengirim?'
+            : 'Apakah Anda yakin ingin menyelesaikan ujian?';
+
         if (confirm(message)) {
-            // Collect all answers from radio/textarea inputs and add to form
-            const form = document.getElementById('submitForm');
-            
-            // Clear existing hidden inputs (if any)
-            form.querySelectorAll('input[type="hidden"]').forEach(input => {
-                if (input.name.startsWith('answers[')) {
-                    input.remove();
-                }
-            });
-            
-            // Add all selected answers as hidden inputs
-            const questionIds = {{ json_encode($session->exam->questions->pluck('id')->toArray()) }};
-            
-            questionIds.forEach(questionId => {
-                let selectedValue = null;
-                
-                // Check for multiple choice or true/false (radio buttons)
-                const radioButton = document.querySelector(`input[name="answer_${questionId}"]:checked`);
-                if (radioButton) {
-                    selectedValue = radioButton.value;
-                }
-                
-                // Check for essay (textarea)
-                const essayField = document.querySelector(`textarea[name="answer_${questionId}"]`);
-                if (essayField) {
-                    selectedValue = essayField.value;
-                }
-                
-                // Add to form if answer exists
-                if (selectedValue !== null && selectedValue !== '') {
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = `answers[${questionId}]`;
-                    hiddenInput.value = selectedValue;
-                    form.appendChild(hiddenInput);
-                }
-            });
-            
-            // Submit the form
-            form.submit();
+            collectAnswersIntoForm();
+            document.getElementById('submitForm').submit();
         }
     }
 

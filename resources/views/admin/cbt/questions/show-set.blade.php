@@ -23,6 +23,20 @@
     </div>
 </div>
 
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <section class="section">
     {{-- Info Set --}}
     <div class="card mb-3">
@@ -84,8 +98,8 @@
                         <span class="badge bg-success"><i class="bi bi-pencil"></i> Essay</span>
                         <span class="badge bg-warning text-dark ms-1"><i class="bi bi-weight"></i> Bobot: {{ $question->default_weight ?? '-' }}</span>
                         @break
-                @endswitch
-            </div>
+                        @endswitch
+                    </div>
         </div>
         <div class="card-body">
             <h6 class="mb-3">{{ $question->question_text }}</h6>
@@ -127,7 +141,7 @@
             <a href="{{ route('cbt.admin.questions.edit', $question) }}" class="btn btn-sm btn-warning">
                 <i class="bi bi-pencil"></i> Edit
             </a>
-            <form action="{{ route('cbt.admin.questions.destroy', $question) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus soal ini dari set?')">
+            <form action="{{ route('cbt.admin.questions.destroy', $question) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus soal ini?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-sm btn-danger">

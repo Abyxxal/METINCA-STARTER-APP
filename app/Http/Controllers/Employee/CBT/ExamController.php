@@ -6,6 +6,7 @@ use App\Events\DashboardStatsUpdated;
 use App\Events\SessionStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
+use App\Models\EmployeeCompetency;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Question;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * ExamController
- * 
+ *
  * Controller for employee-facing CBT exam features.
  * Handles: taking exams, viewing results, my competencies.
  */
@@ -30,7 +31,7 @@ class ExamController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->route('dashboard')
                 ->with('error', 'Akun Anda tidak terhubung dengan data karyawan.');
         }
@@ -79,9 +80,9 @@ class ExamController extends Controller
     {
         $this->authorizeSession($session);
 
-        if (!in_array($session->status, [
+        if (! in_array($session->status, [
             ExamSession::STATUS_ASSIGNED,
-            ExamSession::STATUS_STARTED
+            ExamSession::STATUS_STARTED,
         ])) {
             return redirect()->route('cbt.employee.dashboard')
                 ->with('error', 'Ujian ini tidak tersedia untuk dikerjakan.');
@@ -96,7 +97,7 @@ class ExamController extends Controller
         // Check scheduled start
         if ($session->isNotStartedYet()) {
             return redirect()->route('cbt.employee.dashboard')
-                ->with('error', 'Ujian belum dibuka. Jadwal mulai: ' . $session->getFormattedScheduledStart() . ' WIB.');
+                ->with('error', 'Ujian belum dibuka. Jadwal mulai: '.$session->getFormattedScheduledStart().' WIB.');
         }
 
         $session->load(['exam.skill', 'exam.questions']);
@@ -112,7 +113,7 @@ class ExamController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->route('dashboard')
                 ->with('error', 'Akun Anda tidak terhubung dengan data karyawan.');
         }
@@ -140,7 +141,7 @@ class ExamController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->route('dashboard')
                 ->with('error', 'Akun Anda tidak terhubung dengan data karyawan.');
         }
@@ -156,7 +157,7 @@ class ExamController extends Controller
         }
 
         // Check if exam is published
-        if (!$exam->is_published) {
+        if (! $exam->is_published) {
             return redirect()->route('cbt.employee.dashboard')
                 ->with('error', 'Ujian ini tidak tersedia.');
         }
@@ -165,12 +166,15 @@ class ExamController extends Controller
         $competency = $employee->competencies()
             ->where('skill_id', $exam->skill_id)
             ->first();
-        
+
         $currentLevel = $competency ? $competency->level : 0;
-        
-        // Employee must be exactly one level below target to take exam
+
+        // Employee must be exactly one level below the target exam level.
+        // Ladder: level 0 -> exam 1, level 1 -> exam 2, level 2 -> exam 3, level 3 -> exam 4.
+        // Level 4 (Expert, max) is allowed to access all levels 1-4.
         $requiredLevel = $exam->target_level - 1;
-        if ($currentLevel != $requiredLevel) {
+        $isEligible = $currentLevel === EmployeeCompetency::LEVEL_EXPERT || $currentLevel === $requiredLevel;
+        if (! $isEligible) {
             return redirect()->route('cbt.employee.dashboard')
                 ->with('error', "Anda belum memenuhi syarat untuk ujian ini. Level Anda saat ini: {$currentLevel}, diperlukan: Level {$requiredLevel}.");
         }
@@ -202,7 +206,7 @@ class ExamController extends Controller
         // Check scheduled start
         if ($session->isNotStartedYet()) {
             return redirect()->route('cbt.employee.dashboard')
-                ->with('error', 'Ujian belum dibuka. Jadwal mulai: ' . $session->getFormattedScheduledStart() . ' WIB.');
+                ->with('error', 'Ujian belum dibuka. Jadwal mulai: '.$session->getFormattedScheduledStart().' WIB.');
         }
 
         if ($session->status === ExamSession::STATUS_ASSIGNED) {
@@ -233,7 +237,7 @@ class ExamController extends Controller
             return $this->autoSubmit($session);
         }
 
-        $session->load(['exam.skill', 'exam.questions' => function($q) {
+        $session->load(['exam.skill', 'exam.questions' => function ($q) {
             $q->orderBy('exam_question.order');
         }]);
 
@@ -284,7 +288,7 @@ class ExamController extends Controller
 
     /**
      * Submit exam - finalize all answers with simple percentage-based scoring.
-     * 
+     *
      * Process:
      * 1. Validate and save all answers from request
      * 2. Auto-grade each answer (multiple choice & true/false only)
@@ -306,30 +310,46 @@ class ExamController extends Controller
             'answers.*' => 'nullable|string',
         ]);
 
+        // Aturan submit: selama waktu masih berjalan, seluruh soal wajib dijawab.
+        // Saat waktu sudah habis (auto-submit), validasi ini dilewati dan jawaban
+        // kosong diperbolehkan (dianggap bernilai 0).
+        if (! $session->isTimeUp()) {
+            $totalQuestions = $session->exam->examQuestions()->count();
+
+            $answered = collect($request->answers ?? [])
+                ->filter(fn ($answer) => $answer !== null && trim((string) $answer) !== '')
+                ->count();
+
+            if ($answered < $totalQuestions) {
+                return back()->with('error', 'Masih ada '.($totalQuestions - $answered).' soal yang belum dijawab. Semua soal wajib dijawab sebelum mengirim.');
+            }
+        }
+
         DB::beginTransaction();
 
         try {
             // Load exam with questions
             $session->load(['exam.questions']);
-            
+
             // Get total number of questions in this exam
             $totalQuestions = $session->exam->questions()->count();
-            
+
             // Edge case: No questions
             if ($totalQuestions === 0) {
                 DB::rollBack();
+
                 return back()->with('error', 'Ujian tidak memiliki soal.');
             }
-            
+
             $correctAnswersCount = 0;
-            
+
             // Process and save all answers
             if ($request->has('answers')) {
                 foreach ($request->answers as $questionId => $selectedAnswer) {
                     // Fetch the question to get correct answer
                     $question = Question::find($questionId);
-                    
-                    if (!$question) {
+
+                    if (! $question) {
                         continue; // Skip if question not found
                     }
 
@@ -339,7 +359,7 @@ class ExamController extends Controller
                     if ($question->type !== 'essay') {
                         // Auto-grade: Compare selected answer with correct answer
                         $isCorrect = $question->isCorrectAnswer($selectedAnswer ?? '');
-                        
+
                         // Count correct answers
                         if ($isCorrect) {
                             $correctAnswersCount++;
@@ -366,8 +386,8 @@ class ExamController extends Controller
             $finalScore = round(($correctAnswersCount / $totalQuestions) * 100, 2);
 
             // Check if exam contains only non-essay questions (auto-verifiable)
-            $hasEssayQuestions = $session->exam->questions()->where('type', 'essay')->exists();
-            
+            $hasEssayQuestions = $session->exam->examQuestions()->where('type', 'essay')->exists();
+
             // Determine status and auto-verify if no essay questions
             if ($hasEssayQuestions) {
                 // Has essay questions - need admin verification
@@ -379,11 +399,11 @@ class ExamController extends Controller
                 // Only multiple choice / true-false - auto-verify
                 $passingScore = $session->exam->passing_score;
                 $isPassed = $finalScore >= $passingScore;
-                
+
                 $status = $isPassed ? ExamSession::STATUS_VERIFIED_PASS : ExamSession::STATUS_VERIFIED_FAIL;
                 $verifiedAt = now();
                 $verifiedBy = null; // System auto-verify
-                
+
                 if ($isPassed) {
                     // Tidak langsung naik level, menunggu keputusan manager
                     $resultMessage = "Selamat! Ujian berhasil diselesaikan dengan nilai {$finalScore}. Anda LULUS! Menunggu persetujuan Manager untuk kenaikan level.";
@@ -415,7 +435,8 @@ class ExamController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal submit ujian: ' . $e->getMessage());
+
+            return back()->with('error', 'Gagal submit ujian: '.$e->getMessage());
         }
     }
 
@@ -445,10 +466,10 @@ class ExamController extends Controller
 
         // Calculate and save score
         $score = $session->calculateScore();
-        
+
         // Check if exam contains only non-essay questions (auto-verifiable)
-        $hasEssayQuestions = $session->exam->questions()->where('type', 'essay')->exists();
-        
+        $hasEssayQuestions = $session->exam->examQuestions()->where('type', 'essay')->exists();
+
         if ($hasEssayQuestions) {
             // Has essay questions - need admin verification
             $status = ExamSession::STATUS_SUBMITTED;
@@ -458,7 +479,7 @@ class ExamController extends Controller
             // Only multiple choice / true-false - auto-verify
             $passingScore = $session->exam->passing_score;
             $isPassed = $score >= $passingScore;
-            
+
             $status = $isPassed ? ExamSession::STATUS_VERIFIED_PASS : ExamSession::STATUS_VERIFIED_FAIL;
             $verifiedAt = now();
             $verifiedBy = null;
@@ -486,7 +507,7 @@ class ExamController extends Controller
     {
         $this->authorizeSession($session);
 
-        if (!in_array($session->status, [
+        if (! in_array($session->status, [
             ExamSession::STATUS_SUBMITTED,
             ExamSession::STATUS_VERIFIED_PASS,
             ExamSession::STATUS_VERIFIED_FAIL,
@@ -499,7 +520,7 @@ class ExamController extends Controller
 
         $session->load([
             'exam.skill',
-            'exam.questions' => fn($q) => $q->orderBy('exam_question.order'),
+            'exam.examQuestions',
             'answers.question',
             'verifier',
             'manager',
@@ -516,7 +537,7 @@ class ExamController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->route('dashboard')
                 ->with('error', 'Akun Anda tidak terhubung dengan data karyawan.');
         }
@@ -542,7 +563,7 @@ class ExamController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->route('dashboard')
                 ->with('error', 'Akun Anda tidak terhubung dengan data karyawan.');
         }
@@ -577,8 +598,8 @@ class ExamController extends Controller
     private function authorizeSession(ExamSession $session): void
     {
         $user = Auth::user();
-        
-        if (!$user->employee || $session->employee_nik !== $user->employee->nik) {
+
+        if (! $user->employee || $session->employee_nik !== $user->employee->nik) {
             abort(403, 'Anda tidak memiliki akses ke sesi ujian ini.');
         }
     }

@@ -61,16 +61,8 @@ class ExamAnswer extends Model
         
         if ($question->type === 'multiple_choice' || $question->type === 'true_false') {
             $this->is_correct = $question->isCorrectAnswer($this->selected_answer ?? '');
-            
-            // Get weight from exam_question pivot
-            $examSession = $this->session;
-            $weight = $examSession->exam->questions()
-                ->where('questions.id', $this->question_id)
-                ->first()
-                ?->pivot
-                ?->weight ?? 0;
-            
-            $this->score_earned = $this->is_correct ? $weight : 0;
+
+            $this->score_earned = $this->is_correct ? 1 : 0;
             $this->save();
         }
     }

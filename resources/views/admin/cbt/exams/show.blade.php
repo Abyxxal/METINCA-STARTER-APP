@@ -63,13 +63,13 @@
                         </div>
                         <div class="col-md-3">
                             <div class="text-center p-3 bg-light rounded">
-                                <h2 class="text-success mb-0">{{ $exam->questions->count() }}</h2>
+                                <h2 class="text-success mb-0">{{ $exam->examQuestions->count() }}</h2>
                                 <small class="text-muted">Soal</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center p-3 bg-light rounded">
-                                <h2 class="text-warning mb-0">{{ $exam->getTotalWeight() }}</h2>
+                                <h2 class="text-warning mb-0">{{ $exam->examQuestions->sum('weight') }}</h2>
                                 <small class="text-muted">Total Bobot</small>
                             </div>
                         </div>
@@ -80,10 +80,10 @@
             {{-- Questions --}}
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Daftar Soal ({{ $exam->questions->count() }})</h4>
+                    <h4 class="card-title">Daftar Soal ({{ $exam->examQuestions->count() }})</h4>
                 </div>
                 <div class="card-body">
-                    @if($exam->questions->count() > 0)
+                    @if($exam->examQuestions->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
@@ -96,7 +96,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($exam->questions as $i => $question)
+                                    @foreach($exam->examQuestions as $i => $question)
                                         <tr>
                                             <td>{{ $i + 1 }}</td>
                                             <td>
@@ -105,11 +105,13 @@
                                                 </div>
                                             </td>
                                             <td><span class="badge bg-secondary">Level {{ $question->for_level }}</span></td>
-                                            <td><span class="badge bg-primary">{{ $question->pivot->weight }}</span></td>
+                                            <td><span class="badge bg-primary">{{ $question->weight }}</span></td>
                                             <td>
-                                                <a href="{{ route('cbt.admin.questions.show', $question) }}" class="btn btn-sm btn-outline-info" target="_blank">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
+                                                @if($question->question)
+                                                    <a href="{{ route('cbt.admin.questions.show', $question->question) }}" class="btn btn-sm btn-outline-info" target="_blank">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -190,10 +192,10 @@
                                                 <span class="badge bg-info">Menunggu Verifikasi</span>
                                                 @break
                                             @case('verified_pass')
-                                                <span class="badge bg-success">Lulus ({{ $session->score }})</span>
+                                                <span class="badge bg-success">Lulus ({{ $session->formatted_score }})</span>
                                                 @break
                                             @case('verified_fail')
-                                                <span class="badge bg-danger">Tidak Lulus ({{ $session->score }})</span>
+                                                <span class="badge bg-danger">Tidak Lulus ({{ $session->formatted_score }})</span>
                                                 @break
                                         @endswitch
                                     </div>

@@ -102,7 +102,13 @@ class ExamSessionController extends Controller
 
         $divisions = \App\Models\Division::orderBy('name')->get();
 
-        return view('admin.cbt.sessions.create', compact('questionSets', 'employees', 'divisions'));
+        $exams = Exam::with('skill')
+            ->where('status', 'active')
+            ->where('is_published', true)
+            ->orderBy('title')
+            ->get();
+
+        return view('admin.cbt.sessions.create', compact('questionSets', 'employees', 'divisions', 'exams'));
     }
 
     /**
@@ -136,6 +142,15 @@ class ExamSessionController extends Controller
                     ->with('error', 'Tidak ada soal ditemukan dalam set yang dipilih');
             }
 
+            // Ujian tidak boleh mencampur esai dengan PG / benar-salah
+            $hasEssay = $questions->contains(fn ($q) => $q->type === 'essay');
+            $hasAuto = $questions->contains(fn ($q) => in_array($q->type, ['multiple_choice', 'true_false']));
+            if ($hasEssay && $hasAuto) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Ujian tidak boleh mencampur soal esai dengan pilihan ganda / benar-salah. Pilih set dengan tipe yang sama.');
+            }
+
             // Get set titles for exam title
             $setTitles = Question::whereIn('question_set_id', $validated['question_set_ids'])
                 ->select('set_title')
@@ -153,25 +168,40 @@ class ExamSessionController extends Controller
             // Get the first question to determine skill_id
             $skillId = $questions->first()->skill_id ?? null;
 
-            // Create exam automatically
-            $exam = Exam::create([
-                'skill_id' => $skillId,
-                'title' => $examTitle,
-                'description' => 'Ujian dibuat otomatis dari Sesi Ujian ('.count($validated['question_set_ids']).' set soal)',
-                'target_level' => $targetLevel,
-                'passing_score' => $validated['passing_score'],
-                'duration_minutes' => $validated['duration_minutes'],
-                'is_published' => true,
-                'status' => 'active',
-            ]);
+            // Reuse existing exam if the same composition already exists
+            $questionIds = $questions->pluck('id')->sort()->values()->toArray();
+            $existingExam = Exam::where('skill_id', $skillId)
+                ->where('target_level', $targetLevel)
+                ->where('title', $examTitle)
+                ->where('status', 'active')
+                ->where('is_published', true)
+                ->with('examQuestions')
+                ->get()
+                ->first(fn ($exam) => $exam->examQuestions->pluck('question_id')->sort()->values()->toArray() === $questionIds);
 
-            // Attach all questions from selected sets to exam
-            $order = 1;
-            foreach ($questions as $question) {
-                $exam->questions()->attach($question->id, [
-                    'weight' => $question->default_weight ?? 1,
-                    'order' => $order++,
+            $reused = false;
+            if ($existingExam) {
+                $exam = $existingExam;
+                $reused = true;
+            } else {
+                // Create exam automatically
+                $exam = Exam::create([
+                    'skill_id' => $skillId,
+                    'title' => $examTitle,
+                    'description' => 'Ujian dibuat otomatis dari Sesi Ujian ('.count($validated['question_set_ids']).' set soal)',
+                    'target_level' => $targetLevel,
+                    'passing_score' => $validated['passing_score'],
+                    'duration_minutes' => $validated['duration_minutes'],
+                    'is_published' => true,
+                    'status' => 'active',
                 ]);
+
+                // Attach all questions from selected sets to exam
+                $weights = $questions->pluck('default_weight', 'id')
+                    ->map(fn ($weight) => $weight ?? 1)
+                    ->all();
+
+                $exam->attachQuestionsWithSnapshot($questions->pluck('id')->all(), $weights);
             }
 
             // Assign exam to employees
@@ -199,11 +229,12 @@ class ExamSessionController extends Controller
                 $competency = $employee->competencies->where('skill_id', $skillId)->first();
                 $currentLevel = $competency ? $competency->level : 0;
 
-                // Validation: Employee must be exactly one level below target
-                // Level 0 can only take Level 1 exam
-                // Level 1 can only take Level 2 exam, etc.
+                // Validation: Employee must be exactly one level below the target exam level.
+                // Ladder: level 0 -> exam 1, level 1 -> exam 2, level 2 -> exam 3, level 3 -> exam 4.
+                // Level 4 (Expert, max) is allowed to access all levels 1-4.
                 $requiredLevel = $targetLevel - 1;
-                if ($currentLevel != $requiredLevel) {
+                $isEligible = $currentLevel === EmployeeCompetency::LEVEL_EXPERT || $currentLevel === $requiredLevel;
+                if (! $isEligible) {
                     $notEligibleList[] = [
                         'name' => $employee->name,
                         'nik' => $employee->nik,
@@ -255,9 +286,11 @@ class ExamSessionController extends Controller
             }
             DashboardStatsUpdated::dispatch();
 
-            $totalSoal = $order - 1;
+            $totalSoal = $questions->count();
             $totalSets = count($validated['question_set_ids']);
-            $message = "Ujian '{$exam->title}' berhasil dibuat dengan {$totalSets} set soal ({$totalSoal} soal). {$assigned} karyawan ditugaskan.";
+            $message = $reused
+                ? "Ujian '{$exam->title}' sudah pernah dibuat - {$assigned} karyawan ditambahkan ke ujian yang sama. KKM & durasi mengikuti pengaturan ujian yang sudah ada."
+                : "Ujian '{$exam->title}' berhasil dibuat dengan {$totalSets} set soal ({$totalSoal} soal). {$assigned} karyawan ditugaskan.";
             $notEligibleCount = count($notEligibleList);
             if ($notEligibleCount > 0) {
                 $requiredLvl = $targetLevel - 1;
@@ -345,7 +378,7 @@ class ExamSessionController extends Controller
     {
         $session->load([
             'exam.skill',
-            'exam.questions' => fn ($q) => $q->orderBy('exam_question.order'),
+            'exam.examQuestions',
             'employee.division',
             'employee.position',
             'answers.question',
@@ -383,8 +416,8 @@ class ExamSessionController extends Controller
                         ->first();
 
                     if ($answer && $value !== null) {
-                        $question = $session->exam->questions->find($questionId);
-                        $maxScore = (int) ($question?->pivot->weight ?? 0);
+                        $question = $session->exam->examQuestions()->where('question_id', $questionId)->first();
+                        $maxScore = (int) ($question?->weight ?? 0);
 
                         if ((int) $value > $maxScore) {
                             throw ValidationException::withMessages([
@@ -435,6 +468,10 @@ class ExamSessionController extends Controller
 
             return back()->with('success', "Sesi ujian berhasil diverifikasi: {$statusText}");
 
+        } catch (ValidationException $e) {
+            DB::rollBack();
+
+            throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -526,30 +563,105 @@ class ExamSessionController extends Controller
 
     /**
      * Bulk assign exam to employees by division.
+     *
+     * Creates sessions for an existing exam on all eligible (Aktif) employees
+     * of a division. Eligibility: current competency level must be exactly
+     * one level below the exam's target level, and no active session exists.
      */
     public function bulkAssignByDivision(Request $request)
     {
         $validated = $request->validate([
             'exam_id' => 'required|exists:exams,id',
             'division_id' => 'required|exists:divisions,id',
+            'deadline_at' => 'required|date|after:now',
+            'scheduled_start_at' => 'nullable|date|before:deadline_at',
         ]);
 
-        $employees = Employee::where('division_id', $validated['division_id'])
-            ->where(function ($q) {
-                $q->where('employment_status', 'active')
-                    ->orWhere('status', 'active');
-            })
-            ->pluck('nik')
-            ->toArray();
+        $exam = Exam::with('examQuestions')->findOrFail($validated['exam_id']);
 
-        if (empty($employees)) {
+        $skillId = $exam->examQuestions->first()?->skill_id ?? $exam->skill_id;
+        $targetLevel = $exam->target_level;
+        $requiredLevel = $targetLevel - 1;
+
+        $employees = Employee::with('competencies')
+            ->where('division_id', $validated['division_id'])
+            ->where('status', 'Aktif')
+            ->get();
+
+        if ($employees->isEmpty()) {
             return back()->with('error', 'Tidak ada karyawan aktif di divisi tersebut!');
         }
 
-        // Reuse store logic
-        $request->merge(['employee_niks' => $employees]);
+        $assigned = 0;
+        $notEligibleList = [];
+        $skippedList = [];
+        $createdSessions = [];
 
-        return $this->store($request);
+        foreach ($employees as $employee) {
+            $competency = $employee->competencies->where('skill_id', $skillId)->first();
+            $currentLevel = $competency ? $competency->level : 0;
+
+            if ($currentLevel != $requiredLevel) {
+                $notEligibleList[] = [
+                    'name' => $employee->name,
+                    'nik' => $employee->nik,
+                    'current_level' => $currentLevel,
+                    'required_level' => $requiredLevel,
+                    'target_level' => $targetLevel,
+                ];
+
+                continue;
+            }
+
+            $existingSession = ExamSession::where('exam_id', $exam->id)
+                ->where('employee_nik', $employee->nik)
+                ->whereIn('status', [
+                    ExamSession::STATUS_ASSIGNED,
+                    ExamSession::STATUS_STARTED,
+                ])
+                ->exists();
+
+            if ($existingSession) {
+                $skippedList[] = [
+                    'name' => $employee->name,
+                    'nik' => $employee->nik,
+                    'reason' => 'Sudah memiliki sesi ujian aktif',
+                ];
+
+                continue;
+            }
+
+            $createdSessions[] = ExamSession::create([
+                'exam_id' => $exam->id,
+                'employee_nik' => $employee->nik,
+                'status' => ExamSession::STATUS_ASSIGNED,
+                'deadline_at' => Carbon::parse($validated['deadline_at']),
+                'scheduled_start_at' => ! empty($validated['scheduled_start_at'])
+                    ? Carbon::parse($validated['scheduled_start_at'])
+                    : null,
+            ]);
+            $assigned++;
+        }
+
+        foreach ($createdSessions as $s) {
+            SessionStatusUpdated::dispatch($s, 'assigned');
+        }
+        DashboardStatsUpdated::dispatch();
+
+        $message = "{$assigned} karyawan ditugaskan untuk ujian '{$exam->title}'.";
+        if (count($notEligibleList) > 0) {
+            $message .= ' ('.count($notEligibleList).' karyawan tidak memenuhi syarat - harus Level '.$requiredLevel.')';
+        }
+        if (count($skippedList) > 0) {
+            $message .= ' ('.count($skippedList).' dilewati karena sudah memiliki sesi aktif)';
+        }
+
+        return redirect()
+            ->route('cbt.admin.sessions.index')
+            ->with('success', $message)
+            ->with('notEligibleList', $notEligibleList)
+            ->with('skippedList', $skippedList)
+            ->with('assignedCount', $assigned);
     }
 
     // ============================================
@@ -611,13 +723,12 @@ class ExamSessionController extends Controller
 
         $session->load([
             'exam.skill',
-            'exam.questions',
+            'exam.examQuestions',
             'employee.division',
             'employee.position',
             'verifier',
             'manager',
             'managerAssessment',
-            'answers.question',
         ]);
 
         return view('admin.cbt.sessions.qualitative-assessment', compact('session'));
@@ -631,6 +742,11 @@ class ExamSessionController extends Controller
         $tidakMemenuhiCount = $this->countTidakMemenuhi($request);
 
         $rules = [
+            'sop_understanding' => 'required|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'competency_application' => 'required|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'independence' => 'required|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'problem_solving' => 'required|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
+            'readiness' => 'required|in:memenuhi,perlu_perbaikan,tidak_memenuhi',
             'manager_notes' => $tidakMemenuhiCount > 0 ? 'required|string|max:1000' : 'nullable|string|max:1000',
         ];
 
@@ -638,6 +754,14 @@ class ExamSessionController extends Controller
 
         if (! $session->isPendingManagerApproval()) {
             return back()->with('error', 'Sesi ini tidak dalam status menunggu persetujuan.');
+        }
+
+        $qualitativeScore = ManagerAssessment::scoreFrom($request->only(ManagerAssessment::CRITERIA_FIELDS));
+
+        if ($qualitativeScore < ManagerAssessment::MIN_APPROVAL_SCORE) {
+            throw ValidationException::withMessages([
+                'kriteria' => 'Kualifikasi belum memenuhi ambang minimal untuk menyetujui. Kenaikan level harus DITOLAK.',
+            ]);
         }
 
         // Save assessment data if any

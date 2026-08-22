@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Admin\CBT;
 
-use App\Http\Controllers\Controller;
 use App\Events\DashboardStatsUpdated;
+use App\Http\Controllers\Controller;
+use App\Models\Division;
 use App\Models\Question;
 use App\Models\Skill;
-use App\Models\Division;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\ValidationException;
 
 /**
  * QuestionController
- * 
+ *
  * Admin controller for managing CBT Questions (Bank Soal).
  */
 class QuestionController extends Controller
@@ -31,7 +32,7 @@ class QuestionController extends Controller
 
         // Filter by division (via skill's division_id)
         if ($request->division_id) {
-            $query->whereHas('skill', function($q) use ($request) {
+            $query->whereHas('skill', function ($q) use ($request) {
                 $q->where('division_id', $request->division_id);
             });
         }
@@ -57,29 +58,30 @@ class QuestionController extends Controller
         }
 
         $questionSets = $query->latest('created_at')->paginate(20);
-        
+
         // Load positions for each set (from first question in each set)
         $questionSets->getCollection()->transform(function ($set) {
             $firstQuestion = Question::where('question_set_id', $set->question_set_id)
                 ->with('positions')
                 ->first();
             $set->targetPosition = $firstQuestion?->positions->first();
+
             return $set;
         });
-        
-        $divisions = Cache::remember('divisions_with_dept', 3600, function() {
+
+        $divisions = Cache::remember('divisions_with_dept', 3600, function () {
             return Division::with('department')->orderBy('name')->get();
         });
-        
+
         // Get skills - if division selected, only show skills from that division
         if ($request->division_id) {
-            $skills = Cache::remember("skills_division_{$request->division_id}", 3600, function() use ($request) {
+            $skills = Cache::remember("skills_division_{$request->division_id}", 3600, function () use ($request) {
                 return Skill::where('is_active', true)
                     ->where('division_id', $request->division_id)
                     ->get();
             });
         } else {
-            $skills = Cache::remember('active_skills', 3600, function() {
+            $skills = Cache::remember('active_skills', 3600, function () {
                 return Skill::where('is_active', true)->get();
             });
         }
@@ -93,7 +95,7 @@ class QuestionController extends Controller
     public function create()
     {
         $divisions = Division::with('department')->orderBy('name')->get();
-        
+
         return view('admin.cbt.questions.create', compact('divisions'));
     }
 
@@ -119,10 +121,12 @@ class QuestionController extends Controller
 
             // Generate unique question_set_id
             $skill = Skill::findOrFail($validated['skill_id']);
-            $questionSetId = 'QS-' . date('YmdHis') . '-' . $validated['skill_id'];
-            
+            $questionSetId = 'QS-'.date('YmdHis').'-'.$validated['skill_id'];
+
             // Generate set_title
-            $setTitle = $validated['set_title'] ?? ($skill->name . ' - Level ' . $validated['for_level']);
+            $setTitle = $validated['set_title'] ?? ($skill->name.' - Level '.$validated['for_level']);
+
+            $this->validateSetConstraints($validated['questions']);
 
             $count = 0;
             foreach ($validated['questions'] as $q) {
@@ -134,7 +138,7 @@ class QuestionController extends Controller
                 if ($q['type'] === 'true_false') {
                     $options = ['A' => 'Benar', 'B' => 'Salah'];
                 } elseif ($q['type'] === 'multiple_choice' && isset($q['options'])) {
-                    $options = array_filter($q['options'], fn($v) => !empty($v));
+                    $options = array_filter($q['options'], fn ($v) => ! empty($v));
                 }
 
                 $question = Question::create([
@@ -144,14 +148,14 @@ class QuestionController extends Controller
                     'for_level' => $validated['for_level'],
                     'type' => $q['type'],
                     'question_text' => $q['question_text'],
-                    'options' => !empty($options) ? $options : null,
+                    'options' => ! empty($options) ? $options : null,
                     'correct_answer' => $q['correct_answer'] ?? null,
                     'default_weight' => $q['default_weight'] ?? null,
                     'status' => 'active',
                 ]);
 
                 // Attach position if specified (empty = universal)
-                if (!empty($validated['target_position'])) {
+                if (! empty($validated['target_position'])) {
                     $question->positions()->attach($validated['target_position']);
                 }
 
@@ -179,7 +183,7 @@ class QuestionController extends Controller
         ]);
 
         if ($validated['type'] === 'multiple_choice' && isset($validated['options'])) {
-            $validated['options'] = array_filter($validated['options'], fn($v) => !empty($v));
+            $validated['options'] = array_filter($validated['options'], fn ($v) => ! empty($v));
         }
 
         if ($validated['type'] === 'true_false') {
@@ -189,7 +193,7 @@ class QuestionController extends Controller
         $question = Question::create($validated);
 
         // Attach position if specified
-        if (!empty($validated['target_position'])) {
+        if (! empty($validated['target_position'])) {
             $question->positions()->attach($validated['target_position']);
         }
 
@@ -206,6 +210,7 @@ class QuestionController extends Controller
     public function show(Question $question)
     {
         $question->load(['skill', 'exams']);
+
         return view('admin.cbt.questions.show', compact('question'));
     }
 
@@ -216,7 +221,7 @@ class QuestionController extends Controller
     {
         $skills = Skill::where('is_active', true)->get();
         $question->load('positions', 'skill.division');
-        
+
         return view('admin.cbt.questions.edit', compact('question', 'skills'));
     }
 
@@ -243,7 +248,7 @@ class QuestionController extends Controller
 
         // Clean up options
         if ($validated['type'] === 'multiple_choice' && isset($validated['options'])) {
-            $validated['options'] = array_filter($validated['options'], fn($v) => !empty($v));
+            $validated['options'] = array_filter($validated['options'], fn ($v) => ! empty($v));
         }
 
         if ($validated['type'] === 'true_false') {
@@ -253,7 +258,7 @@ class QuestionController extends Controller
         $question->update($validated);
 
         // Sync position (empty = detach all = universal)
-        if (!empty($validated['target_position'])) {
+        if (! empty($validated['target_position'])) {
             $question->positions()->sync([$validated['target_position']]);
         } else {
             $question->positions()->sync([]);
@@ -262,16 +267,39 @@ class QuestionController extends Controller
         // Handle new questions if added
         $newQuestionsCount = 0;
         if ($request->has('new_questions') && is_array($request->new_questions)) {
+            $setTypes = [$question->type];
+            if ($question->question_set_id) {
+                $setTypes = Question::where('question_set_id', $question->question_set_id)->pluck('type')->all();
+            }
+            $setHasEssay = in_array('essay', $setTypes);
+            $setHasAuto = (bool) array_filter($setTypes, fn ($t) => in_array($t, ['multiple_choice', 'true_false']));
+
             foreach ($request->new_questions as $q) {
                 if (empty(trim($q['question_text'] ?? ''))) {
                     continue;
+                }
+
+                $type = $q['type'] ?? 'multiple_choice';
+                $isEssay = $type === 'essay';
+                $isAuto = in_array($type, ['multiple_choice', 'true_false']);
+
+                if (($isEssay && $setHasAuto) || ($isAuto && $setHasEssay)) {
+                    throw ValidationException::withMessages([
+                        'new_questions' => 'Tidak boleh mencampur soal esai dengan pilihan ganda / benar-salah dalam satu set.',
+                    ]);
+                }
+
+                if ($isAuto && empty(trim((string) ($q['correct_answer'] ?? '')))) {
+                    throw ValidationException::withMessages([
+                        'new_questions' => 'Soal '.($type === 'true_false' ? 'benar/salah' : 'pilihan ganda').' wajib memiliki kunci jawaban.',
+                    ]);
                 }
 
                 $options = [];
                 if ($q['type'] === 'true_false') {
                     $options = ['A' => 'Benar', 'B' => 'Salah'];
                 } elseif ($q['type'] === 'multiple_choice' && isset($q['options'])) {
-                    $options = array_filter($q['options'], fn($v) => !empty($v));
+                    $options = array_filter($q['options'], fn ($v) => ! empty($v));
                 }
 
                 Question::create([
@@ -281,7 +309,7 @@ class QuestionController extends Controller
                     'for_level' => $validated['for_level'],
                     'type' => $q['type'],
                     'question_text' => $q['question_text'],
-                    'options' => !empty($options) ? $options : null,
+                    'options' => ! empty($options) ? $options : null,
                     'correct_answer' => $q['correct_answer'] ?? null,
                     'status' => $validated['status'],
                 ]);
@@ -304,11 +332,6 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question)
     {
-        // Check if question is used in exams
-        if ($question->exams()->exists()) {
-            return back()->with('error', 'Tidak dapat menghapus soal yang sudah digunakan dalam ujian!');
-        }
-
         $question->delete();
 
         DashboardStatsUpdated::dispatch();
@@ -316,155 +339,6 @@ class QuestionController extends Controller
         return redirect()
             ->route('cbt.admin.questions.index')
             ->with('success', 'Soal berhasil dihapus!');
-    }
-
-    /**
-     * Bulk import questions.
-     */
-    public function bulkImport(Request $request)
-    {
-        $request->validate([
-            'skill_id' => 'required|exists:skills,id',
-            'for_level' => 'required|integer|min:1|max:4',
-            'questions' => 'required|array|min:1',
-            'questions.*.question_text' => 'required|string',
-            'questions.*.options' => 'required|array',
-            'questions.*.correct_answer' => 'required|string',
-        ]);
-
-        $skill_id = $request->skill_id;
-        $for_level = $request->for_level;
-        $count = 0;
-
-        foreach ($request->questions as $q) {
-            Question::create([
-                'skill_id' => $skill_id,
-                'for_level' => $for_level,
-                'type' => 'multiple_choice',
-                'question_text' => $q['question_text'],
-                'options' => $q['options'],
-                'correct_answer' => $q['correct_answer'],
-                'status' => 'active',
-            ]);
-            $count++;
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => "{$count} soal berhasil diimport!",
-        ]);
-    }
-
-    /**
-     * Show the form for bulk creating questions.
-     */
-    public function bulkCreate()
-    {
-        $skills = Skill::where('is_active', true)->get();
-        return view('admin.cbt.questions.bulk-create', compact('skills'));
-    }
-
-    /**
-     * Store multiple questions at once.
-     */
-    public function bulkStore(Request $request)
-    {
-        $validated = $request->validate([
-            'skill_id' => 'required|exists:skills,id',
-            'for_level' => 'required|integer|min:1|max:4',
-            'questions' => 'required|array|min:1',
-            'questions.*.question_text' => 'required|string',
-            'questions.*.type' => 'required|in:multiple_choice,true_false,essay',
-            'questions.*.options' => 'nullable|array',
-            'questions.*.correct_answer' => 'nullable|string',
-        ]);
-
-        $skill_id = $validated['skill_id'];
-        $for_level = $validated['for_level'];
-        $count = 0;
-
-        foreach ($validated['questions'] as $q) {
-            // Skip empty questions
-            if (empty(trim($q['question_text']))) {
-                continue;
-            }
-
-            $options = [];
-            if ($q['type'] === 'true_false') {
-                $options = ['A' => 'Benar', 'B' => 'Salah'];
-            } elseif ($q['type'] === 'multiple_choice' && isset($q['options'])) {
-                $options = array_filter($q['options'], fn($v) => !empty($v));
-            }
-
-            Question::create([
-                'skill_id' => $skill_id,
-                'for_level' => $for_level,
-                'type' => $q['type'],
-                'question_text' => $q['question_text'],
-                'options' => !empty($options) ? $options : null,
-                'correct_answer' => $q['correct_answer'] ?? null,
-                'status' => 'active',
-            ]);
-            $count++;
-        }
-
-        return redirect()
-            ->route('cbt.admin.questions.index')
-            ->with('success', "{$count} soal berhasil ditambahkan!");
-    }
-
-    /**
-     * Get skills by division (API endpoint)
-     */
-    public function getSkillsByDivision($divisionId)
-    {
-        try {
-            $division = Division::with(['skills' => function($query) {
-                $query->where('is_active', true);
-            }])->findOrFail($divisionId);
-
-            $skills = $division->skills->map(function($skill) {
-                return [
-                    'id' => $skill->id,
-                    'name' => $skill->name,
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'skills' => $skills
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Division tidak ditemukan',
-                'skills' => []
-            ], 404);
-        }
-    }
-
-    /**
-     * Get questions from a question set (API endpoint)
-     */
-    public function getQuestionsFromSet($questionSetId)
-    {
-        try {
-            $questions = Question::where('question_set_id', $questionSetId)
-                ->where('status', 'active')
-                ->select('id', 'question_text', 'type', 'for_level')
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'questions' => $questions
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Set soal tidak ditemukan',
-                'questions' => []
-            ], 404);
-        }
     }
 
     /**
@@ -510,6 +384,30 @@ class QuestionController extends Controller
     }
 
     /**
+     * Get active questions of a question set (used by exam create/edit page via API)
+     */
+    public function getQuestionsFromSet($questionSetId)
+    {
+        try {
+            $questions = Question::where('question_set_id', $questionSetId)
+                ->where('status', 'active')
+                ->select('id', 'question_text', 'type', 'for_level')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'questions' => $questions,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Set soal tidak ditemukan',
+                'questions' => [],
+            ], 404);
+        }
+    }
+
+    /**
      * Update entire question set
      */
     public function updateSet(Request $request, $questionSetId)
@@ -537,16 +435,21 @@ class QuestionController extends Controller
             'delete_questions.*' => 'exists:questions,id',
         ]);
 
+        $deleteIds = $request->delete_questions ?? [];
+        $remainingQuestions = collect($validated['questions'])
+            ->reject(fn ($q) => ! empty($q['id']) && in_array($q['id'], $deleteIds))
+            ->values()
+            ->all();
+
+        $this->validateSetConstraints($remainingQuestions);
+
         // Handle deletion of questions
         if ($request->has('delete_questions') && is_array($request->delete_questions)) {
             foreach ($request->delete_questions as $questionId) {
                 $question = Question::find($questionId);
-                
+
                 if ($question && $question->question_set_id == $questionSetId) {
-                    // Only delete if not used in exams
-                    if (!$question->exams()->exists()) {
-                        $question->delete();
-                    }
+                    $question->delete();
                 }
             }
         }
@@ -554,7 +457,7 @@ class QuestionController extends Controller
         // Update or create each question
         foreach ($validated['questions'] as $qData) {
             // Skip if this question is marked for deletion
-            if (!empty($qData['id']) && in_array($qData['id'], $request->delete_questions ?? [])) {
+            if (! empty($qData['id']) && in_array($qData['id'], $request->delete_questions ?? [])) {
                 continue;
             }
 
@@ -562,7 +465,7 @@ class QuestionController extends Controller
             if ($qData['type'] === 'true_false') {
                 $options = ['A' => 'Benar', 'B' => 'Salah'];
             } elseif ($qData['type'] === 'multiple_choice' && isset($qData['options'])) {
-                $options = array_filter($qData['options'], fn($v) => !empty($v));
+                $options = array_filter($qData['options'], fn ($v) => ! empty($v));
             }
 
             $questionData = [
@@ -572,20 +475,26 @@ class QuestionController extends Controller
                 'status' => $validated['status'],
                 'question_text' => $qData['question_text'],
                 'type' => $qData['type'],
-                'options' => !empty($options) ? $options : null,
+                'options' => ! empty($options) ? $options : null,
                 'correct_answer' => $qData['correct_answer'] ?? null,
                 'default_weight' => $qData['default_weight'] ?? null,
             ];
 
-            if (!empty($qData['id'])) {
+            if (! empty($qData['id'])) {
                 // Update existing question
                 $question = Question::find($qData['id']);
-                
+
                 if ($question && $question->question_set_id == $questionSetId) {
+                    // Bobot hanya dikirim lewat form untuk tipe essay. Pertahankan bobot
+                    // soal pilihan ganda / benar-salah agar tidak terhapus saat set diedit.
+                    if ($qData['type'] !== 'essay' || ! array_key_exists('default_weight', $qData)) {
+                        $questionData['default_weight'] = $question->default_weight;
+                    }
+
                     $question->update($questionData);
-                    
+
                     // Sync target position
-                    if (!empty($validated['target_position'])) {
+                    if (! empty($validated['target_position'])) {
                         $question->positions()->sync([$validated['target_position']]);
                     } else {
                         $question->positions()->sync([]);
@@ -595,9 +504,9 @@ class QuestionController extends Controller
                 // Create new question
                 $questionData['question_set_id'] = $questionSetId;
                 $newQuestion = Question::create($questionData);
-                
+
                 // Attach target position
-                if (!empty($validated['target_position'])) {
+                if (! empty($validated['target_position'])) {
                     $newQuestion->positions()->attach($validated['target_position']);
                 }
             }
@@ -621,13 +530,6 @@ class QuestionController extends Controller
             return back()->with('error', 'Set soal tidak ditemukan!');
         }
 
-        // Check if any question is used in exams
-        foreach ($questions as $question) {
-            if ($question->exams()->exists()) {
-                return back()->with('error', 'Tidak dapat menghapus set soal yang sudah digunakan dalam ujian!');
-            }
-        }
-
         $count = $questions->count();
         $setTitle = $questions->first()->set_title;
 
@@ -638,5 +540,43 @@ class QuestionController extends Controller
         return redirect()
             ->route('cbt.admin.questions.index')
             ->with('success', "Set soal \"{$setTitle}\" dengan {$count} soal berhasil dihapus!");
+    }
+
+    /**
+     * Validate set-level constraints:
+     * - Satu set tidak boleh mencampur esai dengan PG / benar-salah.
+     * - PG / benar-salah wajib memiliki kunci jawaban.
+     * - Total bobot soal esai harus 100.
+     */
+    private function validateSetConstraints(array $questions): void
+    {
+        $types = collect($questions)->pluck('type');
+        $hasEssay = $types->contains('essay');
+        $hasAuto = $types->contains(fn ($t) => in_array($t, ['multiple_choice', 'true_false']));
+
+        if ($hasEssay && $hasAuto) {
+            throw ValidationException::withMessages([
+                'questions' => 'Satu set soal tidak boleh mencampur soal esai dengan pilihan ganda / benar-salah. Pisahkan menjadi set berbeda.',
+            ]);
+        }
+
+        foreach ($questions as $index => $q) {
+            $type = $q['type'] ?? null;
+            if (in_array($type, ['multiple_choice', 'true_false']) && empty(trim((string) ($q['correct_answer'] ?? '')))) {
+                throw ValidationException::withMessages([
+                    "questions.{$index}.correct_answer" => 'Soal '.($type === 'true_false' ? 'benar/salah' : 'pilihan ganda').' wajib memiliki kunci jawaban.',
+                ]);
+            }
+        }
+
+        if ($hasEssay) {
+            $essayWeight = (int) collect($questions)->where('type', 'essay')->sum('default_weight');
+
+            if ($essayWeight !== 100) {
+                throw ValidationException::withMessages([
+                    'questions' => "Total bobot soal esai harus 100, saat ini {$essayWeight}.",
+                ]);
+            }
+        }
     }
 }

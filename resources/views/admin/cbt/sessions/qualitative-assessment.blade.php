@@ -634,6 +634,16 @@ body {
     </div>
 @endif
 
+@if($errors->any())
+    <div class="qa-alert" style="background: var(--danger-soft, #fff1f0); color: var(--danger, #b42318); border: 1px solid #fecaca;">
+        <i class="bi bi-x-octagon"></i>
+        <div>
+            <strong>Pengajuan tidak dapat diproses.</strong><br>
+            {{ $errors->first() }}
+        </div>
+    </div>
+@endif
+
 <section class="employee-card">
     <div class="employee-main">
         <div class="employee-avatar">{{ $initials }}</div>
@@ -858,6 +868,15 @@ body {
 </div>
 
 @push('scripts')
+@php
+    $qualWeights = [
+        \App\Models\ManagerAssessment::STATUS_MEMENUHI => \App\Models\ManagerAssessment::WEIGHT_MEMENUHI,
+        \App\Models\ManagerAssessment::STATUS_PERLU_PERBAIKAN => \App\Models\ManagerAssessment::WEIGHT_PERLU_PERBAIKAN,
+        \App\Models\ManagerAssessment::STATUS_TIDAK_MEMENUHI => \App\Models\ManagerAssessment::WEIGHT_TIDAK_MEMENUHI,
+    ];
+    $qualFields = \App\Models\ManagerAssessment::CRITERIA_FIELDS;
+    $qualMinScore = \App\Models\ManagerAssessment::MIN_APPROVAL_SCORE;
+@endphp
 <style>
 .qa-recommendation {
     margin: 16px 0;
@@ -886,11 +905,67 @@ body {
     color: var(--danger, #b42318);
     border: 1px solid #fecaca;
 }
+.qa-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.qa-inline-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--danger-soft, #fff1f0);
+    color: var(--danger, #b42318);
+    border: 1px solid #fecaca;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.qa-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: grid;
+    place-items: center;
+    z-index: 9999;
+}
+.qa-modal {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 22px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+}
+.qa-modal h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+.qa-modal p {
+    margin: 0 0 18px;
+    color: var(--muted, #6b7280);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.qa-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.qa-modal-actions .qa-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
 </style>
 <script>
+var QUALITATIVE_WEIGHTS = @json($qualWeights);
+var QUALITATIVE_FIELDS = @json($qualFields);
+var MIN_APPROVAL_SCORE = {{ $qualMinScore }};
+
 function countTidakMemenuhi() {
-    const fields = ['sop_understanding', 'competency_application', 'independence', 'problem_solving', 'readiness'];
-    let count = 0;
+    var fields = QUALITATIVE_FIELDS;
+    var count = 0;
     fields.forEach(function(f) {
         var selected = document.querySelector('input[name="' + f + '"]:checked');
         if (selected && selected.value === 'tidak_memenuhi') count++;
@@ -898,10 +973,33 @@ function countTidakMemenuhi() {
     return count;
 }
 
+function calculateQualitativeScore() {
+    var score = 0;
+    QUALITATIVE_FIELDS.forEach(function(f) {
+        var selected = document.querySelector('input[name="' + f + '"]:checked');
+        if (selected) score += (QUALITATIVE_WEIGHTS[selected.value] || 0);
+    });
+    return score;
+}
+
 function updateRecommendation() {
     var count = countTidakMemenuhi();
+    var score = calculateQualitativeScore();
     var badge = document.getElementById('recommendationBadge');
     var container = document.getElementById('qaRecommendation');
+    var approveBtn = document.getElementById('btnSetujui');
+
+    if (approveBtn) {
+        approveBtn.disabled = score < MIN_APPROVAL_SCORE;
+    }
+
+    if (score < MIN_APPROVAL_SCORE) {
+        container.style.display = 'block';
+        badge.className = 'recommendation-badge danger';
+        badge.innerHTML = '<i class="bi bi-x-octagon"></i> Kenaikan Level Harus Ditolak' +
+            '<small>Kualifikasi belum memenuhi ambang minimal dari 5 kriteria penilaian. Tombol Setujui dinonaktifkan.</small>';
+        return;
+    }
 
     if (count === 0) {
         container.style.display = 'none';

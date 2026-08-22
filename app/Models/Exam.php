@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Exam Model
- * 
+ *
  * Represents an exam/test in the CBT system.
  * Exams contain questions with custom weights and have passing scores.
  */
@@ -65,6 +65,18 @@ class Exam extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(ExamSession::class);
+    }
+
+    /**
+     * Exam has many Question snapshots (via exam_question pivot).
+     *
+     * Berbeda dengan questions(), relasi ini membaca record pivot
+     * exam_question beserta snapshot-nya dan tetap lengkap meskipun soal
+     * sudah dihapus dari Bank Soal. Dipakai untuk menampilkan history.
+     */
+    public function examQuestions(): HasMany
+    {
+        return $this->hasMany(ExamQuestion::class)->orderBy('order');
     }
 
     // ============================================
@@ -126,7 +138,57 @@ class Exam extends Model
             3 => 'Proficient',
             4 => 'Expert',
         ];
+
         return $levels[$this->target_level] ?? 'Unknown';
+    }
+
+    /**
+     * Build pivot rows berisi snapshot data soal untuk attach/sync.
+     *
+     * Snapshot diambil dari tabel questions dan disalin ke exam_question,
+     * sehingga history ujian tetap utuh jika soal dihapus dari Bank Soal.
+     */
+    protected function buildSnapshotRows(array $questionIds, array $weights = []): array
+    {
+        $questions = Question::query()->whereKey($questionIds)->get()->keyBy('id');
+
+        $rows = [];
+        $order = 1;
+        foreach ($questionIds as $questionId) {
+            $question = $questions->get($questionId);
+            if ($question === null) {
+                continue;
+            }
+
+            $rows[$questionId] = [
+                'weight' => $weights[$questionId] ?? 0,
+                'order' => $order++,
+                'question_text' => $question->question_text,
+                'type' => $question->type,
+                'options' => $question->options !== null ? json_encode($question->options, JSON_UNESCAPED_UNICODE) : null,
+                'correct_answer' => $question->correct_answer,
+                'for_level' => $question->for_level,
+                'skill_id' => $question->skill_id,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Attach soal baru ke ujian lengkap dengan snapshot-nya.
+     */
+    public function attachQuestionsWithSnapshot(array $questionIds, array $weights = []): void
+    {
+        $this->questions()->attach($this->buildSnapshotRows($questionIds, $weights));
+    }
+
+    /**
+     * Sinkronkan soal ke ujian lengkap dengan snapshot-nya.
+     */
+    public function syncQuestionsWithSnapshot(array $questionIds, array $weights = []): void
+    {
+        $this->questions()->sync($this->buildSnapshotRows($questionIds, $weights));
     }
 
     /**
@@ -144,10 +206,11 @@ class Exam extends Model
     {
         $hours = floor($this->duration_minutes / 60);
         $minutes = $this->duration_minutes % 60;
-        
+
         if ($hours > 0) {
             return "{$hours} jam {$minutes} menit";
         }
+
         return "{$minutes} menit";
     }
 }
