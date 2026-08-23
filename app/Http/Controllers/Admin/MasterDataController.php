@@ -1389,4 +1389,16 @@ class MasterDataController extends Controller
             \Log::error("❌ Error renumbering {$tableName}: " . $e->getMessage());
         }
     }
+
+    /**
+     * Halaman Master Data (dipindahkan dari closure route - R2)
+     */
+    public function masterDataPage()
+    {
+        $departments = Department::withCount(['divisions', 'employees'])->get();
+        $divisions = Division::with('department')->orderBy('name')->get();
+        $positions = Position::with('division')->orderBy('name')->get();
+
+        return view('admin.master-data', compact('departments', 'divisions', 'positions'));
+    }
 }

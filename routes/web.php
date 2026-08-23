@@ -9,8 +9,10 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeImportController;
+use App\Http\Controllers\Admin\MasterDataController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -85,29 +87,19 @@ Route::middleware('guest')->group(function () {
 
         // GET /home/ - Halaman utama perusahaan (landing page)
         // Isi: Informasi perusahaan, visi misi, dll
-        Route::get('/',function(){
-            return view('home.main');
-        })->name('home.main');
+        Route::get('/', [PageController::class, 'homeMain'])->name('home.main');
 
         // GET /home/products - Halaman daftar produk perusahaan
-        Route::get('/products',function(){
-            return view('home.products');
-        })->name('home.products');
+        Route::get('/products', [PageController::class, 'homeProducts'])->name('home.products');
 
         // GET /home/divisions - Halaman daftar divisi/departemen perusahaan
-        Route::get('/divisions',function(){
-            return view('home.divisions');
-        })->name('home.divisions');
+        Route::get('/divisions', [PageController::class, 'homeDivisions'])->name('home.divisions');
 
         // GET /home/facilities - Halaman daftar fasilitas pabrik
-        Route::get('/facilities',function(){
-            return view('home.facilities');
-        })->name('home.facilities');
+        Route::get('/facilities', [PageController::class, 'homeFacilities'])->name('home.facilities');
 
         // GET /home/gallery - Halaman galeri foto pabrik/produk
-        Route::get('/gallery',function(){
-            return view('home.galleries');
-        })->name('home.gallery');
+        Route::get('/gallery', [PageController::class, 'homeGallery'])->name('home.gallery');
 
     });
 });
@@ -142,18 +134,11 @@ Route::middleware(['auth'])->group(function(){
         // GET /master-data - Halaman Master Data
         // Fungsi: Mengelola data referensi (karyawan, departemen, jabatan)
         // Submenu: Data Karyawan, Departemen & Line, Jabatan
-        Route::get('/master-data',function(){
-            $departments = \App\Models\Department::withCount(['divisions', 'employees'])->get();
-            $divisions = \App\Models\Division::with('department')->orderBy('name')->get();
-            $positions = \App\Models\Position::with('division')->orderBy('name')->get();
-            return view('admin.master-data', compact('departments', 'divisions', 'positions'));
-        })->name('master-data');
+        Route::get('/master-data', [MasterDataController::class, 'masterDataPage'])->name('master-data');
 
         // GET /departments/{id} - Halaman Detail Departemen
         // Fungsi: Melihat dan mengelola divisi & jabatan dalam departemen
-        Route::get('/departments/{id}', function($id){
-            return view('admin.departments.show');
-        })->name('departments.show');
+        Route::get('/departments/{id}', [PageController::class, 'departmentsShow'])->name('departments.show');
 
         // ============================================
         // EMPLOYEE IMPORT ROUTES
@@ -172,30 +157,22 @@ Route::middleware(['auth'])->group(function(){
         // GET /material-management - Halaman Material Management
         // Fungsi: Mengelola materi pelatihan dan dokumen SOP
         // Submenu: Katalog Pelatihan, Pustaka SOP/WI, Media Library
-        Route::get('/material-management',function(){
-            return view('admin.material-management');
-        })->name('material-management');
+        Route::get('/material-management', [PageController::class, 'materialManagement'])->name('material-management');
 
         // GET /evaluation-and-exam - Halaman Evaluation & Exam
         // Fungsi: Mengelola soal ujian, setup ujian, dan hasil ujian
         // Submenu: Bank Soal, Setup Ujian, Hasil Ujian
-        Route::get('/evaluation-and-exam',function(){
-            return view('admin.evaluation-and-exam');
-        })->name('evaluation-and-exam');
+        Route::get('/evaluation-and-exam', [PageController::class, 'evaluationAndExam'])->name('evaluation-and-exam');
 
         // GET /report-and-audit - Halaman Report & Audit
         // Fungsi: Reporting dan compliance untuk audit ISO 9001
         // Submenu: Matriks Kompetensi, Riwayat Pelatihan, Cetak Sertifikat
-        Route::get('/report-and-audit',function(){
-            return view('admin.report-and-audit');
-        })->name('report-and-audit');
+        Route::get('/report-and-audit', [PageController::class, 'reportAndAudit'])->name('report-and-audit');
 
         // GET /settings - Halaman Settings
         // Fungsi: Pengaturan sistem dan manajemen user admin
         // Submenu: Admin Management, Audit Log
-        Route::get('/settings',function(){
-            return view('admin.settings');
-        })->name('settings');
+        Route::get('/settings', [PageController::class, 'settings'])->name('settings');
 
         // ============================================
         // MACHINING PROCESS ROUTES (Sub-module)
@@ -209,9 +186,7 @@ Route::middleware(['auth'])->group(function(){
 
                 // GET /machining/monitoring/ - Halaman monitoring proses produksi
                 // Fungsi: Monitoring real-time status mesin dan line produksi
-                Route::get('/',function(){
-                    return view('admin.machining.monitoring.index');
-                })->name('index');
+                Route::get('/', [PageController::class, 'machiningMonitoringIndex'])->name('index');
 
             });
 
