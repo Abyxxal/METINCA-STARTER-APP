@@ -22,6 +22,7 @@
     </div>
 </div>
 
+<div class="page-content">
 <section class="section">
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show">
@@ -120,9 +121,12 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">
-                                        <i class="bi bi-person-x fs-1 d-block mb-2"></i>
-                                        Tidak ada Supervisor/Manager ditemukan.
+                                    <td colspan="5" class="p-0">
+                                        <div class="empty-state m-3">
+                                            <i class="bi bi-person-x"></i>
+                                            <h5>Tidak ada data</h5>
+                                            <p class="text-muted mb-0">Tidak ada Supervisor/Manager yang cocok dengan pencarian</p>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
@@ -204,4 +208,5 @@
     </div>
 
 </section>
+</div>
 @endsection

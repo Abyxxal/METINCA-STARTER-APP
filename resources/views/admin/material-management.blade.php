@@ -15,7 +15,7 @@
             gap: 1rem;
         }
         .media-item {
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--bs-border-color);
             border-radius: 0.5rem;
             overflow: hidden;
             transition: all 0.3s;
@@ -28,7 +28,10 @@
             width: 100%;
             height: 150px;
             object-fit: cover;
-            background: #f8f9fa;
+            background: var(--bs-tertiary-bg);
+        }
+        .media-thumbnail > i {
+            font-size: 3rem;
         }
         .media-info {
             padding: 0.75rem;
@@ -422,7 +425,7 @@
                                     <!-- YouTube Item -->
                                     <div class="media-item">
                                         <div class="media-thumbnail d-flex align-items-center justify-content-center bg-danger text-white">
-                                            <i class="bi bi-youtube" style="font-size: 3rem;"></i>
+                                            <i class="bi bi-youtube"></i>
                                         </div>
                                         <div class="media-info">
                                             <strong class="d-block mb-1">Safety Training Video</strong>
@@ -562,19 +565,19 @@
 
             // Button handlers
             $('#btnTambahKatalog').on('click', function() {
-                alert('Fitur Tambah Katalog Pelatihan akan segera tersedia');
+                Swal.fire({ icon: 'info', title: 'Segera tersedia', text: 'Fitur Tambah Katalog Pelatihan sedang dalam pengembangan.' });
             });
 
             $('#btnTambahDokumen').on('click', function() {
-                alert('Fitur Upload Dokumen SOP/WI akan segera tersedia');
+                Swal.fire({ icon: 'info', title: 'Segera tersedia', text: 'Fitur Upload Dokumen SOP/WI sedang dalam pengembangan.' });
             });
 
             $('#btnUploadMedia').on('click', function() {
-                alert('Fitur Upload Media (Image/Video) akan segera tersedia');
+                Swal.fire({ icon: 'info', title: 'Segera tersedia', text: 'Fitur Upload Media (Image/Video) sedang dalam pengembangan.' });
             });
 
             $('#btnTambahYoutube').on('click', function() {
-                alert('Fitur Add YouTube Link akan segera tersedia');
+                Swal.fire({ icon: 'info', title: 'Segera tersedia', text: 'Fitur Add YouTube Link sedang dalam pengembangan.' });
             });
         });
     </script>

@@ -66,7 +66,7 @@
                     <a href="{{ route('cbt.admin.questions.edit-set', $setInfo->question_set_id) }}" class="btn btn-warning">
                         <i class="bi bi-pencil"></i> Edit Set
                     </a>
-                    <form action="{{ route('cbt.admin.questions.destroy-set', $setInfo->question_set_id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus seluruh set soal ini ({{ $questions->count() }} soal)?')">
+                    <form action="{{ route('cbt.admin.questions.destroy-set', $setInfo->question_set_id) }}" method="POST" class="d-inline form-delete-set" data-count="{{ $questions->count() }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger">
@@ -84,7 +84,7 @@
     {{-- Daftar Soal --}}
     @foreach($questions as $index => $question)
     <div class="card mb-3">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Soal #{{ $index + 1 }}</h5>
             <div>
                 @switch($question->type)
@@ -141,7 +141,7 @@
             <a href="{{ route('cbt.admin.questions.edit', $question) }}" class="btn btn-sm btn-warning">
                 <i class="bi bi-pencil"></i> Edit
             </a>
-            <form action="{{ route('cbt.admin.questions.destroy', $question) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus soal ini?')">
+            <form action="{{ route('cbt.admin.questions.destroy', $question) }}" method="POST" class="d-inline form-delete-question">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-sm btn-danger">
@@ -153,3 +153,45 @@
     @endforeach
 </section>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.form-delete-set').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Hapus seluruh set soal?',
+                text: `Seluruh set beserta ${form.dataset.count} soal di dalamnya akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: SWAL_BTN.danger,
+                cancelButtonColor: SWAL_BTN.cancel
+            }).then(result => {
+                if (result.isConfirmed) form.submit();
+            });
+        });
+    });
+
+    document.querySelectorAll('.form-delete-question').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Hapus soal ini?',
+                text: 'Soal akan dihapus dari set.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: SWAL_BTN.danger,
+                cancelButtonColor: SWAL_BTN.cancel
+            }).then(result => {
+                if (result.isConfirmed) form.submit();
+            });
+        });
+    });
+});
+</script>
+@endpush

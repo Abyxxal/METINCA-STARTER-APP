@@ -317,25 +317,6 @@ class ExamSessionController extends Controller
     }
 
     /**
-     * Show edit form for a session (returns JSON for modal).
-     */
-    public function edit(ExamSession $session)
-    {
-        $session->load(['exam.skill', 'employee.division']);
-
-        return response()->json([
-            'id' => $session->id,
-            'employee_name' => $session->employee->name ?? $session->employee_nik,
-            'exam_title' => $session->exam->title ?? '-',
-            'deadline_at' => $session->deadline_at?->format('Y-m-d\TH:i'),
-            'scheduled_start_at' => $session->scheduled_start_at?->format('Y-m-d\TH:i'),
-            'passing_score' => $session->exam->passing_score ?? 70,
-            'duration_minutes' => $session->exam->duration_minutes ?? 60,
-            'status' => $session->status,
-        ]);
-    }
-
-    /**
      * Update session settings (deadline, KKM, duration).
      */
     public function update(Request $request, ExamSession $session)

@@ -3,14 +3,27 @@
 @section('title', 'Import Data Karyawan')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3">Import Data Karyawan</h1>
-            <p class="text-muted">Import data karyawan dari file Excel</p>
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Import Data Karyawan</h3>
+                <p class="text-subtitle text-muted">Import data karyawan dari file Excel</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('master-data') }}">Master Data</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Import Karyawan</li>
+                    </ol>
+                </nav>
+            </div>
         </div>
     </div>
+</div>
 
+<div class="page-content">
     @if ($errors->any())
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <strong>Import Gagal!</strong>
@@ -53,11 +66,11 @@
         </div>
     @endif
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light border-bottom">
-                    <h5 class="mb-0">Upload File Excel</h5>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Upload File Excel</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('employee.import') }}" method="POST" enctype="multipart/form-data">
@@ -69,7 +82,7 @@
                                 <input type="file" class="form-control @error('file') is-invalid @enderror"
                                     id="file" name="file" accept=".xlsx,.xls,.csv" required>
                                 <button class="btn btn-outline-secondary" type="button" id="downloadTemplate">
-                                    <i class="fas fa-download me-2"></i>Download Template
+                                    <i class="bi bi-download me-2"></i>Download Template
                                 </button>
                             </div>
                             @error('file')
@@ -88,10 +101,10 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-upload me-2"></i>Import Data
+                            <i class="bi bi-upload me-2"></i>Import Data
                         </button>
                         <a href="{{ route('master-data') }}" class="btn btn-secondary btn-lg ms-2">
-                            <i class="fas fa-times me-2"></i>Batal
+                            <i class="bi bi-x-lg me-2"></i>Batal
                         </a>
                     </form>
                 </div>
@@ -99,9 +112,9 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light border-bottom">
-                    <h5 class="mb-0">Panduan Import</h5>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Panduan Import</h5>
                 </div>
                 <div class="card-body">
                     <h6>Kolom yang Diperlukan:</h6>
@@ -132,17 +145,19 @@
                     <hr>
 
                     <a href="{{ route('employee.template') }}" class="btn btn-sm btn-outline-primary w-100">
-                        <i class="fas fa-file-excel me-2"></i>Download Template
+                        <i class="bi bi-file-earmark-excel me-2"></i>Download Template
                     </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
     document.getElementById('downloadTemplate').addEventListener('click', function() {
         window.location.href = "{{ route('employee.template') }}";
     });
 </script>
-@endsection
+@endpush

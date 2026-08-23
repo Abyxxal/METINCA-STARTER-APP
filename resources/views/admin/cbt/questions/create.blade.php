@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const num = container.querySelectorAll('.question-item').length + 1;
         return `
             <div class="card mb-3 question-item border-start border-primary border-4" data-index="${index}">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
                     <strong>Soal #${num}</strong>
                     <button type="button" class="btn btn-sm btn-outline-danger remove-btn" data-index="${index}">
                         <i class="bi bi-trash"></i> Hapus
@@ -347,7 +347,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const questions = container.querySelectorAll('.question-item');
         if (questions.length === 0) {
             e.preventDefault();
-            alert('Tambahkan minimal 1 soal!');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Belum ada soal',
+                text: 'Tambahkan minimal 1 soal sebelum menyimpan!'
+            });
         }
     });
 

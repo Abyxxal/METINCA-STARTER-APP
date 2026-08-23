@@ -104,32 +104,7 @@ class CbtExamSetupTest extends TestCase
         $this->assertTrue($exam->refresh()->is_published);
     }
 
-    public function test_cannot_delete_exam_with_sessions(): void
-    {
-        $scenario = $this->buildCbtScenario();
-        $admin = $scenario['admin'];
-        $exam = $scenario['mcExam'];
-
-        $this->makeSession($exam, $scenario['employee'], ExamSession::STATUS_ASSIGNED);
-
-        $this->actingAs($admin)
-            ->delete(route('cbt.admin.exams.destroy', $exam))
-            ->assertSessionHas('error');
-
-        $this->assertDatabaseHas('exams', ['id' => $exam->id]);
-    }
-
-    public function test_admin_can_delete_exam_without_sessions(): void
-    {
-        $scenario = $this->buildCbtScenario();
-        $admin = $scenario['admin'];
-        $exam = $scenario['mcExam'];
-
-        $this->actingAs($admin)
-            ->delete(route('cbt.admin.exams.destroy', $exam))
-            ->assertRedirect(route('cbt.admin.exams.index'))
-            ->assertSessionHas('success');
-
-        $this->assertDatabaseMissing('exams', ['id' => $exam->id]);
-    }
+    // NOTE: Fitur hapus paket ujian (cbt.admin.exams.destroy) dihapus secara sengaja
+    // dari aplikasi (route + controller) — lihat audit route terpakai.
+    // Dua test terkait (delete with/without sessions) ikut ditarik.
 }

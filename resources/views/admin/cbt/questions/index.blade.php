@@ -161,7 +161,7 @@
                                     <a href="{{ route('cbt.admin.questions.edit-set', $set->question_set_id) }}" class="btn btn-sm btn-outline-warning" title="Edit Set">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form action="{{ route('cbt.admin.questions.destroy-set', $set->question_set_id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus set soal ini beserta {{ $set->question_count }} soal di dalamnya?')">
+                                    <form action="{{ route('cbt.admin.questions.destroy-set', $set->question_set_id) }}" method="POST" class="d-inline form-delete-set" data-title="{{ $set->set_title }}" data-count="{{ $set->question_count }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Set">
@@ -172,9 +172,15 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
-                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                    Belum ada soal. <a href="{{ route('cbt.admin.questions.create') }}">Buat soal pertama</a>.
+                                <td colspan="8">
+                                    <div class="empty-state m-3">
+                                        <i class="bi bi-inbox"></i>
+                                        <h5>Belum ada soal</h5>
+                                        <p>Buat set soal pertama untuk memulai bank soal kompetensi.</p>
+                                        <a href="{{ route('cbt.admin.questions.create') }}" class="btn btn-primary mt-2">
+                                            <i class="bi bi-plus-lg me-1"></i> Buat Soal
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -245,6 +251,25 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('#filterForm select[name="for_level"], #filterForm select[name="type"], #filterForm select[name="status"]').forEach(select => {
         select.addEventListener('change', function() {
             window.autoSubmitForm(filterForm);
+        });
+    });
+
+    // Delete set with Swal confirmation
+    document.querySelectorAll('.form-delete-set').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Hapus set soal?',
+                text: `Set "${form.dataset.title}" beserta ${form.dataset.count} soal di dalamnya akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: SWAL_BTN.danger,
+                cancelButtonColor: SWAL_BTN.cancel
+            }).then(result => {
+                if (result.isConfirmed) form.submit();
+            });
         });
     });
 });

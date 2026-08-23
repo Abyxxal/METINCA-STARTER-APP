@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 {{-- Set title berdasarkan page --}}
-@section('title', 'Dashbaord')
+@section('title', 'Dashboard')
 
 {{-- Untuk menggunakan css --}}
 @push('styles')
@@ -34,94 +34,69 @@
     </div>
 
     <div class="page-content">
-        <section class="row">
+        <section class="row gy-4 gx-4">
             {{-- SECTION: 4 Kartu Statistik Utama --}}
             {{-- Fungsi: Menampilkan KPI (Key Performance Indicator) dari sistem training --}}
             {{-- Isi: Total Karyawan Aktif, Materi Tersedia, User Belum Lulus, Sertifikat Expired --}}
             <div class="col-12">
-                <div class="row">
+                <div class="row g-3">
                     {{-- Kartu 1: Total Karyawan Aktif --}}
                     {{-- Menunjukkan jumlah karyawan yang aktif dalam sistem training --}}
                     <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon blue mb-2">
-                                            <i class="bi bi-people-fill"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Total Karyawan Aktif</h6>
-                                        <h6 class="font-extrabold mb-0" id="total-employees">{{ $stats['total_employees'] }}</h6>
-                                        <small class="text-muted">Karyawan aktif</small>
-                                    </div>
-                                </div>
+                        <a href="{{ route('master-data') }}" class="kpi-card" aria-label="Total karyawan aktif: {{ $stats['total_employees'] }}">
+                            <i class="bi bi-people-fill kpi-icon kpi-primary"></i>
+                            <div>
+                                <div class="kpi-value" id="total-employees">{{ $stats['total_employees'] }}</div>
+                                <div class="kpi-label">Total Karyawan Aktif</div>
                             </div>
-                        </div>
+                        </a>
                     </div>
 
-                    {{-- Kartu 2: Total Soal Aktif --}}
-                    {{-- Menunjukkan jumlah soal dalam bank soal yang aktif --}}
+                    {{-- Kartu 2: Role-aware --}}
+                    {{-- Manager  : Pending Persetujuan Level (antrean approval) --}}
+                    {{-- Supervisor: Total Soal Aktif dalam bank soal --}}
                     <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon green mb-2">
-                                            <i class="bi bi-file-earmark-text-fill"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Total Soal Aktif</h6>
-                                        <h6 class="font-extrabold mb-0" id="total-questions">{{ $stats['total_questions'] }}</h6>
-                                        <small class="text-muted">Bank Soal CBT</small>
-                                    </div>
-                                </div>
+                        @if(Auth::user()->isManager())
+                        <a href="{{ route('cbt.admin.sessions.pending-approval') }}" class="kpi-card">
+                            <i class="bi bi-patch-check-fill kpi-icon kpi-warning"></i>
+                            <div>
+                                <div class="kpi-value {{ $stats['pending_approval'] > 0 ? 'text-warning' : '' }}" id="pending-approval">{{ $stats['pending_approval'] }}</div>
+                                <div class="kpi-label">Pending Persetujuan</div>
                             </div>
-                        </div>
+                        </a>
+                        @else
+                        <a href="{{ route('cbt.admin.questions.index') }}" class="kpi-card">
+                            <i class="bi bi-file-earmark-text-fill kpi-icon kpi-success"></i>
+                            <div>
+                                <div class="kpi-value" id="total-questions">{{ $stats['total_questions'] }}</div>
+                                <div class="kpi-label">Total Soal Aktif</div>
+                            </div>
+                        </a>
+                        @endif
                     </div>
 
                     {{-- Kartu 3: Ujian Pending Verifikasi --}}
                     {{-- Menunjukkan jumlah ujian yang sudah dikerjakan tapi belum diverifikasi admin --}}
                     <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon red mb-2">
-                                            <i class="bi bi-exclamation-triangle-fill"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Pending Verifikasi</h6>
-                                        <h6 class="font-extrabold mb-0 text-warning" id="pending-verification">{{ $stats['pending_verification'] }}</h6>
-                                        <small class="text-warning">Perlu diverifikasi</small>
-                                    </div>
-                                </div>
+                        <a href="{{ route('cbt.admin.sessions.pending') }}" class="kpi-card">
+                            <i class="bi bi-exclamation-triangle-fill kpi-icon kpi-danger"></i>
+                            <div>
+                                <div class="kpi-value text-warning" id="pending-verification">{{ $stats['pending_verification'] }}</div>
+                                <div class="kpi-label">Pending Verifikasi</div>
                             </div>
-                        </div>
+                        </a>
                     </div>
 
                     {{-- Kartu 4: Ujian Aktif Bulan Ini --}}
                     {{-- Menunjukkan jumlah sesi ujian yang sedang berjalan bulan ini --}}
                     <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon purple mb-2">
-                                            <i class="bi bi-calendar-check-fill"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Ujian Aktif</h6>
-                                        <h6 class="font-extrabold mb-0" id="active-exams">{{ $stats['active_exams_this_month'] }}</h6>
-                                        <small class="text-muted">Bulan ini ({{ now()->format('M Y') }})</small>
-                                    </div>
-                                </div>
+                        <a href="{{ route('cbt.admin.sessions.index') }}" class="kpi-card">
+                            <i class="bi bi-calendar-check-fill kpi-icon kpi-info"></i>
+                            <div>
+                                <div class="kpi-value" id="active-exams">{{ $stats['active_exams_this_month'] }}</div>
+                                <div class="kpi-label">Ujian Aktif &mdash; {{ now()->format('M Y') }}</div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -138,7 +113,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="mb-0">Rata-rata Nilai Ujian per Skill</h4>
-                                <p class="text-muted small mb-0">Data periode Februari 2026</p>
+                                <p class="text-muted small mb-0">Periode {{ now()->format('M Y') }}</p>
                             </div>
                             <div class="card-body">
                                 <div id="chartNilaiDepartemen"></div>
@@ -164,25 +139,15 @@
                                             <tr>
                                                 <td class="text-center" style="width: 40px;">
                                                     @if($activity->status === 'verified_pass')
-                                                    <span class="badge bg-success">
-                                                        <i class="bi bi-check-circle-fill"></i>
-                                                    </span>
+                                                    <span class="badge bg-success" title="Lulus" aria-label="Lulus"><i class="bi bi-check-circle-fill" aria-hidden="true"></i></span>
                                                     @elseif($activity->status === 'verified_fail')
-                                                    <span class="badge bg-danger">
-                                                        <i class="bi bi-x-circle-fill"></i>
-                                                    </span>
+                                                    <span class="badge bg-danger" title="Tidak Lulus" aria-label="Tidak Lulus"><i class="bi bi-x-circle-fill" aria-hidden="true"></i></span>
                                                     @elseif($activity->status === 'submitted')
-                                                    <span class="badge bg-info">
-                                                        <i class="bi bi-clipboard-check-fill"></i>
-                                                    </span>
+                                                    <span class="badge bg-info" title="Menunggu Verifikasi" aria-label="Menunggu Verifikasi"><i class="bi bi-clipboard-check-fill" aria-hidden="true"></i></span>
                                                     @elseif($activity->status === 'started')
-                                                    <span class="badge bg-warning">
-                                                        <i class="bi bi-hourglass-split"></i>
-                                                    </span>
+                                                    <span class="badge bg-warning" title="Sedang Ujian" aria-label="Sedang Ujian"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
                                                     @else
-                                                    <span class="badge bg-secondary">
-                                                        <i class="bi bi-circle-fill"></i>
-                                                    </span>
+                                                    <span class="badge bg-secondary" title="Ditugaskan" aria-label="Ditugaskan"><i class="bi bi-circle-fill" aria-hidden="true"></i></span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -206,9 +171,12 @@
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="2" class="text-center text-muted py-4">
-                                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                                    Belum ada aktivitas
+                                                <td colspan="2" class="p-0">
+                                                    <div class="empty-state m-3">
+                                                        <i class="bi bi-inbox"></i>
+                                                        <h5>Belum ada aktivitas</h5>
+                                                        <p class="text-muted mb-0">Aktivitas ujian terbaru akan tampil di sini</p>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             @endforelse
@@ -241,33 +209,40 @@
                                 <h4 class="mb-0">Quick Access</h4>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    {{-- Button ke Master Data --}}
-                                    <div class="col-6 mb-3">
-                                        <a href="{{ route('master-data') }}" class="btn btn-outline-primary w-100">
-                                            <i class="bi bi-database-fill d-block" style="font-size: 2rem;"></i>
-                                            <span class="d-block mt-2">Master Data</span>
+                                <div class="row g-3">
+                                    {{-- Tile Master Data / Riwayat Persetujuan (role-aware) --}}
+                                    <div class="col-6">
+                                        @if(Auth::user()->isManager())
+                                        <a href="{{ route('cbt.admin.sessions.approval-history') }}" class="quick-tile">
+                                            <i class="bi bi-clock-history kpi-icon kpi-primary"></i>
+                                            <span class="quick-tile-label">Riwayat Persetujuan</span>
+                                        </a>
+                                        @else
+                                        <a href="{{ route('master-data') }}" class="quick-tile">
+                                            <i class="bi bi-database-fill kpi-icon kpi-primary"></i>
+                                            <span class="quick-tile-label">Master Data</span>
+                                        </a>
+                                        @endif
+                                    </div>
+                                    {{-- Tile Bank Soal --}}
+                                    <div class="col-6">
+                                        <a href="{{ route('cbt.admin.questions.index') }}" class="quick-tile">
+                                            <i class="bi bi-journal-text kpi-icon kpi-success"></i>
+                                            <span class="quick-tile-label">Bank Soal</span>
                                         </a>
                                     </div>
-                                    {{-- Button ke Bank Soal --}}
-                                    <div class="col-6 mb-3">
-                                        <a href="{{ route('cbt.admin.questions.index') }}" class="btn btn-outline-success w-100">
-                                            <i class="bi bi-journal-text d-block" style="font-size: 2rem;"></i>
-                                            <span class="d-block mt-2">Bank Soal</span>
+                                    {{-- Tile Sesi Ujian --}}
+                                    <div class="col-6">
+                                        <a href="{{ route('cbt.admin.sessions.index') }}" class="quick-tile">
+                                            <i class="bi bi-clipboard-check-fill kpi-icon kpi-warning"></i>
+                                            <span class="quick-tile-label">Sesi Ujian</span>
                                         </a>
                                     </div>
-                                    {{-- Button ke Sesi Ujian --}}
-                                    <div class="col-6 mb-3">
-                                        <a href="{{ route('cbt.admin.sessions.index') }}" class="btn btn-outline-warning w-100">
-                                            <i class="bi bi-clipboard-check-fill d-block" style="font-size: 2rem;"></i>
-                                            <span class="d-block mt-2">Sesi Ujian</span>
-                                        </a>
-                                    </div>
-                                    {{-- Button ke Matriks Kompetensi --}}
-                                    <div class="col-6 mb-3">
-                                        <a href="{{ route('cbt.admin.competency-matrix') }}" class="btn btn-outline-info w-100">
-                                            <i class="bi bi-grid-3x3-gap-fill d-block" style="font-size: 2rem;"></i>
-                                            <span class="d-block mt-2">Matriks Kompetensi</span>
+                                    {{-- Tile Matriks Kompetensi --}}
+                                    <div class="col-6">
+                                        <a href="{{ route('cbt.admin.competency-matrix') }}" class="quick-tile">
+                                            <i class="bi bi-grid-3x3-gap-fill kpi-icon kpi-info"></i>
+                                            <span class="quick-tile-label">Matriks Kompetensi</span>
                                         </a>
                                     </div>
                                 </div>
@@ -309,9 +284,10 @@
                                     </div>
                                 </div>
                                 @empty
-                                <div class="text-center text-muted py-4">
-                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                    Belum ada data ujian
+                                <div class="empty-state">
+                                    <i class="bi bi-inbox"></i>
+                                    <h5>Belum ada data ujian</h5>
+                                    <p class="text-muted mb-0">Statistik kelulusan skill akan tampil setelah ada ujian yang selesai</p>
                                 </div>
                                 @endforelse
                                 
@@ -335,91 +311,116 @@
 @push('scripts')
     <script src="{{ asset('assets/extensions/apexcharts/apexcharts.min.js') }}"></script>
     <script>
-        // Bar Chart: Rata-rata Nilai Ujian per Skill
-        var optionsNilaiDepartemen = {
-            series: [{
-                name: 'Rata-rata Nilai',
-                data: {!! json_encode($skillStats->pluck('avg_score')->toArray()) !!}
-            }],
-            chart: {
-                type: 'bar',
-                height: 350,
-                toolbar: {
-                    show: false
-                }
-            },
-            colors: ['#435ebe'],
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    endingShape: 'rounded',
-                    dataLabels: {
-                        position: 'top'
-                    }
-                }
-            },
-            dataLabels: {
-                enabled: true,
-                formatter: function (val) {
-                    return val + "%";
-                },
-                offsetY: -20,
-                style: {
-                    fontSize: '12px',
-                    colors: ["#304758"]
-                }
-            },
-            xaxis: {
-                categories: {!! json_encode($skillStats->pluck('code')->toArray()) !!},
-                position: 'bottom',
-                labels: {
-                    rotate: -45,
-                    rotateAlways: true
-                }
-            },
-            yaxis: {
-                title: {
-                    text: 'Nilai Rata-rata (%)'
-                },
-                min: 0,
-                max: 100
-            },
-            fill: {
-                opacity: 1
-            },
-            tooltip: {
-                y: {
-                    formatter: function (val) {
-                        return val + "%"
-                    }
-                }
-            },
-            grid: {
-                borderColor: '#e7e7e7',
-                row: {
-                    colors: ['#f3f3f3', 'transparent'],
-                    opacity: 0.5
-                },
-            },
-            annotations: {
-                yaxis: [{
-                    y: 70,
-                    borderColor: '#FF4560',
-                    label: {
-                        borderColor: '#FF4560',
-                        style: {
-                            color: '#fff',
-                            background: '#FF4560',
-                        },
-                        text: 'Passing Grade: 70%',
-                    }
-                }]
-            }
-        };
+        // Bar Chart: Rata-rata Nilai Ujian per Skill (theme-aware)
+        function chartTheme() {
+            var dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            return {
+                bar: dark ? '#6ea8fe' : '#435ebe',
+                label: dark ? '#ced4da' : '#304758',
+                gridBorder: dark ? '#495057' : '#e7e7e7',
+                rowColors: dark ? ['rgba(255,255,255,.04)', 'transparent'] : ['#f3f3f3', 'transparent']
+            };
+        }
 
-        var chartNilaiDepartemen = new ApexCharts(document.querySelector("#chartNilaiDepartemen"), optionsNilaiDepartemen);
+        function buildChartOptions() {
+            var t = chartTheme();
+            return {
+                series: [{
+                    name: 'Rata-rata Nilai',
+                    data: {!! json_encode($skillStats->pluck('avg_score')->toArray()) !!}
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    toolbar: {
+                        show: false
+                    }
+                },
+                colors: [t.bar],
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded',
+                        dataLabels: {
+                            position: 'top'
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) {
+                        return val + "%";
+                    },
+                    offsetY: -20,
+                    style: {
+                        fontSize: '12px',
+                        colors: [t.label]
+                    }
+                },
+                xaxis: {
+                    categories: {!! json_encode($skillStats->pluck('code')->toArray()) !!},
+                    position: 'bottom',
+                    labels: {
+                        rotate: -45,
+                        rotateAlways: true
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Nilai Rata-rata (%)'
+                    },
+                    min: 0,
+                    max: 100,
+                    labels: {
+                        style: {
+                            colors: t.label
+                        }
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                tooltip: {
+                    theme: document.documentElement.getAttribute('data-bs-theme'),
+                    y: {
+                        formatter: function (val) {
+                            return val + "%"
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: t.gridBorder,
+                    row: {
+                        colors: t.rowColors,
+                        opacity: 0.5
+                    },
+                },
+                annotations: {
+                    yaxis: [{
+                        y: 70,
+                        borderColor: '#FF4560',
+                        label: {
+                            borderColor: '#FF4560',
+                            style: {
+                                color: '#fff',
+                                background: '#FF4560',
+                            },
+                            text: 'Passing Grade: 70%',
+                        }
+                    }]
+                }
+            };
+        }
+
+        var chartNilaiDepartemen = new ApexCharts(document.querySelector("#chartNilaiDepartemen"), buildChartOptions());
         chartNilaiDepartemen.render();
+
+        new MutationObserver(function () {
+            if (typeof chartNilaiDepartemen !== 'undefined') {
+                chartNilaiDepartemen.updateOptions(buildChartOptions());
+            }
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
 
         // Realtime dashboard update via Pusher
         var pusherDashboard = new Pusher('{{ env("REVERB_APP_KEY") }}', {

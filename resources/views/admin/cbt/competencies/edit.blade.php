@@ -113,8 +113,7 @@
                                     @if($competency)
                                         <form action="{{ route('cbt.admin.employee-competencies.destroy', [$employee, $skill->id]) }}" 
                                             method="POST" 
-                                            class="d-inline"
-                                            onsubmit="return confirm('Reset level skill ini ke 0?')">
+                                            class="d-inline form-reset-skill">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger">
@@ -184,3 +183,27 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.form-reset-skill').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Reset level skill?',
+                text: 'Level skill ini akan direset ke 0.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Reset!',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: SWAL_BTN.danger,
+                cancelButtonColor: SWAL_BTN.cancel
+            }).then(function(result) {
+                if (result.isConfirmed) form.submit();
+            });
+        });
+    });
+});
+</script>
+@endpush

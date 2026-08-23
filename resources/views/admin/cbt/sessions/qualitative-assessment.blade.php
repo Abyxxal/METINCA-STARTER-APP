@@ -2,27 +2,28 @@
 
 @push('styles')
 <style>
-:root {
-  --bg: #f4f7fb;
-  --surface: #ffffff;
-  --surface-soft: #f8fafc;
-  --text: #172033;
-  --muted: #6b7280;
-  --line: #e5e7eb;
-  --primary: #2563eb;
-  --primary-soft: #eff6ff;
-  --success: #16803c;
-  --success-soft: #ecfdf3;
-  --warning: #b45309;
-  --warning-soft: #fff7ed;
-  --danger: #b42318;
-  --danger-soft: #fff1f0;
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+/* Page-scoped design tokens mapped to Bootstrap 5.3 theme variables (light + dark aware) */
+#qaScope {
   --radius: 16px;
+  --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+  --bg: var(--bs-body-bg);
+  --surface: var(--bs-body-bg);
+  --surface-soft: var(--bs-tertiary-bg);
+  --text: var(--bs-emphasis-color);
+  --muted: var(--bs-secondary-color);
+  --line: var(--bs-border-color);
+  --primary: var(--bs-primary);
+  --primary-soft: rgba(var(--bs-primary-rgb), .1);
+  --success: var(--bs-success-text-emphasis);
+  --success-soft: rgba(var(--bs-success-rgb), .12);
+  --warning: var(--bs-warning-text-emphasis);
+  --warning-soft: rgba(var(--bs-warning-rgb), .14);
+  --danger: var(--bs-danger-text-emphasis);
+  --danger-soft: rgba(var(--bs-danger-rgb), .12);
 }
 
-body {
-  background: var(--bg) !important;
+html[data-bs-theme="dark"] #qaScope {
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
 }
 
 .qa-header {
@@ -74,8 +75,8 @@ body {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: rgba(var(--bs-primary-rgb), .15);
+  color: var(--primary);
   font-weight: 800;
   font-size: 14px;
 }
@@ -121,8 +122,8 @@ body {
   display: grid;
   place-items: center;
   border-radius: 16px;
-  background: #e0e7ff;
-  color: #3730a3;
+  background: rgba(var(--bs-primary-rgb), .15);
+  color: var(--primary);
   font-size: 20px;
   font-weight: 800;
   flex: 0 0 62px;
@@ -204,7 +205,7 @@ body {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: conic-gradient(var(--primary) var(--score), #dbe3ef 0);
+  background: conic-gradient(var(--primary) var(--score), var(--bs-border-color) 0);
 }
 
 .score-ring::after {
@@ -212,7 +213,7 @@ body {
   position: absolute;
   inset: 10px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .score-ring strong,
@@ -289,7 +290,7 @@ body {
 }
 
 .qa-badge.secondary {
-  background: #f3f4f6;
+  background: var(--surface-soft);
   color: var(--muted);
 }
 
@@ -324,7 +325,7 @@ body {
   text-align: center;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--surface);
   color: var(--muted);
   cursor: pointer;
   font-size: 13px;
@@ -398,19 +399,19 @@ body {
 }
 
 .choice.good input:checked + label {
-  border-color: #34a853;
+  border-color: var(--bs-success);
   background: var(--success-soft);
   color: var(--success);
 }
 
 .choice.mid input:checked + label {
-  border-color: #f59e0b;
+  border-color: var(--bs-warning);
   background: var(--warning-soft);
   color: var(--warning);
 }
 
 .choice.bad input:checked + label {
-  border-color: #ef4444;
+  border-color: var(--bs-danger);
   background: var(--danger-soft);
   color: var(--danger);
 }
@@ -442,7 +443,7 @@ body {
   border-radius: 10px;
   padding: 11px 12px;
   color: var(--text);
-  background: #ffffff;
+  background: var(--surface);
   outline: none;
   font-size: 14px;
 }
@@ -463,9 +464,9 @@ body {
 .decision-box {
   margin-top: 20px;
   padding: 17px;
-  border: 1px dashed #bfdbfe;
+  border: 1px dashed rgba(var(--bs-primary-rgb), .4);
   border-radius: 14px;
-  background: #f8fbff;
+  background: rgba(var(--bs-primary-rgb), .06);
 }
 
 .decision-box h3 {
@@ -505,23 +506,23 @@ body {
 }
 
 .qa-btn.secondary {
-  background: #ffffff;
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--line);
 }
 
 .qa-btn.secondary:hover {
-  background: #f9fafb;
+  background: var(--surface-soft);
 }
 
 .qa-btn.danger {
   background: var(--danger-soft);
   color: var(--danger);
-  border: 1px solid #fecaca;
+  border: 1px solid rgba(var(--bs-danger-rgb), .4);
 }
 
 .qa-btn.danger:hover {
-  background: #fee2e2;
+  background: rgba(var(--bs-danger-rgb), .2);
 }
 
 .qa-btn.primary {
@@ -530,7 +531,7 @@ body {
 }
 
 .qa-btn.primary:hover {
-  background: #1d4ed8;
+  filter: brightness(.9);
 }
 
 /* Alert */
@@ -547,7 +548,13 @@ body {
 .qa-alert.success {
   background: var(--success-soft);
   color: var(--success);
-  border: 1px solid #bbf7d0;
+  border: 1px solid rgba(var(--bs-success-rgb), .4);
+}
+
+.qa-alert.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid rgba(var(--bs-danger-rgb), .4);
 }
 
 @media (max-width: 1050px) {
@@ -610,6 +617,7 @@ body {
     $managerInitials = substr($managerInitials, 0, 2);
 @endphp
 
+<div id="qaScope">
 <div class="qa-header">
     <div>
         <div class="qa-breadcrumb">
@@ -635,7 +643,7 @@ body {
 @endif
 
 @if($errors->any())
-    <div class="qa-alert" style="background: var(--danger-soft, #fff1f0); color: var(--danger, #b42318); border: 1px solid #fecaca;">
+    <div class="qa-alert danger">
         <i class="bi bi-x-octagon"></i>
         <div>
             <strong>Pengajuan tidak dapat diproses.</strong><br>
@@ -866,6 +874,7 @@ body {
         </form>
     </div>
 </div>
+</div>
 
 @push('scripts')
 @php
@@ -896,66 +905,18 @@ body {
     opacity: 0.9;
 }
 .recommendation-badge.warning {
-    background: var(--warning-soft, #fff7ed);
-    color: var(--warning, #b45309);
-    border: 1px solid #fed7aa;
+    background: var(--warning-soft);
+    color: var(--warning);
+    border: 1px solid rgba(var(--bs-warning-rgb), .4);
 }
 .recommendation-badge.danger {
-    background: var(--danger-soft, #fff1f0);
-    color: var(--danger, #b42318);
-    border: 1px solid #fecaca;
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid rgba(var(--bs-danger-rgb), .4);
 }
 .qa-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-.qa-inline-error {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin: 0 0 16px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    background: var(--danger-soft, #fff1f0);
-    color: var(--danger, #b42318);
-    border: 1px solid #fecaca;
-    font-size: 13px;
-    line-height: 1.5;
-}
-.qa-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.5);
-    display: grid;
-    place-items: center;
-    z-index: 9999;
-}
-.qa-modal {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 22px;
-    max-width: 420px;
-    width: 90%;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
-}
-.qa-modal h3 {
-    margin: 0 0 8px;
-    font-size: 16px;
-}
-.qa-modal p {
-    margin: 0 0 18px;
-    color: var(--muted, #6b7280);
-    font-size: 13px;
-    line-height: 1.6;
-}
-.qa-modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-.qa-modal-actions .qa-btn:disabled {
-    opacity: 0.6;
-    cursor: wait;
 }
 </style>
 <script>
@@ -1023,35 +984,67 @@ document.querySelectorAll('.choice-group input[type="radio"]').forEach(function(
 });
 
 document.getElementById('btnSetujui')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    var btn = this;
     var count = countTidakMemenuhi();
     var notes = document.getElementById('manager_notes')?.value?.trim();
 
     if (count >= 1 && !notes) {
-        alert('Catatan Manager wajib diisi karena ada kriteria yang Tidak Memenuhi.');
-        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Catatan wajib diisi',
+            text: 'Catatan Manager wajib diisi karena ada kriteria yang Tidak Memenuhi.'
+        });
         return;
     }
 
-    var msg = 'Yakin ingin menyetujui kenaikan level karyawan ini?';
+    var text = 'Kenaikan level karyawan akan disetujui dan kompetensi diperbarui.';
     if (count >= 2) {
-        msg = count + ' dari 5 kriteria Tidak Memenuhi. Yakin tetap ingin menyetujui kenaikan level?';
+        text = count + ' dari 5 kriteria Tidak Memenuhi. Yakin tetap ingin menyetujui kenaikan level?';
     } else if (count === 1) {
-        msg = 'Ada 1 kriteria yang Tidak Memenuhi. Yakin ingin menyetujui dengan catatan?';
+        text = 'Ada 1 kriteria yang Tidak Memenuhi. Yakin ingin menyetujui dengan catatan?';
     }
 
-    if (!confirm(msg)) {
-        e.preventDefault();
-    }
+    Swal.fire({
+        title: 'Setujui kenaikan level?',
+        text: text,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Setujui',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: SWAL_BTN.success,
+        cancelButtonColor: SWAL_BTN.cancel
+    }).then(function(result) {
+        if (result.isConfirmed) document.getElementById('assessmentForm').requestSubmit(btn);
+    });
 });
 
 document.getElementById('btnTolak')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    var btn = this;
     var notes = document.getElementById('manager_notes')?.value?.trim();
+
     if (!notes) {
-        alert('Alasan penolakan wajib diisi pada Catatan Manager.');
-        e.preventDefault();
-    } else if (!confirm('Yakin ingin menolak kenaikan level karyawan ini?')) {
-        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Alasan penolakan wajib diisi',
+            text: 'Tuliskan alasan penolakan pada Catatan Manager.'
+        });
+        return;
     }
+
+    Swal.fire({
+        title: 'Tolak kenaikan level?',
+        text: 'Pengajuan kenaikan level karyawan ini akan ditolak.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Tolak',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: SWAL_BTN.danger,
+        cancelButtonColor: SWAL_BTN.cancel
+    }).then(function(result) {
+        if (result.isConfirmed) document.getElementById('assessmentForm').requestSubmit(btn);
+    });
 });
 
 updateRecommendation();

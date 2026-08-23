@@ -49,7 +49,7 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
         Route::get('/{exam}', [ExamController::class, 'show'])->name('show');
         Route::get('/{exam}/edit', [ExamController::class, 'edit'])->name('edit');
         Route::put('/{exam}', [ExamController::class, 'update'])->name('update');
-        Route::delete('/{exam}', [ExamController::class, 'destroy'])->name('destroy');
+        Route::get('/{exam}/edit', [ExamController::class, 'edit'])->name('edit');
         Route::post('/{exam}/toggle-publish', [ExamController::class, 'togglePublish'])->name('toggle-publish');
         Route::get('/ajax/questions-by-skill', [ExamController::class, 'getQuestionsBySkill'])->name('questions-by-skill');
     });
@@ -61,7 +61,6 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
         Route::get('/create', [ExamSessionController::class, 'create'])->name('create');
         Route::post('/', [ExamSessionController::class, 'store'])->name('store');
         Route::get('/{session}', [ExamSessionController::class, 'show'])->name('show');
-        Route::get('/{session}/edit', [ExamSessionController::class, 'edit'])->name('edit');
         Route::put('/{session}', [ExamSessionController::class, 'update'])->name('update');
         Route::post('/{session}/verify', [ExamSessionController::class, 'verify'])->name('verify');
         Route::delete('/{session}/cancel', [ExamSessionController::class, 'cancel'])->name('cancel');

@@ -96,7 +96,7 @@
                             @php
                                 $answer = $session->answers->where('question_id', $question->question_id)->first();
                             @endphp
-                            <div class="mb-4 p-3 border rounded {{ $question->type === 'essay' ? ($answer?->score_earned > 0 ? 'border-success bg-light' : 'border-secondary') : ($answer?->is_correct ? 'border-success bg-light' : ($answer ? 'border-danger' : 'border-secondary')) }}">
+                            <div class="mb-4 p-3 border rounded {{ $question->type === 'essay' ? ($answer?->score_earned > 0 ? 'border-success bg-body-tertiary' : 'border-secondary') : ($answer?->is_correct ? 'border-success bg-body-tertiary' : ($answer ? 'border-danger' : 'border-secondary')) }}">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <strong>{{ $i + 1 }}. {{ $question->question_text }}</strong>
                                     @if($question->type !== 'essay')
@@ -129,7 +129,7 @@
                                                 <h6 class="mb-2">
                                                     <i class="bi bi-file-earmark-text"></i> Jawaban Karyawan:
                                                 </h6>
-                                                <div class="bg-white p-3 rounded border" style="min-height: 100px; white-space: pre-wrap;">
+                                                <div class="bg-body-tertiary p-3 rounded border" style="min-height: 100px; white-space: pre-wrap;">
                                                     {{ $answer?->selected_answer ?? 'Tidak dijawab' }}
                                                 </div>
                                                 
@@ -287,7 +287,7 @@
             {{-- Actions --}}
             @if($session->status === 'submitted')
                 <div class="card">
-                    <div class="card-header bg-light-warning">
+                    <div class="card-header">
                         <h4 class="card-title mb-0">
                             <i class="bi bi-clipboard-check"></i> Verifikasi Ujian
                         </h4>
@@ -325,7 +325,7 @@
             {{-- Manager Approval --}}
             @if($session->status === 'verified_pass' && $session->isPendingManagerApproval() && Auth::user()->isManager())
                 <div class="card">
-                    <div class="card-header bg-light-primary">
+                    <div class="card-header">
                         <h4 class="card-title mb-0">
                             <i class="bi bi-shield-check"></i> Persetujuan Kenaikan Level
                         </h4>
@@ -357,9 +357,9 @@
                         <div class="modal-content">
                             <form action="{{ route('cbt.admin.sessions.approve-level', $session) }}" method="POST">
                                 @csrf
-                                <div class="modal-header bg-success text-white">
+                                <div class="modal-header">
                                     <h5 class="modal-title"><i class="bi bi-check-circle"></i> Setujui Kenaikan Level</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="alert alert-info mb-3">
@@ -386,9 +386,9 @@
                         <div class="modal-content">
                             <form action="{{ route('cbt.admin.sessions.reject-level', $session) }}" method="POST">
                                 @csrf
-                                <div class="modal-header bg-danger text-white">
+                                <div class="modal-header">
                                     <h5 class="modal-title"><i class="bi bi-x-circle"></i> Tolak Kenaikan Level</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="alert alert-warning mb-3">

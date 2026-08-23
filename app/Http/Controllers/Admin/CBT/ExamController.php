@@ -205,26 +205,6 @@ class ExamController extends Controller
     }
 
     /**
-     * Remove the specified exam.
-     */
-    public function destroy(Exam $exam)
-    {
-        // Check if exam has sessions
-        if ($exam->sessions()->exists()) {
-            return back()->with('error', 'Tidak dapat menghapus ujian yang sudah memiliki sesi!');
-        }
-
-        $exam->questions()->detach();
-        $exam->delete();
-
-        DashboardStatsUpdated::dispatch();
-
-        return redirect()
-            ->route('cbt.admin.exams.index')
-            ->with('success', 'Ujian berhasil dihapus!');
-    }
-
-    /**
      * Toggle publish status.
      */
     public function togglePublish(Exam $exam)

@@ -214,7 +214,7 @@
                                         </button>
                                     @endif
                                     @if($session->status === 'assigned')
-                                        <form action="{{ route('cbt.admin.sessions.cancel', $session) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan penugasan ini?')">
+                                        <form action="{{ route('cbt.admin.sessions.cancel', $session) }}" method="POST" class="d-inline form-cancel-session">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Batalkan">
@@ -226,13 +226,18 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted py-4">
-                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                    @if($tab === 'berlangsung')
-                                        Tidak ada ujian berlangsung.
-                                    @else
-                                        Belum ada riwayat ujian selesai.
-                                    @endif
+                                <td colspan="10">
+                                    <div class="empty-state m-3">
+                                        <i class="bi bi-inbox"></i>
+                                        <h5>Tidak ada data</h5>
+                                        <p>
+                                            @if($tab === 'berlangsung')
+                                                Tidak ada ujian yang sedang berlangsung.
+                                            @else
+                                                Belum ada riwayat ujian selesai.
+                                            @endif
+                                        </p>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -262,7 +267,7 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
-                    <div class="mb-3 p-3 bg-light rounded">
+                    <div class="mb-3 p-3 bg-body-tertiary rounded">
                         <p class="mb-1"><strong>Karyawan:</strong> <span id="edit-employee-name"></span></p>
                         <p class="mb-0"><strong>Ujian:</strong> <span id="edit-exam-title"></span></p>
                     </div>
@@ -345,6 +350,25 @@
         });
     });
 
+    // Cancel session with Swal confirmation
+    document.querySelectorAll('.form-cancel-session').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Batalkan penugasan?',
+                text: 'Penugasan ujian ini akan dibatalkan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Kembali',
+                confirmButtonColor: SWAL_BTN.danger,
+                cancelButtonColor: SWAL_BTN.cancel
+            }).then(function(result) {
+                if (result.isConfirmed) form.submit();
+            });
+        });
+    });
+
     // Flash messages
     @if(session('success'))
         App.toast('success', '{{ addslashes(session('success')) }}');
@@ -355,7 +379,7 @@
 
     // Show detailed notification if there are not eligible or skipped employees
     @if(session('notEligibleList') || session('skippedList'))
-        let html = '<div style="text-align: left;">';
+        let html = '<div class="text-start">';
 
         @if(session('assignedCount') && session('assignedCount') > 0)
             html += '<div class="alert alert-success mb-3"><i class="bi bi-check-circle"></i> <strong>{{ session("assignedCount") }} karyawan berhasil ditugaskan</strong></div>';
@@ -363,7 +387,7 @@
 
         @if(session('notEligibleList') && count(session('notEligibleList')) > 0)
             html += '<div class="mb-3"><h6 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Tidak Memenuhi Syarat Level:</h6>';
-            html += '<ul style="margin-bottom: 0;">';
+            html += '<ul class="mb-0">';
             @foreach(session('notEligibleList') as $emp)
                 html += '<li><strong>{{ $emp['name'] }}</strong> ({{ $emp['nik'] }}) - Level saat ini: <span class="badge bg-warning">{{ $emp['current_level'] }}</span>, Required: <span class="badge bg-info">{{ $emp['required_level'] }}</span>, Target: <span class="badge bg-success">{{ $emp['target_level'] }}</span></li>';
             @endforeach
@@ -372,7 +396,7 @@
 
         @if(session('skippedList') && count(session('skippedList')) > 0)
             html += '<div class="mb-3"><h6 class="text-warning"><i class="bi bi-info-circle"></i> Dilewati:</h6>';
-            html += '<ul style="margin-bottom: 0;">';
+            html += '<ul class="mb-0">';
             @foreach(session('skippedList') as $emp)
                 html += '<li><strong>{{ $emp['name'] }}</strong> ({{ $emp['nik'] }}) - {{ $emp['reason'] }}</li>';
             @endforeach

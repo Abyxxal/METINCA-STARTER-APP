@@ -7,7 +7,8 @@
     <div class="page-title">
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
-                <h3><i class="bi bi-building me-2"></i>Manajemen Departemen</h3>
+                <h3>Manajemen Departemen</h3>
+                <p class="text-subtitle text-muted">Kelola daftar departemen beserta divisi dan karyawannya</p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
@@ -19,16 +20,16 @@
             </div>
         </div>
     </div>
+</div>
 
+<div class="page-content">
     <section class="section">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light border-bottom py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-building me-2"></i>Daftar Departemen</h5>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahDept">
-                        <i class="bi bi-plus-circle me-1"></i>Tambah Departemen
-                    </button>
-                </div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-building me-2"></i>Daftar Departemen</h5>
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahDept">
+                    <i class="bi bi-plus-circle me-1"></i>Tambah Departemen
+                </button>
             </div>
 
             <div class="card-body">
@@ -38,9 +39,9 @@
                             <tr>
                                 <th style="width: 50px;">No</th>
                                 <th>Nama Departemen</th>
-                                <th style="width: 120px;">Jumlah Divisi</th>
-                                <th style="width: 120px;">Jumlah Karyawan</th>
-                                <th style="width: 150px; text-align: center;">Aksi</th>
+                                <th style="width: 120px;" class="text-center">Jumlah Divisi</th>
+                                <th style="width: 120px;" class="text-center">Jumlah Karyawan</th>
+                                <th style="width: 120px;" class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -51,18 +52,22 @@
                                 <td class="text-center"><span class="badge bg-info">{{ $dept->divisions_count }}</span></td>
                                 <td class="text-center"><span class="badge bg-success">{{ $dept->employees_count }}</span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-warning" onclick="editDept({{ $dept->id }}, '{{ $dept->name }}')">
-                                        <i class="bi bi-pencil-square"></i> Edit
+                                    <button type="button" class="btn btn-sm btn-outline-primary" title="Edit" onclick="editDept({{ $dept->id }}, '{{ $dept->name }}')">
+                                        <i class="bi bi-pencil-square"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-danger" onclick="hapusDept({{ $dept->id }}, '{{ $dept->name }}')">
-                                        <i class="bi bi-trash"></i> Hapus
+                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Hapus" onclick="hapusDept({{ $dept->id }}, '{{ $dept->name }}')">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
-                                    <i class="bi bi-inbox me-2"></i>Tidak ada data departemen
+                                <td colspan="5" class="p-0">
+                                    <div class="empty-state m-3">
+                                        <i class="bi bi-building"></i>
+                                        <h5>Tidak ada data departemen</h5>
+                                        <p class="text-muted mb-0">Tambahkan departemen pertama untuk mulai mengelola struktur organisasi</p>
+                                    </div>
                                 </td>
                             </tr>
                             @endforelse
@@ -78,9 +83,9 @@
 <div class="modal fade" id="modalTambahDept" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Tambah Departemen</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
@@ -102,7 +107,7 @@
 <div class="modal fade" id="modalEditDept" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
+            <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Departemen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -118,7 +123,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-warning" onclick="updateDept()">
+                <button type="button" class="btn btn-primary" onclick="updateDept()">
                     <i class="bi bi-check-circle me-1"></i>Simpan
                 </button>
             </div>
@@ -130,9 +135,9 @@
 <div class="modal fade" id="modalHapusDept" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-trash me-2"></i>Konfirmasi Hapus</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p>Yakin hapus departemen: <strong id="namaHapusDept"></strong> ?</p>
@@ -151,12 +156,19 @@
 
 @push('scripts')
 <script>
-    // Global functions untuk departemen
+    function deptError(xhr, fallback) {
+        Swal.fire({
+            icon: 'error',
+            title: fallback,
+            text: xhr.responseJSON?.message || 'Terjadi kesalahan'
+        });
+    }
+
     window.simpanDept = function() {
         var nama = document.getElementById('namaDeptTambah').value.trim();
-        
+
         if (!nama) {
-            alert('Nama departemen harus diisi');
+            Swal.fire({ icon: 'warning', title: 'Nama departemen harus diisi' });
             return;
         }
 
@@ -167,12 +179,15 @@
             contentType: 'application/json',
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function(response) {
-                alert('✅ Departemen berhasil disimpan');
-                location.reload();
+                bootstrap.Modal.getInstance(document.getElementById('modalTambahDept')).hide();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Departemen berhasil disimpan',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(function() { location.reload(); });
             },
-            error: function(xhr) {
-                alert('❌ Gagal menyimpan: ' + (xhr.responseJSON?.message || 'Error'));
-            }
+            error: function(xhr) { deptError(xhr, 'Gagal menyimpan'); }
         });
     };
 
@@ -188,7 +203,7 @@
         var nama = document.getElementById('editNamaDept').value.trim();
 
         if (!nama) {
-            alert('Nama departemen harus diisi');
+            Swal.fire({ icon: 'warning', title: 'Nama departemen harus diisi' });
             return;
         }
 
@@ -199,12 +214,15 @@
             contentType: 'application/json',
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function() {
-                alert('✅ Departemen berhasil diupdate');
-                location.reload();
+                bootstrap.Modal.getInstance(document.getElementById('modalEditDept')).hide();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Departemen berhasil diperbarui',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(function() { location.reload(); });
             },
-            error: function(xhr) {
-                alert('❌ Gagal update: ' + (xhr.responseJSON?.message || 'Error'));
-            }
+            error: function(xhr) { deptError(xhr, 'Gagal memperbarui'); }
         });
     };
 
@@ -222,12 +240,15 @@
             type: 'DELETE',
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function() {
-                alert('✅ Departemen berhasil dihapus');
-                location.reload();
+                bootstrap.Modal.getInstance(document.getElementById('modalHapusDept')).hide();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Departemen berhasil dihapus',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(function() { location.reload(); });
             },
-            error: function(xhr) {
-                alert('❌ Gagal hapus: ' + (xhr.responseJSON?.message || 'Error'));
-            }
+            error: function(xhr) { deptError(xhr, 'Gagal menghapus'); }
         });
     };
 

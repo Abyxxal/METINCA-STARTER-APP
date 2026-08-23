@@ -25,13 +25,15 @@
 <section class="section">
     @if($competencies->isEmpty())
         <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-award text-muted" style="font-size: 4rem;"></i>
-                <h4 class="mt-3">Belum Ada Kompetensi</h4>
-                <p class="text-muted">Anda belum memiliki kompetensi yang tercatat. Selesaikan ujian untuk mendapatkan kompetensi.</p>
-                <a href="{{ route('cbt.employee.dashboard') }}" class="btn btn-primary">
-                    <i class="bi bi-play"></i> Lihat Ujian Tersedia
-                </a>
+            <div class="card-body">
+                <div class="empty-state">
+                    <i class="bi bi-award"></i>
+                    <h5>Belum Ada Kompetensi</h5>
+                    <p>Anda belum memiliki kompetensi yang tercatat. Selesaikan ujian untuk mendapatkan kompetensi.</p>
+                    <a href="{{ route('cbt.employee.dashboard') }}" class="btn btn-primary mt-2">
+                        <i class="bi bi-play me-1"></i> Lihat Ujian Tersedia
+                    </a>
+                </div>
             </div>
         </div>
     @else

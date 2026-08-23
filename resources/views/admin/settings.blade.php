@@ -113,7 +113,7 @@
                                                 </td>
                                                 <td>john.admin@metinca.com</td>
                                                 <td>
-                                                    <span class="badge bg-danger" style="font-size: 0.9rem;">
+                                                    <span class="badge bg-danger">
                                                         <i class="bi bi-shield-fill-check"></i> Super Admin
                                                     </span>
                                                 </td>
@@ -151,7 +151,7 @@
                                                 </td>
                                                 <td>sarah.hr@metinca.com</td>
                                                 <td>
-                                                    <span class="badge bg-primary" style="font-size: 0.9rem;">
+                                                    <span class="badge bg-primary">
                                                         <i class="bi bi-person-badge"></i> Admin HR
                                                     </span>
                                                 </td>
@@ -192,7 +192,7 @@
                                                 </td>
                                                 <td>budi.dc@metinca.com</td>
                                                 <td>
-                                                    <span class="badge bg-info" style="font-size: 0.9rem;">
+                                                    <span class="badge bg-info">
                                                         <i class="bi bi-file-earmark-text"></i> Admin Document Control
                                                     </span>
                                                 </td>
@@ -233,7 +233,7 @@
                                                 </td>
                                                 <td>dewi.training@metinca.com</td>
                                                 <td>
-                                                    <span class="badge bg-primary" style="font-size: 0.9rem;">
+                                                    <span class="badge bg-primary">
                                                         <i class="bi bi-person-badge"></i> Admin HR
                                                     </span>
                                                 </td>
@@ -274,7 +274,7 @@
                                                 </td>
                                                 <td>rudi.admin@metinca.com</td>
                                                 <td>
-                                                    <span class="badge bg-secondary" style="font-size: 0.9rem;">
+                                                    <span class="badge bg-secondary">
                                                         <i class="bi bi-file-earmark-text"></i> Admin Document Control
                                                     </span>
                                                 </td>
@@ -313,9 +313,7 @@
                                             {{-- Hak akses penuh ke sistem --}}
                                             <div class="col-md-4">
                                                 <div class="d-flex align-items-start mb-3">
-                                                    <span class="badge bg-danger me-3" style="font-size: 1.5rem;">
-                                                        <i class="bi bi-shield-fill-check"></i>
-                                                    </span>
+                                                    <i class="bi bi-shield-fill-check kpi-icon kpi-danger me-3"></i>
                                                     <div>
                                                         <h6 class="mb-1">Super Admin</h6>
                                                         <p class="text-muted small mb-0">
@@ -329,9 +327,7 @@
                                             {{-- Hak akses untuk mengelola karyawan, training, dan evaluasi --}}
                                             <div class="col-md-4">
                                                 <div class="d-flex align-items-start mb-3">
-                                                    <span class="badge bg-primary me-3" style="font-size: 1.5rem;">
-                                                        <i class="bi bi-person-badge"></i>
-                                                    </span>
+                                                    <i class="bi bi-person-badge kpi-icon kpi-primary me-3"></i>
                                                     <div>
                                                         <h6 class="mb-1">Admin HR</h6>
                                                         <p class="text-muted small mb-0">
@@ -343,9 +339,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="d-flex align-items-start mb-3">
-                                                    <span class="badge bg-info me-3" style="font-size: 1.5rem;">
-                                                        <i class="bi bi-file-earmark-text"></i>
-                                                    </span>
+                                                    <i class="bi bi-file-earmark-text kpi-icon kpi-info me-3"></i>
                                                     <div>
                                                         <h6 class="mb-1">Admin Document Control</h6>
                                                         <p class="text-muted small mb-0">
@@ -752,11 +746,19 @@
 
             // Button handlers
             $('#btnTambahAdmin').on('click', function() {
-                alert('Fitur Tambah Admin akan segera tersedia.\n\nForm akan mencakup:\n- NIK Karyawan\n- Email\n- Password\n- Role Admin (Super Admin/Admin HR/Admin DC)\n- Status Active/Inactive');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Segera tersedia',
+                    html: '<div class="text-start">Fitur Tambah Admin akan mencakup:<ul class="mb-0 mt-2"><li>NIK Karyawan</li><li>Email</li><li>Password</li><li>Role Admin (Super Admin/Admin HR/Admin DC)</li><li>Status Active/Inactive</li></ul></div>'
+                });
             });
 
             $('#btnExportAuditLog').on('click', function() {
-                alert('Fitur Export Audit Log akan segera tersedia.\n\nFile Excel akan berisi:\n- Semua log aktivitas\n- Filter sesuai tanggal yang dipilih\n- Format untuk compliance ISO 9001');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Segera tersedia',
+                    text: 'Export Excel audit log dengan filter tanggal untuk compliance ISO 9001 sedang dalam pengembangan.'
+                });
             });
         });
     </script>

@@ -79,9 +79,9 @@
                         </h2>
                         <p class="text-muted mb-2">Ujian Anda sudah berhasil dikumpulkan dan sedang dalam proses verifikasi oleh admin.</p>
                         <div class="alert alert-info mt-3">
-                            <i class="bi bi-info-circle"></i> 
-                            <strong>Informasi:</strong> Admin akan segera memverifikasi hasil ujian Anda. 
-                            Anda akan mendapatkan notifikasi setelah proses verifikasi selesai. 
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Informasi:</strong> Admin akan segera memverifikasi hasil ujian Anda.
+                            Anda akan mendapatkan notifikasi setelah proses verifikasi selesai.
                             Silakan cek halaman ini secara berkala untuk melihat hasilnya.
                         </div>
                     @endif
@@ -90,7 +90,7 @@
                     @if(!in_array($session->status, ['submitted']))
                     <div class="row justify-content-center mt-4">
                         <div class="col-md-4">
-                            <div class="bg-light rounded p-4">
+                            <div class="bg-body-tertiary rounded p-4">
                                 <h1 class="display-4 fw-bold mb-0 
                                     @if($session->status === 'verified_pass') text-success 
                                     @elseif($session->status === 'verified_fail') text-danger 
@@ -101,7 +101,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="bg-light rounded p-4">
+                            <div class="bg-body-tertiary rounded p-4">
                                 <h1 class="display-4 fw-bold mb-0 text-secondary">
                                     {{ $session->exam->passing_score ?? 0 }}%
                                 </h1>
@@ -214,7 +214,7 @@
             {{-- Admin Notes (if any) --}}
             @if($session->admin_notes && in_array($session->status, ['verified_pass', 'verified_fail', 'approved', 'rejected']))
             <div class="card">
-                <div class="card-header bg-light-info">
+                <div class="card-header">
                     <h5 class="card-title mb-0">
                         <i class="bi bi-chat-left-text"></i> Catatan dari Admin
                     </h5>

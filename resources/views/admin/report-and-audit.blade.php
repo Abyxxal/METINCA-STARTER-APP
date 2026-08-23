@@ -19,58 +19,104 @@
         }
         .matrix-table th,
         .matrix-table td {
-            border: 1px solid #dee2e6;
+            border: 1px solid var(--bs-border-color);
             padding: 0.5rem;
             text-align: center;
             min-width: 100px;
             white-space: nowrap;
         }
         .matrix-table th {
-            background: #435ebe;
+            background: var(--bs-primary);
             color: white;
             position: sticky;
             top: 0;
             z-index: 10;
         }
         .matrix-table tbody th {
-            background: #f8f9fa;
+            background: var(--bs-tertiary-bg);
             position: sticky;
             left: 0;
             z-index: 5;
             text-align: left;
             font-weight: 600;
         }
-        .cell-competent {
-            background: #28a745;
-            color: white;
-            font-weight: bold;
+
+        /* Sel level kompetensi (token dari theme-overrides.css) */
+        .lvl-cell {
+            display: inline-block;
+            min-width: 2.4rem;
+            padding: .3rem .5rem;
+            border-radius: .4rem;
+            font-weight: 700;
+            font-size: .78rem;
         }
-        .cell-level-3 {
-            background: #ffc107;
-            color: #333;
-            font-weight: bold;
+        .lvl-cell.lvl-0 { background: var(--lvl-0-bg); color: var(--lvl-0-fg); }
+        .lvl-cell.lvl-1 { background: var(--lvl-1-bg); color: var(--lvl-1-fg); }
+        .lvl-cell.lvl-2 { background: var(--lvl-2-bg); color: var(--lvl-2-fg); }
+        .lvl-cell.lvl-3 { background: var(--lvl-3-bg); color: var(--lvl-3-fg); }
+        .lvl-cell.lvl-4 { background: var(--lvl-4-bg); color: var(--lvl-4-fg); }
+
+        /* Kartu statistik per level */
+        .lvl-stat {
+            height: 100%;
+            padding: .8rem 1rem;
+            background: var(--bs-secondary-bg);
+            border: 1px solid var(--bs-border-color);
+            border-left-width: 4px;
+            border-radius: .6rem;
         }
-        .cell-level-2 {
-            background: #fd7e14;
-            color: white;
-            font-weight: bold;
+        .lvl-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            line-height: 1.2;
+            font-variant-numeric: tabular-nums;
         }
-        .cell-level-1 {
-            background: #0dcaf0;
-            color: white;
-            font-weight: bold;
+        .lvl-stat-label {
+            font-size: .76rem;
+            color: var(--bs-secondary-color);
         }
-        .cell-not-passed {
-            background: #dc3545;
-            color: white;
-            font-weight: bold;
+        .lvl-stat.s0 { border-left-color: var(--lvl-0-fg); }
+        .lvl-stat.s1 { border-left-color: var(--lvl-1-fg); }
+        .lvl-stat.s2 { border-left-color: var(--lvl-2-fg); }
+        .lvl-stat.s3 { border-left-color: var(--lvl-3-fg); }
+        .lvl-stat.s4 { border-left-color: var(--lvl-4-fg); }
+        .lvl-stat.s0 .lvl-stat-value { color: var(--lvl-0-fg); }
+        .lvl-stat.s1 .lvl-stat-value { color: var(--lvl-1-fg); }
+        .lvl-stat.s2 .lvl-stat-value { color: var(--lvl-2-fg); }
+        .lvl-stat.s3 .lvl-stat-value { color: var(--lvl-3-fg); }
+        .lvl-stat.s4 .lvl-stat-value { color: var(--lvl-4-fg); }
+
+        /* Panduan level */
+        .matrix-guide {
+            padding: .9rem 1rem;
+            background: var(--bs-tertiary-bg);
+            border-left: 4px solid var(--bs-primary);
+            border-radius: .5rem;
         }
-        .cell-not-trained {
-            background: #6c757d;
-            color: white;
+        .matrix-guide-line {
+            font-size: .84rem;
+            line-height: 2;
+            color: var(--bs-secondary-color);
         }
+        .lvl-tag {
+            display: inline-block;
+            min-width: 2rem;
+            padding: .05rem .45rem;
+            font-size: .72rem;
+            font-weight: 700;
+            text-align: center;
+            border-radius: .35rem;
+        }
+        .lvl-tag.t0 { background: var(--lvl-0-bg); color: var(--lvl-0-fg); }
+        .lvl-tag.t1 { background: var(--lvl-1-bg); color: var(--lvl-1-fg); }
+        .lvl-tag.t2 { background: var(--lvl-2-bg); color: var(--lvl-2-fg); }
+        .lvl-tag.t3 { background: var(--lvl-3-bg); color: var(--lvl-3-fg); }
+        .lvl-tag.t4 { background: var(--lvl-4-bg); color: var(--lvl-4-fg); }
+
+        /* Legend bawah tabel */
         .matrix-legend {
             display: flex;
+            flex-wrap: wrap;
             gap: 1rem;
             margin-bottom: 1rem;
         }
@@ -78,12 +124,19 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: .82rem;
         }
         .legend-box {
             width: 30px;
             height: 20px;
             border-radius: 3px;
+            border: 1px solid var(--bs-border-color);
         }
+        .legend-box.b0 { background: var(--lvl-0-bg); }
+        .legend-box.b1 { background: var(--lvl-1-bg); }
+        .legend-box.b2 { background: var(--lvl-2-bg); }
+        .legend-box.b3 { background: var(--lvl-3-bg); }
+        .legend-box.b4 { background: var(--lvl-4-bg); }
     </style>
 @endpush
 
@@ -172,46 +225,46 @@
                                 </div>
 
                                 {{-- Dashboard Stats --}}
-                                <div class="row mb-4" id="dashboardStats">
-                                    <div class="col-md-2 mb-3">
-                                        <div style="background-color: #f8f9fa; border-left: 4px solid #6c757d; padding: 15px; border-radius: 4px;">
-                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-0-count">0</div>
-                                            <small style="color: #666;">Level 0 (Belum Training)</small>
+                                <div class="row g-3 mb-4" id="dashboardStats">
+                                    <div class="col-md-2 col-6">
+                                        <div class="lvl-stat s0">
+                                            <div class="lvl-stat-value level-0-count">0</div>
+                                            <div class="lvl-stat-label">Level 0 &mdash; Belum Training</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 mb-3">
-                                        <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
-                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-1-count">0</div>
-                                            <small style="color: #666;">Level 1 (Sedang Belajar)</small>
+                                    <div class="col-md-2 col-6">
+                                        <div class="lvl-stat s1">
+                                            <div class="lvl-stat-value level-1-count">0</div>
+                                            <div class="lvl-stat-label">Level 1 &mdash; Sedang Belajar</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 mb-3">
-                                        <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
-                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-2-count">0</div>
-                                            <small style="color: #666;">Level 2 (Mulai Mandiri)</small>
+                                    <div class="col-md-2 col-6">
+                                        <div class="lvl-stat s2">
+                                            <div class="lvl-stat-value level-2-count">0</div>
+                                            <div class="lvl-stat-label">Level 2 &mdash; Mulai Mandiri</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 mb-3">
-                                        <div style="background-color: #f8f9fa; border-left: 4px solid #0dcaf0; padding: 15px; border-radius: 4px;">
-                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-3-count">0</div>
-                                            <small style="color: #666;">Level 3 (Mandiri Penuh)</small>
+                                    <div class="col-md-2 col-6">
+                                        <div class="lvl-stat s3">
+                                            <div class="lvl-stat-value level-3-count">0</div>
+                                            <div class="lvl-stat-label">Level 3 &mdash; Mandiri Penuh</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 mb-3">
-                                        <div style="background-color: #f8f9fa; border-left: 4px solid #198754; padding: 15px; border-radius: 4px;">
-                                            <div style="font-size: 1.2rem; font-weight: 600; color: #333;" class="level-4-count">0</div>
-                                            <small style="color: #666;">Level 4 (Expert/Instruktur)</small>
+                                    <div class="col-md-2 col-6">
+                                        <div class="lvl-stat s4">
+                                            <div class="lvl-stat-value level-4-count">0</div>
+                                            <div class="lvl-stat-label">Level 4 &mdash; Expert/Instruktur</div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {{-- Panduan Matriks Level --}}
-                                <div style="background-color: #f8f9fa; padding: 12px; border-left: 4px solid #3d7c2a; margin-bottom: 20px; border-radius: 4px;">
-                                    <strong style="font-size: 0.95rem;">Panduan Level Kompetensi (Per Skill):</strong>
-                                    <div style="font-size: 0.85rem; color: #666; margin-top: 8px; line-height: 1.6;">
-                                        <div><span style="color: #6c757d;">●</span> <strong>L0:</strong> Belum melakukan training | <span style="color: #dc3545;">●</span> <strong>L1:</strong> Sedang dalam proses pembelajaran</div>
-                                        <div><span style="color: #ffc107;">●</span> <strong>L2:</strong> Mulai dapat dikerjakan dengan supervisi | <span style="color: #0dcaf0;">●</span> <strong>L3:</strong> Dapat dikerjakan mandiri dengan baik</div>
-                                        <div><span style="color: #198754;">●</span> <strong>L4:</strong> Mahir dan dapat mengajarkan ke karyawan lain</div>
+                                <div class="matrix-guide mb-4">
+                                    <strong>Panduan Level Kompetensi (Per Skill):</strong>
+                                    <div class="matrix-guide-line mt-1">
+                                        <span class="lvl-tag t0">L0</span> Belum melakukan training &nbsp;&bull;&nbsp; <span class="lvl-tag t1">L1</span> Sedang dalam proses pembelajaran<br>
+                                        <span class="lvl-tag t2">L2</span> Mulai dapat dikerjakan dengan supervisi &nbsp;&bull;&nbsp; <span class="lvl-tag t3">L3</span> Dapat dikerjakan mandiri dengan baik<br>
+                                        <span class="lvl-tag t4">L4</span> Mahir dan dapat mengajarkan ke karyawan lain
                                     </div>
                                 </div>
 
@@ -219,7 +272,7 @@
 
                                 <div class="table-responsive">
                                     <table class="table table-striped table-sm" id="skillMatrixTable">
-                                        <thead id="skillTableHead" style="background-color: #f8f9fa;">
+                                        <thead id="skillTableHead">
                                             <tr>
                                                 <th style="width: 50px; text-align: center;">No</th>
                                                 <th style="width: 14%; text-align: left;">Nama & NIK</th>
@@ -229,7 +282,7 @@
                                                 <!-- Skill columns akan diisi dynamically -->
                                             </tr>
                                         </thead>
-                                        <tbody id="skillTableBody" style="background-color: white;">
+                                        <tbody id="skillTableBody">
                                             <tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>
                                         </tbody>
                                     </table>
@@ -502,7 +555,7 @@
                                                 </td>
                                                 <td>15 Jan 2025</td>
                                                 <td>
-                                                    <span class="badge bg-success" style="font-size: 1rem;">85%</span>
+                                                    <span class="badge bg-success">85%</span>
                                                 </td>
                                                 <td>
                                                     15 Jan 2027<br>
@@ -537,7 +590,7 @@
                                                 </td>
                                                 <td>10 Jan 2025</td>
                                                 <td>
-                                                    <span class="badge bg-success" style="font-size: 1rem;">90%</span>
+                                                    <span class="badge bg-success">90%</span>
                                                 </td>
                                                 <td>
                                                     10 Jan 2027<br>
@@ -572,7 +625,7 @@
                                                 </td>
                                                 <td>18 Jan 2025</td>
                                                 <td>
-                                                    <span class="badge bg-success" style="font-size: 1rem;">88%</span>
+                                                    <span class="badge bg-success">88%</span>
                                                 </td>
                                                 <td>
                                                     18 Jan 2027<br>
@@ -607,7 +660,7 @@
                                                 </td>
                                                 <td>12 Jan 2025</td>
                                                 <td>
-                                                    <span class="badge bg-success" style="font-size: 1rem;">95%</span>
+                                                    <span class="badge bg-success">95%</span>
                                                 </td>
                                                 <td>
                                                     12 Jan 2027<br>
@@ -642,7 +695,7 @@
                                                 </td>
                                                 <td>16 Jan 2025</td>
                                                 <td>
-                                                    <span class="badge bg-success" style="font-size: 1rem;">92%</span>
+                                                    <span class="badge bg-success">92%</span>
                                                 </td>
                                                 <td>
                                                     16 Jan 2027<br>
@@ -677,7 +730,7 @@
                                                 </td>
                                                 <td>14 Jan 2025</td>
                                                 <td>
-                                                    <span class="badge bg-success" style="font-size: 1rem;">92%</span>
+                                                    <span class="badge bg-success">92%</span>
                                                 </td>
                                                 <td>
                                                     14 Jan 2027<br>
@@ -711,15 +764,6 @@
     <script src="{{ asset('assets/extensions/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
     <script>
-        // Skill-based competency level colors
-        const levelColors = {
-            0: '#6c757d',  // Grey - Belum training
-            1: '#dc3545',  // Red - Sedang belajar
-            2: '#ffc107',  // Yellow - Mulai mandiri
-            3: '#0dcaf0',  // Blue - Mandiri penuh
-            4: '#198754'   // Green - Expert/Instruktur
-        };
-
         // Load department dropdown dynamically
         function loadDepartemenDynamic() {
             $.ajax({
@@ -839,8 +883,8 @@
                     <tr>
                         <td style="text-align: center; vertical-align: middle;">${index + 1}</td>
                         <td style="text-align: left;">
-                            <div style="font-weight: 600; color: #333;">${escapeHtml(emp.nama)}</div>
-                            <div style="font-size: 0.85rem; color: #666;">NIK: ${escapeHtml(emp.nik)}</div>
+                            <div class="fw-semibold">${escapeHtml(emp.nama)}</div>
+                            <div style="font-size: 0.85rem;">NIK: ${escapeHtml(emp.nik)}</div>
                         </td>
                         <td style="text-align: left; font-size: 0.9rem;">${escapeHtml(emp.departemen)}</td>
                         <td style="text-align: left; font-size: 0.9rem;">${escapeHtml(emp.jabatan)}</td>
@@ -851,15 +895,12 @@
                 skills.forEach(skill => {
                     const skillData = emp.skills[skill.id];
                     const level = skillData ? skillData.level : 0;
-                    const badgeColor = levelColors[level];
                     
                     stats[level]++;
                     
                     rowHtml += `
                         <td style="text-align: center; vertical-align: middle;">
-                            <span style="display: inline-block; padding: 6px 8px; background-color: ${badgeColor}; color: white; border-radius: 4px; font-weight: 600; font-size: 0.8rem;">
-                                L${level}
-                            </span>
+                            <span class="lvl-cell lvl-${level}">L${level}</span>
                         </td>
                     `;
                 });

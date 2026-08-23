@@ -50,25 +50,25 @@
 
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
+                            <div class="text-center p-3 bg-body-tertiary rounded">
                                 <h2 class="text-primary mb-0">{{ $exam->passing_score }}</h2>
                                 <small class="text-muted">KKM (Passing Score)</small>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
+                            <div class="text-center p-3 bg-body-tertiary rounded">
                                 <h2 class="text-info mb-0">{{ $exam->duration_minutes }}</h2>
                                 <small class="text-muted">Menit</small>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
+                            <div class="text-center p-3 bg-body-tertiary rounded">
                                 <h2 class="text-success mb-0">{{ $exam->examQuestions->count() }}</h2>
                                 <small class="text-muted">Soal</small>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="text-center p-3 bg-light rounded">
+                            <div class="text-center p-3 bg-body-tertiary rounded">
                                 <h2 class="text-warning mb-0">{{ $exam->examQuestions->sum('weight') }}</h2>
                                 <small class="text-muted">Total Bobot</small>
                             </div>

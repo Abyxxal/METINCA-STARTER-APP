@@ -149,13 +149,6 @@ Route::middleware(['auth'])->group(function(){
             return view('admin.master-data', compact('departments', 'divisions', 'positions'));
         })->name('master-data');
 
-        // GET /departments - Halaman Daftar Departemen
-        // Fungsi: Melihat, tambah, edit, hapus departemen
-        Route::get('/departments', function(){
-            $departments = \App\Models\Department::withCount(['divisions', 'employees'])->get();
-            return view('admin.departments.index', compact('departments'));
-        })->name('departments.index');
-
         // GET /departments/{id} - Halaman Detail Departemen
         // Fungsi: Melihat dan mengelola divisi & jabatan dalam departemen
         Route::get('/departments/{id}', function($id){

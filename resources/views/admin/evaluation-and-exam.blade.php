@@ -733,15 +733,15 @@
 
             // Button handlers
             $('#btnTambahSoal').on('click', function() {
-                alert('Fitur Tambah Soal akan segera tersedia');
+                Swal.fire({ icon: 'info', title: 'Segera tersedia', text: 'Fitur Tambah Soal sedang dalam pengembangan.' });
             });
 
             $('#btnTambahUjian').on('click', function() {
-                alert('Fitur Buat Ujian Baru akan segera tersedia');
+                Swal.fire({ icon: 'info', title: 'Segera tersedia', text: 'Fitur Buat Ujian Baru sedang dalam pengembangan.' });
             });
 
             $('#btnExportHasil').on('click', function() {
-                alert('Fitur Export Excel akan segera tersedia');
+                Swal.fire({ icon: 'info', title: 'Segera tersedia', text: 'Fitur Export Excel sedang dalam pengembangan.' });
             });
         });
     </script>

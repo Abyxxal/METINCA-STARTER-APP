@@ -21,12 +21,12 @@
         }
         
         /* Make DataTable columns auto-fit content */
-        table.dataTable thead th {
+        #masterDataTabContent table.dataTable thead th {
             padding: 10px 8px;
             font-size: 0.875rem;
         }
         
-        table.dataTable tbody td {
+        #masterDataTabContent table.dataTable tbody td {
             padding: 8px;
             font-size: 0.875rem;
         }
@@ -47,10 +47,9 @@
             overflow-x: auto;
         }
 
-        /* Modal backdrop lebih gelap */
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.7);
-            opacity: 1;
+        /* Tab aktif mengikuti warna tema */
+        #masterDataTab .nav-link.active {
+            border-bottom: 3px solid var(--bs-primary);
         }
     </style>
 @endpush
@@ -94,7 +93,7 @@
                             <button class="nav-link active" id="karyawan-tab" data-bs-toggle="tab"
                                 data-bs-target="#karyawan" type="button" role="tab" aria-controls="karyawan"
                                 aria-selected="true">
-                                <i class="bi bi-people-fill me-2" style="color: #6366f1;"></i><span style="font-weight: 600;">Data Karyawan</span>
+                                <i class="bi bi-people-fill me-2"></i><span>Data Karyawan</span>
                             </button>
                         </li>
                         {{-- TAB 2: Data Departemen --}}
@@ -103,20 +102,10 @@
                             <button class="nav-link" id="departemen-tab" data-bs-toggle="tab"
                                 data-bs-target="#departemen" type="button" role="tab" aria-controls="departemen"
                                 aria-selected="false">
-                                <i class="bi bi-building me-2" style="color: #8b5cf6;"></i><span style="font-weight: 600;">Departemen</span>
+                                <i class="bi bi-building me-2"></i><span>Departemen</span>
                             </button>
                         </li>
                     </ul>
-
-                    <style>
-                        .nav-link.active {
-                            border-bottom: 3px solid #6366f1 !important;
-                            color: #6366f1 !important;
-                        }
-                        .nav-link:hover {
-                            border-radius: 4px 4px 0 0;
-                        }
-                    </style>
 
                     <!-- Tab panes -->
                     <div class="tab-content" id="masterDataTabContent">
@@ -129,14 +118,14 @@
                         
                         <div class="tab-pane fade show active" id="karyawan" role="tabpanel"
                             aria-labelledby="karyawan-tab">
-                            <div class="mt-4 px-3" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0) 100%); border-radius: 8px; padding: 20px;">
+                            <div class="mt-4 px-3 py-3 rounded-3">
                                 {{-- Header dengan tombol Tambah Karyawan --}}
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <div>
-                                        <h5 class="mb-1"><i class="bi bi-people-fill me-2" style="color: #6366f1;"></i>Data Karyawan</h5>
+                                        <h5 class="mb-1"><i class="bi bi-people-fill me-2 text-primary"></i>Data Karyawan</h5>
                                         <p class="text-muted mb-0" style="font-size: 0.875rem;">Kelola informasi dan profil semua karyawan</p>
                                     </div>
-                                    <button id="btnTambahKaryawan" type="button" class="btn btn-primary btn-sm btn-indigo" data-bs-toggle="modal" data-bs-target="#modalTambahKaryawan">
+                                    <button id="btnTambahKaryawan" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahKaryawan">
                                         <i class="bi bi-plus-circle me-1"></i>Tambah Karyawan
                                     </button>
                                 </div>
@@ -264,8 +253,8 @@
                                         html: '<strong>' + nama + '</strong><br><small class="text-muted">NIK: ' + nik + '</small>',
                                         icon: 'warning',
                                         showCancelButton: true,
-                                        confirmButtonColor: '#dc3545',
-                                        cancelButtonColor: '#6c757d',
+                                        confirmButtonColor: SWAL_BTN.danger,
+                                        cancelButtonColor: SWAL_BTN.cancel,
                                         confirmButtonText: 'Ya, Hapus',
                                         cancelButtonText: 'Batal'
                                     }).then((result) => {
@@ -402,13 +391,13 @@
                         {{-- ======================================================================== --}}
 
                         <div class="tab-pane fade" id="departemen" role="tabpanel" aria-labelledby="departemen-tab">
-                            <div class="mt-4 px-3" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0) 100%); border-radius: 8px; padding: 20px;">
+                            <div class="mt-4 px-3 py-3 rounded-3">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <div>
-                                        <h5 class="mb-1"><i class="bi bi-building me-2" style="color: #8b5cf6;"></i>Daftar Departemen</h5>
+                                        <h5 class="mb-1"><i class="bi bi-building me-2 text-primary"></i>Daftar Departemen</h5>
                                         <p class="text-muted mb-0" style="font-size: 0.875rem;">Kelola struktur organisasi dan departemen</p>
                                     </div>
-                                    <button type="button" class="btn btn-primary btn-sm btn-violet" onclick="openTambahDepartemenModal()">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="openTambahDepartemenModal()">
                                         <i class="bi bi-plus-circle me-1"></i>Tambah Departemen
                                     </button>
                                 </div>
@@ -1411,7 +1400,7 @@
             console.log('   Current division count:', divIndex);
             
             var html = `
-                <div class="mb-3 p-3 border-2 border-primary rounded bg-light divisi-wrapper-edit" data-div-id="new_${divIndex}">
+                <div class="mb-3 p-3 border-2 border-primary rounded bg-body-tertiary divisi-wrapper-edit" data-div-id="new_${divIndex}">
                     <div class="row align-items-center mb-3">
                         <div class="col-md-10">
                             <input type="text" class="form-control form-control-sm divisi-name-edit" placeholder="Nama divisi baru" required>
@@ -1424,7 +1413,7 @@
                     </div>
                     
                     <!-- Nested Positions Container -->
-                    <div class="ms-3 mb-2 p-3 bg-white rounded border">
+                    <div class="ms-3 mb-2 p-3 bg-body-tertiary rounded border">
                         <label class="form-label small fw-bold mb-2">
                             <i class="bi bi-briefcase me-1"></i>Jabatan untuk divisi ini:
                         </label>
@@ -1452,7 +1441,7 @@
             }
             
             var html = `
-                <div class="mb-2 p-2 bg-light border rounded position-field-edit" data-pos-id="new_pos">
+                <div class="mb-2 p-2 bg-body-tertiary border rounded position-field-edit" data-pos-id="new_pos">
                     <div class="row align-items-center">
                         <div class="col-md-10">
                             <input type="text" class="form-control form-control-sm position-name-edit" placeholder="Nama jabatan" required>
@@ -1511,7 +1500,7 @@
                         dept.divisions.forEach((division, divIndex) => {
                             // Add division wrapper
                             const divHtml = `
-                                <div class="mb-3 p-3 border-2 border-primary rounded bg-light divisi-wrapper-edit" data-div-id="${division.id}">
+                                <div class="mb-3 p-3 border-2 border-primary rounded bg-body-tertiary divisi-wrapper-edit" data-div-id="${division.id}">
                                     <div class="row align-items-center mb-3">
                                         <div class="col-md-10">
                                             <input type="text" class="form-control form-control-sm divisi-name-edit" placeholder="Nama divisi" value="${division.name}" required>
@@ -1524,7 +1513,7 @@
                                     </div>
                                     
                                     <!-- Nested Positions Container -->
-                                    <div class="ms-3 mb-2 p-3 bg-white rounded border">
+                                    <div class="ms-3 mb-2 p-3 bg-body-tertiary rounded border">
                                         <label class="form-label small fw-bold mb-2">
                                             <i class="bi bi-briefcase me-1"></i>Jabatan untuk divisi ini:
                                         </label>
@@ -1544,7 +1533,7 @@
                                 const posContainer = container.querySelector(`.positions-container-edit[data-div-id="${division.id}"]`);
                                 division.positions.forEach(position => {
                                     const posHtml = `
-                                        <div class="mb-2 p-2 bg-light border rounded position-field-edit" data-pos-id="${position.id}">
+                                        <div class="mb-2 p-2 bg-body-tertiary border rounded position-field-edit" data-pos-id="${position.id}">
                                             <div class="row align-items-center">
                                                 <div class="col-md-10">
                                                     <input type="text" class="form-control form-control-sm position-name-edit" placeholder="Nama jabatan" value="${position.name}" required>
@@ -1574,7 +1563,7 @@
                         title: 'Error!',
                         text: 'Gagal memuat data departemen',
                         icon: 'error',
-                        confirmButtonColor: '#dc3545'
+                        confirmButtonColor: SWAL_BTN.danger
                     });
                 }
             })
@@ -1585,7 +1574,7 @@
                     title: 'Error!',
                     text: 'Gagal memuat data departemen: ' + error.message,
                     icon: 'error',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: SWAL_BTN.danger
                 });
             });
         };
@@ -1627,7 +1616,7 @@
                             title: 'Berhasil!',
                             text: 'Departemen berhasil dihapus',
                             icon: 'success',
-                            confirmButtonColor: '#28a745'
+                            confirmButtonColor: SWAL_BTN.success
                         });
                     }, 300);
                 }
@@ -1638,7 +1627,7 @@
                     title: 'Error!',
                     text: 'Gagal menghapus departemen',
                     icon: 'error',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: SWAL_BTN.danger
                 });
             });
         };
@@ -1646,7 +1635,7 @@
         window.simpanDepartemen = function() {
             const nama = document.getElementById('namaDeptTambah').value.trim();
             if (!nama) {
-                alert('Nama departemen harus diisi!');
+                Swal.fire({ icon: 'warning', title: 'Data belum lengkap', text: 'Nama departemen harus diisi!' });
                 return;
             }
             
@@ -1655,15 +1644,16 @@
             const divisiWrappers = document.querySelectorAll('#containerDivisiTambah .divisi-wrapper');
             
             if (divisiWrappers.length === 0) {
-                alert('Minimal harus ada 1 divisi!');
+                Swal.fire({ icon: 'warning', title: 'Data belum lengkap', text: 'Minimal harus ada 1 divisi!' });
                 return;
             }
             
+            let validasiError = '';
             divisiWrappers.forEach((wrapper, index) => {
                 const divisiName = wrapper.querySelector('.divisi-name-input').value.trim();
                 
-                if (!divisiName) {
-                    alert(`Nama divisi ${index + 1} harus diisi!`);
+                if (!divisiName && !validasiError) {
+                    validasiError = `Nama divisi ${index + 1} harus diisi!`;
                     return;
                 }
                 
@@ -1678,8 +1668,8 @@
                     }
                 });
                 
-                if (positions.length === 0) {
-                    alert(`Divisi "${divisiName}" harus memiliki minimal 1 jabatan!`);
+                if (positions.length === 0 && !validasiError) {
+                    validasiError = `Divisi "${divisiName}" harus memiliki minimal 1 jabatan!`;
                     return;
                 }
                 
@@ -1688,6 +1678,11 @@
                     positions: positions
                 });
             });
+
+            if (validasiError) {
+                Swal.fire({ icon: 'warning', title: 'Data belum lengkap', text: validasiError });
+                return;
+            }
             
             const payload = {
                 name: nama,
@@ -1725,16 +1720,26 @@
                             title: 'Berhasil!',
                             text: 'Departemen dengan divisi dan jabatan berhasil disimpan',
                             icon: 'success',
-                            confirmButtonColor: '#28a745'
+                            confirmButtonColor: SWAL_BTN.success
                         });
                     }, 300); // Wait for modal animation to complete
                 } else {
-                    alert('Gagal: ' + (data.message || 'Unknown error'));
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: data.message || 'Terjadi kesalahan tidak diketahui',
+                        icon: 'error',
+                        confirmButtonColor: SWAL_BTN.danger
+                    });
                 }
             })
             .catch(error => {
                 console.error('❌ Error:', error);
-                alert('Terjadi error saat menyimpan. Cek console untuk detail.');
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi error saat menyimpan. Cek console untuk detail.',
+                    icon: 'error',
+                    confirmButtonColor: SWAL_BTN.danger
+                });
             });
         };
 
@@ -1825,7 +1830,7 @@
                             title: 'Berhasil!',
                             text: 'Departemen dengan divisi dan jabatan berhasil diperbarui',
                             icon: 'success',
-                            confirmButtonColor: '#28a745'
+                            confirmButtonColor: SWAL_BTN.success
                         });
                     }, 300);
                 } else {
@@ -1833,7 +1838,7 @@
                         title: 'Gagal!',
                         text: data.message || 'Gagal mengupdate departemen',
                         icon: 'error',
-                        confirmButtonColor: '#dc3545'
+                        confirmButtonColor: SWAL_BTN.danger
                     });
                 }
             })
@@ -1843,7 +1848,7 @@
                     title: 'Error!',
                     text: 'Terjadi kesalahan: ' + error.message,
                     icon: 'error',
-                    confirmButtonColor: '#dc3545'
+                    confirmButtonColor: SWAL_BTN.danger
                 });
             });
         };
@@ -1861,7 +1866,7 @@
                 console.log('📍 Adding divisi field with index:', divIndex);
                 
                 var html = `
-                    <div class="mb-3 p-3 border-2 border-primary rounded bg-light divisi-wrapper" data-div-index="${divIndex}">
+                    <div class="mb-3 p-3 border-2 border-primary rounded bg-body-tertiary divisi-wrapper" data-div-index="${divIndex}">
                         <div class="row align-items-center mb-3">
                             <div class="col-md-1">
                                 <span class="badge bg-primary">Divisi ${divIndex + 1}</span>
@@ -1876,7 +1881,7 @@
                             </div>
                         </div>
                         
-                        <div class="ms-3 mb-2 p-3 bg-white rounded border">
+                        <div class="ms-3 mb-2 p-3 bg-body-tertiary rounded border">
                             <label class="form-label small fw-bold mb-2">
                                 <i class="bi bi-briefcase me-1"></i>Jabatan untuk divisi ini:
                             </label>
@@ -2219,7 +2224,7 @@
                                 title: 'Berhasil!',
                                 text: 'Departemen, divisi, dan jabatan berhasil disimpan',
                                 icon: 'success',
-                                confirmButtonColor: '#28a745',
+                                confirmButtonColor: SWAL_BTN.success,
                                 timer: 1500,
                                 timerProgressBar: true
                             });
@@ -2231,7 +2236,7 @@
                                 title: 'Gagal!',
                                 text: 'Gagal menyimpan detail data',
                                 icon: 'error',
-                                confirmButtonColor: '#dc3545'
+                                confirmButtonColor: SWAL_BTN.danger
                             });
                         }).always(function() {
                             // Reset tombol (jika pakai loading)
@@ -2263,7 +2268,7 @@
                         title: 'Gagal!',
                         text: errorMsg,
                         icon: 'error',
-                        confirmButtonColor: '#dc3545'
+                        confirmButtonColor: SWAL_BTN.danger
                     });
                     // btnSimpan.disabled = false;
                     // btnSimpan.innerHTML = originalText;
@@ -2316,7 +2321,7 @@
             var container = document.getElementById('containerDivisiEdit');
             
             var html = `
-                <div class="mb-3 p-3 border-2 border-primary rounded bg-light divisi-wrapper-edit" data-div-id="${divId}">
+                <div class="mb-3 p-3 border-2 border-primary rounded bg-body-tertiary divisi-wrapper-edit" data-div-id="${divId}">
                     <div class="row align-items-center mb-3">
                         <div class="col-md-10">
                             <input type="text" class="form-control form-control-sm divisi-name-edit" value="${divName}" data-original="${divName}" required>
@@ -2329,7 +2334,7 @@
                     </div>
                     
                     <!-- Nested Positions Container -->
-                    <div class="ms-3 mb-2 p-3 bg-white rounded border">
+                    <div class="ms-3 mb-2 p-3 bg-body-tertiary rounded border">
                         <label class="form-label small fw-bold mb-2">
                             <i class="bi bi-briefcase me-1"></i>Jabatan untuk divisi ini:
                         </label>
@@ -2364,7 +2369,7 @@
         // Add existing position ke container
         window.addExistingPositionEdit = function(divId, posId, posName, container) {
             var html = `
-                <div class="mb-2 p-2 bg-light border rounded position-field-edit" data-pos-id="${posId}">
+                <div class="mb-2 p-2 bg-body-tertiary border rounded position-field-edit" data-pos-id="${posId}">
                     <div class="row align-items-center">
                         <div class="col-md-10">
                             <input type="text" class="form-control form-control-sm position-name-edit" value="${posName}" data-original="${posName}" required>
@@ -2503,7 +2508,7 @@
                                 title: 'Berhasil!',
                                 text: 'Departemen berhasil diupdate',
                                 icon: 'success',
-                                confirmButtonColor: '#28a745',
+                                confirmButtonColor: SWAL_BTN.success,
                                 timer: 2000,
                                 timerProgressBar: true,
                                 didClose: function() {
@@ -2516,7 +2521,7 @@
                             title: 'Gagal!',
                             text: 'Gagal update data',
                             icon: 'error',
-                            confirmButtonColor: '#dc3545'
+                            confirmButtonColor: SWAL_BTN.danger
                         });
                     });
                 },
@@ -2525,7 +2530,7 @@
                         title: 'Gagal!',
                         text: 'Gagal update departemen',
                         icon: 'error',
-                        confirmButtonColor: '#dc3545'
+                        confirmButtonColor: SWAL_BTN.danger
                     });
                 }
             });
@@ -2537,8 +2542,8 @@
                 text: 'Yakin hapus departemen: ' + nama + ' ?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
+                confirmButtonColor: SWAL_BTN.danger,
+                cancelButtonColor: SWAL_BTN.cancel,
                 confirmButtonText: 'Hapus',
                 cancelButtonText: 'Batal'
             }).then((result) => {
@@ -2565,7 +2570,7 @@
                                     title: 'Berhasil!',
                                     text: 'Departemen berhasil dihapus',
                                     icon: 'success',
-                                    confirmButtonColor: '#28a745',
+                                    confirmButtonColor: SWAL_BTN.success,
                                     timer: 2000,
                                     timerProgressBar: true,
                                     didClose: function() {
@@ -2580,7 +2585,7 @@
                                 title: 'Gagal!',
                                 text: 'Gagal hapus departemen: ' + (xhr.responseJSON?.message || 'Error'),
                                 icon: 'error',
-                                confirmButtonColor: '#dc3545'
+                                confirmButtonColor: SWAL_BTN.danger
                             });
                         }
                     });
@@ -2595,11 +2600,21 @@
                 type: 'DELETE',
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 success: function() {
-                    alert('✅ Departemen berhasil dihapus');
-                    location.reload();
+                    Swal.fire({
+                        title: 'Terhapus!',
+                        text: 'Departemen berhasil dihapus',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
                 },
                 error: function(xhr) {
-                    alert('❌ Gagal hapus: ' + (xhr.responseJSON?.message || 'Error'));
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Gagal hapus: ' + (xhr.responseJSON?.message || 'Error'),
+                        icon: 'error',
+                        confirmButtonColor: SWAL_BTN.danger
+                    });
                 }
             });
         };
@@ -3575,7 +3590,7 @@
                             title: 'Gagal!',
                             text: 'Gagal memuat data karyawan',
                             icon: 'error',
-                            confirmButtonColor: '#dc3545'
+                            confirmButtonColor: SWAL_BTN.danger
                         });
                     }
                 });
@@ -3651,8 +3666,8 @@
                     html: '<strong>' + nama + '</strong><br><small class="text-muted">NIK: ' + nik + '</small>',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
+                    confirmButtonColor: SWAL_BTN.danger,
+                    cancelButtonColor: SWAL_BTN.cancel,
                     confirmButtonText: 'Ya, Hapus',
                     cancelButtonText: 'Batal'
                 }).then((result) => {
@@ -3682,7 +3697,7 @@
                                         title: 'Berhasil!',
                                         text: 'Karyawan ' + nama + ' berhasil dihapus.',
                                         icon: 'success',
-                                        confirmButtonColor: '#28a745'
+                                        confirmButtonColor: SWAL_BTN.success
                                     }).then(() => {
                                         window.loadBothTables(); // Reload both tables
                                     });
@@ -3697,7 +3712,7 @@
                                     title: 'Gagal!',
                                     text: 'Gagal menghapus karyawan: ' + msg,
                                     icon: 'error',
-                                    confirmButtonColor: '#dc3545'
+                                    confirmButtonColor: SWAL_BTN.danger
                                 });
                             }
                         });

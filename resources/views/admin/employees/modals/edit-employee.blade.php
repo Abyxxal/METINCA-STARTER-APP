@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <!-- Modal Header -->
-            <div class="modal-header bg-warning text-dark">
+            <div class="modal-header">
                 <h5 class="modal-title" id="editEmployeeLabel">
                     <i class="bi bi-pencil-square me-2"></i>Edit Data Karyawan
                 </h5>
@@ -11,7 +11,7 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body" style="padding: 2rem;">
+            <div class="modal-body">
                 <form id="formEditEmployee">
                     <!-- 2-Column Layout Grid -->
                     <div class="row g-4">
@@ -28,7 +28,6 @@
                                     id="editNIK" 
                                     value=""
                                     readonly
-                                    style="background-color: #e9ecef; cursor: not-allowed;"
                                 >
                                 <small class="text-muted">Nomor identitas tidak dapat diubah</small>
                             </div>
@@ -120,8 +119,8 @@
                                 </label>
                                 <select class="form-select" id="editStatus" required>
                                     <option value="">-- Pilih Status --</option>
-                                    <option value="Aktif" style="color: #198754; font-weight: bold;">✓ Aktif</option>
-                                    <option value="Non-Aktif" style="color: #dc3545; font-weight: bold;">✗ Non-Aktif</option>
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Non-Aktif">Non-Aktif</option>
                                 </select>
                             </div>
                         </div>
@@ -133,15 +132,15 @@
                     <!-- Additional Info (Read-only) -->
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <div class="bg-light p-3 rounded">
+                            <div class="bg-body-tertiary p-3 rounded-3">
                                 <small class="text-muted d-block mb-1">Tanggal Bergabung</small>
-                                <strong class="text-dark" id="editJoinDate">-</strong>
+                                <strong id="editJoinDate">-</strong>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="bg-light p-3 rounded">
+                            <div class="bg-body-tertiary p-3 rounded-3">
                                 <small class="text-muted d-block mb-1">Terakhir Diubah</small>
-                                <strong class="text-dark" id="editLastUpdated">-</strong>
+                                <strong id="editLastUpdated">-</strong>
                             </div>
                         </div>
                     </div>
@@ -149,11 +148,11 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="modal-footer bg-light">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-2"></i>Batal
                 </button>
-                <button type="button" class="btn btn-warning text-dark fw-bold" id="btnSimpanPerubahanKaryawan">
+                <button type="button" class="btn btn-primary fw-bold" id="btnSimpanPerubahanKaryawan">
                     <i class="bi bi-check-circle me-2"></i>Simpan Perubahan
                 </button>
             </div>

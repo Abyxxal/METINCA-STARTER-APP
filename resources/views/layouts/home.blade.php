@@ -5,12 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PT.METINCA PRIMA INDUSTRIAL WORKS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/homepage.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/menu-modal.css') }}">
     @stack('styles')
+    <style>
+        .menu-icon.grad-hr { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .menu-icon.grad-ga { background: linear-gradient(135deg, #134e5e 0%, #71b280 100%); }
+        .menu-icon.grad-admin { background: linear-gradient(135deg, #232526 0%, #414345 100%); }
+        .category-card.cat-ga { background: linear-gradient(135deg, #134e5e 0%, #71b280 100%); }
+        .category-card.cat-admin { background: linear-gradient(135deg, #232526 0%, #414345 100%); }
+    </style>
 </head>
 
 <body>
@@ -65,10 +71,10 @@
                         The #1 Precision Casting and Tooling Facility in Indonesia    
                     </p>
                     <div class="social-icons mt-3">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
@@ -83,13 +89,13 @@
                 <div class="col-md-4 mb-4">
                     <h5>Contact</h5>
                     
-                    <p><i class="fas fa-phone me-2"></i>+62 21 1234 5678</p>
-                    <p><i class="fas fa-envelope me-2"></i>info@metinca-prima.co.id</p>
+                    <p><i class="bi bi-telephone me-2"></i>+62 21 1234 5678</p>
+                    <p><i class="bi bi-envelope me-2"></i>info@metinca-prima.co.id</p>
                 </div>
             </div>
-            <hr style="border-color: rgba(255,255,255,0.1);">
+            <hr class="border-secondary opacity-25">
             <div class="text-center pt-3">
-                <p>&copy; 2025 Metinca. All Rights Reserved.</p>
+                <p>&copy; 2026 Metinca. All Rights Reserved.</p>
             </div>
         </div>
     </footer>
@@ -113,43 +119,43 @@
                         </div>
                         <div class="menu-grid">
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                                <div class="menu-icon grad-hr">
                                     <i class="bi bi-person-plus-fill"></i>
                                 </div>
                                 <div class="menu-text">Recruitment</div>
                             </a>
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                                <div class="menu-icon grad-hr">
                                     <i class="bi bi-person-badge-fill"></i>
                                 </div>
                                 <div class="menu-text">Placement</div>
                             </a>
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                                <div class="menu-icon grad-hr">
                                     <i class="bi bi-arrow-up-circle-fill"></i>
                                 </div>
                                 <div class="menu-text">Job Promotion</div>
                             </a>
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                                <div class="menu-icon grad-hr">
                                     <i class="bi bi-diagram-3-fill"></i>
                                 </div>
                                 <div class="menu-text">Development</div>
                             </a>
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                                <div class="menu-icon grad-hr">
                                     <i class="bi bi-arrow-left-right"></i>
                                 </div>
                                 <div class="menu-text">Mutation</div>
                             </a>
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                                <div class="menu-icon grad-hr">
                                     <i class="bi bi-cash-stack"></i>
                                 </div>
                                 <div class="menu-text">Pension</div>
                             </a>
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                                <div class="menu-icon grad-hr">
                                     <i class="bi bi-calendar-x-fill"></i>
                                 </div>
                                 <div class="menu-text">Leave</div>
@@ -158,21 +164,21 @@
                     </div>
 
                     <!-- General Affair Category -->
-                    <div class="category-card" style="background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);">
+                    <div class="category-card cat-ga">
                         <div class="category-title">
                             <i class="bi bi-briefcase-fill"></i>
                             General Affair
                         </div>
                         <div class="menu-grid">
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);">
+                                <div class="menu-icon grad-ga">
                                     <i class="bi bi-building"></i>
                                 </div>
                                 <div class="menu-text">Inventory of Facilities and Assets</div>
                             </a>
                             
                             <a href="#" class="menu-item">
-                                <div class="menu-icon" style="background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);">
+                                <div class="menu-icon grad-ga">
                                     <i class="bi bi-boxes"></i>
                                 </div>
                                 <div class="menu-text">Asset Management</div>
@@ -181,39 +187,35 @@
                     </div>
 
                     
-                    <div class="category-card" style="background: linear-gradient(135deg, #232526 0%, #414345 100%);">
+                    <div class="category-card cat-admin">
                         <div class="category-title">
                             <i class="bi bi-file-earmark-text-fill"></i>
                             Administration
                         </div>
                         <div class="menu-grid">
                             <a href="#" class="menu-item">
-                                <div class="menu-icon"
-                                    style="background: linear-gradient(135deg, #232526 0%, #414345 100%);">
+                                <div class="menu-icon grad-admin">
                                     <i class="bi bi-clock-fill"></i>
                                 </div>
                                 <div class="menu-text">Attendance System</div>
                             </a>
                             
                             <a href="#" class="menu-item">
-                                <div class="menu-icon"
-                                    style="background: linear-gradient(135deg, #232526 0%, #414345 100%);">
+                                <div class="menu-icon grad-admin">
                                     <i class="bi bi-alarm-fill"></i>
                                 </div>
                                 <div class="menu-text">Overtime System</div>
                             </a>
                             
                             <a href="#" class="menu-item">
-                                <div class="menu-icon"
-                                    style="background: linear-gradient(135deg, #232526 0%, #414345 100%);">
+                                <div class="menu-icon grad-admin">
                                     <i class="bi bi-cart-fill"></i>
                                 </div>
                                 <div class="menu-text">Procurement of Goods & Operations</div>
                             </a>
                             
                             <a href="#" class="menu-item">
-                                <div class="menu-icon"
-                                    style="background: linear-gradient(135deg, #232526 0%, #414345 100%);">
+                                <div class="menu-icon grad-admin">
                                     <i class="bi bi-lightning-fill"></i>
                                 </div>
                                 <div class="menu-text">Utility System</div>
@@ -561,6 +563,7 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
     @stack('scripts')
 </body>
 

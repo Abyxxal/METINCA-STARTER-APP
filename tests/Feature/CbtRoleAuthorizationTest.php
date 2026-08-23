@@ -41,8 +41,7 @@ class CbtRoleAuthorizationTest extends TestCase
         return [
             ['admin.users.index', []],
             ['master-data', []],
-            ['departments.index', []],
-            ['departments.show', ['id' => $scenario['department']->id]],
+        ['departments.show', ['id' => $scenario['department']->id]],
             ['employee.import.form', []],
             ['material-management', []],
             ['evaluation-and-exam', []],

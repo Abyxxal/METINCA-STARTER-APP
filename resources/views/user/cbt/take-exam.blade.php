@@ -23,12 +23,12 @@
         justify-content: center;
     }
     .question-nav-btn.answered {
-        background-color: #198754 !important;
-        border-color: #198754 !important;
+        background-color: var(--bs-success) !important;
+        border-color: var(--bs-success) !important;
         color: white !important;
     }
     .question-nav-btn.current {
-        border: 3px solid #0d6efd !important;
+        border: 3px solid var(--bs-primary) !important;
     }
     .question-content {
         min-height: 300px;
@@ -250,13 +250,31 @@ Pastikan jawaban Anda mencakup:
     ]);
 
     // Timer
+    let autoSubmitted = false;
+    const timerInterval = setInterval(updateTimer, 1000);
+
     function updateTimer() {
         if (remainingSeconds <= 0) {
             document.getElementById('timer').textContent = '00:00';
             // Auto-submit saat waktu habis: tanpa validasi kelengkapan jawaban.
-            collectAnswersIntoForm();
-            alert('Waktu habis! Ujian akan dikirim otomatis.');
-            document.getElementById('submitForm').submit();
+            // Swal bersifat non-blocking, jadi kirim hanya boleh dipicu sekali.
+            if (!autoSubmitted) {
+                autoSubmitted = true;
+                clearInterval(timerInterval);
+                collectAnswersIntoForm();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Waktu habis!',
+                    text: 'Ujian akan dikirim otomatis.',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false
+                }).then(() => {
+                    document.getElementById('submitForm').submit();
+                });
+            }
             return;
         }
 
@@ -284,7 +302,6 @@ Pastikan jawaban Anda mencakup:
         remainingSeconds--;
     }
 
-    setInterval(updateTimer, 1000);
     updateTimer();
 
     // Navigation
@@ -355,7 +372,15 @@ Pastikan jawaban Anda mencakup:
         })
         .catch(error => {
             console.error('Error saving answer:', error);
-            alert('Gagal menyimpan jawaban. Coba lagi.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal menyimpan',
+                text: 'Jawaban gagal disimpan. Periksa koneksi internet Anda dan coba jawab ulang.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000
+            });
         });
     }
 
@@ -416,18 +441,33 @@ Pastikan jawaban Anda mencakup:
 
         // Saat waktu masih berjalan, semua soal wajib dijawab.
         if (unanswered > 0 && remainingSeconds > 0) {
-            alert('Masih ada ' + unanswered + ' soal yang belum dijawab. Semua soal wajib dijawab sebelum mengirim.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Belum selesai',
+                text: 'Masih ada ' + unanswered + ' soal yang belum dijawab. Semua soal wajib dijawab sebelum mengirim.'
+            });
             return;
         }
 
-        const message = unanswered > 0
-            ? 'Waktu sudah habis, ' + unanswered + ' soal yang belum dijawab akan dianggap 0. Yakin ingin mengirim?'
-            : 'Apakah Anda yakin ingin menyelesaikan ujian?';
+        const text = unanswered > 0
+            ? 'Waktu sudah habis, ' + unanswered + ' soal yang belum dijawab akan dinilai 0.'
+            : 'Jawaban yang sudah dikirim tidak dapat diubah kembali.';
 
-        if (confirm(message)) {
-            collectAnswersIntoForm();
-            document.getElementById('submitForm').submit();
-        }
+        Swal.fire({
+            title: 'Selesaikan ujian?',
+            text: text,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Kirim!',
+            cancelButtonText: 'Periksa Lagi',
+            confirmButtonColor: SWAL_BTN.success,
+            cancelButtonColor: SWAL_BTN.cancel
+        }).then(result => {
+            if (result.isConfirmed) {
+                collectAnswersIntoForm();
+                document.getElementById('submitForm').submit();
+            }
+        });
     }
 
     // Initial count

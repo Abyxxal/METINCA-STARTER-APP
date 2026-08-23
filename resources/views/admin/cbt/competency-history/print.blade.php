@@ -13,42 +13,60 @@
             font-size: 10pt;
             color: #111;
             margin: 0;
-            padding: 0;
+            padding: 22px 28px;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
         .page-header {
-            text-align: center;
-            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
             border-bottom: 3px solid #1a237e;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
+            position: relative;
         }
-        .page-header h2 {
+        .page-header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -6px;
+            border-bottom: 1px solid #1a237e;
+        }
+        .page-header img {
+            height: 54px;
+            width: auto;
+        }
+        .header-text h2 {
             margin: 0;
-            font-size: 14pt;
+            font-size: 15pt;
             color: #1a237e;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
-        .page-header .sub {
-            font-size: 10pt;
-            color: #555;
+        .header-text .sub {
             margin: 2px 0 0;
+            font-size: 10pt;
+            color: #333;
             font-weight: 600;
+            letter-spacing: 1px;
         }
         .info-row {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px 18px;
             font-size: 9.5pt;
-            margin: 6px 0 10px;
-            background: #f0f0f0;
-            padding: 5px 10px;
+            margin: 16px 0 12px;
+            background: #f2f5fc;
+            border: 1px solid #dde3f5;
+            padding: 6px 12px;
             border-radius: 4px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 6px;
-            border: 2px solid #222;
+            margin-bottom: 8px;
+            border: 2px solid #1a237e;
         }
         th {
             background: #1a237e;
@@ -58,20 +76,24 @@
             font-size: 9.5pt;
             font-weight: 700;
             white-space: normal;
-            border: 2px solid #0d1450;
+            border: 1px solid #14205c;
         }
         td {
             padding: 6px 10px;
-            border: 2px solid #222;
+            border: 1px solid #c9d0e6;
             vertical-align: top;
             font-size: 9.5pt;
         }
-        /* Striped employee blocks — setiap tbody = 1 employee (baris 1 & 2) */
         tbody:nth-child(even) td {
-            background: #f8f9fa;
+            background: #fafbfd;
         }
         tbody {
             page-break-inside: avoid;
+        }
+        .col-no {
+            text-align: center;
+            color: #666;
+            font-size: 9pt;
         }
         .emp-name {
             font-weight: 700;
@@ -92,50 +114,91 @@
         .change-block .note {
             font-style: italic;
         }
-        .change-sep {
-            margin: 3px 0;
-            border: none;
-            border-top: 1px solid #e0e0e0;
+        .current-level {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 4px;
+            font-size: 9pt;
+            font-weight: 700;
+            border: 1px solid transparent;
         }
-        .page-break {
-            page-break-after: always;
-        }
-        .page-footer {
-            text-align: center;
-            font-size: 7pt;
-            color: #999;
-            margin-top: 8px;
-            border-top: 1px solid #ddd;
-            padding-top: 4px;
-        }
+        .lv-0 { background: #e9ecef; color: #495057; border-color: #adb5bd; }
+        .lv-1 { background: #cff4fc; color: #055160; border-color: #7bd3e8; }
+        .lv-2 { background: #fff3cd; color: #664d03; border-color: #e0c36a; }
+        .lv-3 { background: #cfe2ff; color: #084298; border-color: #85aff5; }
+        .lv-4 { background: #a9dfbf; color: #052e16; border-color: #63b585; }
         .legend {
             font-size: 9pt;
-            color: #555;
-            margin-top: 6px;
+            color: #444;
+            margin-top: 8px;
             display: flex;
-            gap: 12px;
+            gap: 8px 18px;
             flex-wrap: wrap;
-            background: #f9f9f9;
-            padding: 6px 10px;
+            background: #f9fafc;
+            padding: 7px 12px;
             border-radius: 4px;
-            border: 1px solid #eee;
+            border: 1px solid #e3e6ee;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            border: 1px solid transparent;
+            flex: 0 0 auto;
+        }
+        .sw-0 { background: #e9ecef; border-color: #adb5bd; }
+        .sw-1 { background: #cff4fc; border-color: #7bd3e8; }
+        .sw-2 { background: #fff3cd; border-color: #e0c36a; }
+        .sw-3 { background: #cfe2ff; border-color: #85aff5; }
+        .sw-4 { background: #a9dfbf; border-color: #63b585; }
+        .sign-block {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding: 0 40px;
+            page-break-inside: avoid;
+        }
+        .sign-col {
+            text-align: center;
+            min-width: 220px;
+            font-size: 9.5pt;
+        }
+        .sign-space {
+            height: 56px;
+        }
+        .sign-name {
+            margin: 0;
+            font-weight: 700;
+            border-top: 1px solid #333;
+            display: inline-block;
+            padding-top: 4px;
+            min-width: 180px;
+        }
+        .sign-role {
+            margin: 0;
+            color: #555;
         }
         .no-data {
             color: #bbb;
             font-style: italic;
         }
-        .current-level {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-size: 9pt;
-            font-weight: 700;
+        .page-break {
+            page-break-after: always;
         }
-        .lv-0 { background: #757575; color: #fff; border: 1px solid #555; }
-        .lv-1 { background: #1565c0; color: #fff; border: 1px solid #0d47a1; }
-        .lv-2 { background: #e65100; color: #fff; border: 1px solid #bf360c; }
-        .lv-3 { background: #2e7d32; color: #fff; border: 1px solid #1b5e20; }
-        .lv-4 { background: #1b5e20; color: #fff; border: 1px solid #0d3c12; }
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 7.5pt;
+            color: #999;
+            margin-top: 10px;
+            border-top: 1px solid #ddd;
+            padding-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -143,19 +206,24 @@
 @foreach($chunks as $pageIndex => $employeeChunk)
     <div class="{{ !$loop->last ? 'page-break' : '' }}">
         <div class="page-header">
-            <h2>PT. METINCA</h2>
-            <p class="sub">LAPORAN RIWAYAT LEVEL SKILL</p>
+            <img src="{{ asset('assets/compiled/svg/logo-metinca.svg') }}" alt="Logo PT. Metinca">
+            <div class="header-text">
+                <h2>PT. METINCA</h2>
+                <p class="sub">LAPORAN RIWAYAT LEVEL SKILL</p>
+            </div>
         </div>
 
         <div class="info-row">
-            <span><strong>Divisi:</strong> {{ $division->name }} @if($division->department)({{ $division->department->name }})@endif</span>
-            <span><strong>Cetak:</strong> {{ now()->format('d/m/Y H:i') }}</span>
+            <span><strong>Divisi:</strong> {{ $division->name }} @if($division->department)&mdash; {{ $division->department->name }}@endif</span>
+            <span><strong>Dicetak oleh:</strong> {{ auth()->user()->name }}</span>
+            <span><strong>Tanggal Cetak:</strong> {{ now()->format('d/m/Y H:i') }}</span>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th width="180">Nama</th>
+                    <th width="34" class="col-no">No</th>
+                    <th width="170">Nama</th>
                     @foreach($skills as $skill)
                         <th>{{ $skill->name }}</th>
                     @endforeach
@@ -168,6 +236,7 @@
                 @endphp
                 <tbody>
                     <tr>
+                        <td class="col-no" rowspan="2" style="vertical-align:middle">{{ $pageIndex * 10 + $i + 1 }}</td>
                         <td rowspan="2" style="vertical-align:middle">
                             <div class="emp-name">{{ $employee->name }}</div>
                             <div class="emp-nik">{{ $employee->nik }}</div>
@@ -192,7 +261,7 @@
                             @php $skillHistories = $groupedBySkill->get($skill->id, collect()); @endphp
                             <td>
                                 @if($skillHistories->isEmpty())
-                                    <span class="no-data">—</span>
+                                    <span class="no-data">&mdash;</span>
                                 @else
                                     @php $latestHistory = $skillHistories->first(); @endphp
                                     <div class="change-block">
@@ -210,11 +279,32 @@
         </table>
 
         <div class="legend">
-            <span><strong>Level:</strong> Lv0–Lv4</span>
+            <span class="legend-item"><span class="legend-swatch sw-0"></span>Lv0 &ndash; Belum Terlatih</span>
+            <span class="legend-item"><span class="legend-swatch sw-1"></span>Lv1 &ndash; Novice</span>
+            <span class="legend-item"><span class="legend-swatch sw-2"></span>Lv2 &ndash; Competent</span>
+            <span class="legend-item"><span class="legend-swatch sw-3"></span>Lv3 &ndash; Proficient</span>
+            <span class="legend-item"><span class="legend-swatch sw-4"></span>Lv4 &ndash; Expert</span>
         </div>
 
+        @if($loop->last)
+            <div class="sign-block">
+                <div class="sign-col">
+                    <p class="sign-role">Dibuat oleh,</p>
+                    <p class="sign-role">{{ now()->format('d F Y') }}</p>
+                    <div class="sign-space"></div>
+                    <p class="sign-name">{{ auth()->user()->name }}</p>
+                </div>
+                <div class="sign-col">
+                    <p class="sign-role">Disetujui oleh,</p>
+                    <div class="sign-space"></div>
+                    <p class="sign-name">&nbsp;</p>
+                </div>
+            </div>
+        @endif
+
         <div class="page-footer">
-            Halaman {{ $pageIndex + 1 }} dari {{ count($chunks) }}
+            <span>Dicetak dari Sistem Metinca</span>
+            <span>Halaman {{ $pageIndex + 1 }} dari {{ count($chunks) }}</span>
         </div>
     </div>
 @endforeach

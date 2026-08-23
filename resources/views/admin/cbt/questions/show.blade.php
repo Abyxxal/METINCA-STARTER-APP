@@ -44,7 +44,7 @@
                         <div class="mb-4">
                             <h6 class="text-muted mb-3">Pilihan Jawaban:</h6>
                             @foreach($question->options as $key => $option)
-                                <div class="d-flex align-items-center mb-2 p-2 rounded {{ $question->correct_answer === $key ? 'bg-success text-white' : 'bg-light' }}">
+                                <div class="d-flex align-items-center mb-2 p-2 rounded {{ $question->correct_answer === $key ? 'bg-success text-white' : 'bg-body-tertiary' }}">
                                     <span class="badge {{ $question->correct_answer === $key ? 'bg-white text-success' : 'bg-secondary' }} me-3">{{ $key }}</span>
                                     <span>{{ $option }}</span>
                                     @if($question->correct_answer === $key)

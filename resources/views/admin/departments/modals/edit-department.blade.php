@@ -1,17 +1,17 @@
 <!-- Edit Department Modal (Modal-LG) -->
 <div class="modal fade" id="modalEditDepartment" tabindex="-1" aria-labelledby="editDepartmentLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <!-- Modal Header -->
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header">
                 <h5 class="modal-title" id="editDepartmentLabel">
                     <i class="bi bi-pencil-square me-2"></i>Edit Data Departemen
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto; padding: 2rem;">
+            <div class="modal-body">
                 <form id="formEditDepartment">
                     <!-- Section 1: Department Info -->
                     <div class="mb-4">
@@ -38,17 +38,17 @@
                         <div id="containerDivisions" class="row g-4 mb-4">
                             <!-- Division Card 1: Backend -->
                             <div class="col-md-6 division-card" data-division-id="1">
-                                <div class="card border-0 shadow-sm h-100">
+                                <div class="card h-100">
                                     <!-- Division Header -->
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3 px-4">
-                                        <h6 class="mb-0 fw-bold">
-                                            <i class="bi bi-diagram-3 me-2"></i>Backend Developer
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0 fw-bold">
+                                            <i class="bi bi-diagram-3 me-2 text-primary"></i>Backend Developer
                                         </h6>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-warning text-dark delete-division-btn" title="Edit">
+                                            <button type="button" class="btn btn-outline-warning delete-division-btn" title="Edit">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button type="button" class="btn btn-danger delete-division-btn" title="Hapus">
+                                            <button type="button" class="btn btn-outline-danger delete-division-btn" title="Hapus">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -63,10 +63,10 @@
                                         <!-- Container for Positions -->
                                         <div class="positions-container mb-4">
                                             <!-- Position 1 -->
-                                            <div class="position-row mb-3 p-3" style="border-left: 4px solid #0d6efd; background-color: #f8f9fa; border-radius: 4px;">
+                                            <div class="position-row mb-3 p-3 border-start border-4 border-primary bg-body-tertiary rounded-3">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div class="flex-grow-1">
-                                                        <div class="fw-bold text-dark position-name-input">Head of Backend</div>
+                                                        <div class="fw-bold position-name-input">Head of Backend</div>
                                                         <small class="text-muted">1 Karyawan</small>
                                                     </div>
                                                     <div class="btn-group btn-group-sm ms-2" role="group">
@@ -81,10 +81,10 @@
                                             </div>
 
                                             <!-- Position 2 -->
-                                            <div class="position-row mb-3 p-3" style="border-left: 4px solid #0d6efd; background-color: #f8f9fa; border-radius: 4px;">
+                                            <div class="position-row mb-3 p-3 border-start border-4 border-primary bg-body-tertiary rounded-3">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div class="flex-grow-1">
-                                                        <div class="fw-bold text-dark position-name-input">Senior Backend Engineer</div>
+                                                        <div class="fw-bold position-name-input">Senior Backend Engineer</div>
                                                         <small class="text-muted">2 Karyawan</small>
                                                     </div>
                                                     <div class="btn-group btn-group-sm ms-2" role="group">
@@ -112,17 +112,17 @@
 
                             <!-- Division Card 2: Frontend -->
                             <div class="col-md-6 division-card" data-division-id="2">
-                                <div class="card border-0 shadow-sm h-100">
+                                <div class="card h-100">
                                     <!-- Division Header -->
-                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3 px-4">
-                                        <h6 class="mb-0 fw-bold">
-                                            <i class="bi bi-diagram-3 me-2"></i>Frontend Developer
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0 fw-bold">
+                                            <i class="bi bi-diagram-3 me-2 text-primary"></i>Frontend Developer
                                         </h6>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-warning text-dark delete-division-btn" title="Edit">
+                                            <button type="button" class="btn btn-outline-warning delete-division-btn" title="Edit">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button type="button" class="btn btn-danger delete-division-btn" title="Hapus">
+                                            <button type="button" class="btn btn-outline-danger delete-division-btn" title="Hapus">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -137,10 +137,10 @@
                                         <!-- Container for Positions -->
                                         <div class="positions-container mb-4">
                                             <!-- Position 1 -->
-                                            <div class="position-row mb-3 p-3" style="border-left: 4px solid #198754; background-color: #f8f9fa; border-radius: 4px;">
+                                            <div class="position-row mb-3 p-3 border-start border-4 border-primary bg-body-tertiary rounded-3">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div class="flex-grow-1">
-                                                        <div class="fw-bold text-dark position-name-input">Head of Frontend</div>
+                                                        <div class="fw-bold position-name-input">Head of Frontend</div>
                                                         <small class="text-muted">1 Karyawan</small>
                                                     </div>
                                                     <div class="btn-group btn-group-sm ms-2" role="group">
@@ -155,10 +155,10 @@
                                             </div>
 
                                             <!-- Position 2 -->
-                                            <div class="position-row mb-3 p-3" style="border-left: 4px solid #198754; background-color: #f8f9fa; border-radius: 4px;">
+                                            <div class="position-row mb-3 p-3 border-start border-4 border-primary bg-body-tertiary rounded-3">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div class="flex-grow-1">
-                                                        <div class="fw-bold text-dark position-name-input">UI/UX Designer</div>
+                                                        <div class="fw-bold position-name-input">UI/UX Designer</div>
                                                         <small class="text-muted">1 Karyawan</small>
                                                     </div>
                                                     <div class="btn-group btn-group-sm ms-2" role="group">
@@ -173,10 +173,10 @@
                                             </div>
 
                                             <!-- Position 3 -->
-                                            <div class="position-row mb-3 p-3" style="border-left: 4px solid #198754; background-color: #f8f9fa; border-radius: 4px;">
+                                            <div class="position-row mb-3 p-3 border-start border-4 border-primary bg-body-tertiary rounded-3">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div class="flex-grow-1">
-                                                        <div class="fw-bold text-dark position-name-input">Senior Frontend Engineer</div>
+                                                        <div class="fw-bold position-name-input">Senior Frontend Engineer</div>
                                                         <small class="text-muted">3 Karyawan</small>
                                                     </div>
                                                     <div class="btn-group btn-group-sm ms-2" role="group">
@@ -218,7 +218,7 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="modal-footer bg-light">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-2"></i>Batal
                 </button>
@@ -282,9 +282,19 @@
                     const divisionCard = e.target.closest('.division-card');
                     if (divisionCard) {
                         // Confirm deletion
-                        if (confirm('Apakah Anda yakin ingin menghapus divisi ini?')) {
-                            divisionCard.remove();
-                        }
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Hapus divisi ini?',
+                            text: 'Divisi beserta seluruh jabatannya akan dihapus dari form',
+                            showCancelButton: true,
+                            confirmButtonText: 'Ya, hapus',
+                            cancelButtonText: 'Batal',
+                            confirmButtonColor: SWAL_BTN.danger
+                        }).then(function(result) {
+                            if (result.isConfirmed) {
+                                divisionCard.remove();
+                            }
+                        });
                     }
                 }
             });
@@ -301,48 +311,49 @@
                         
                         // Create new division card
                         const newDivisionCard = document.createElement('div');
-                        newDivisionCard.className = 'card border mb-3 division-card';
+                        newDivisionCard.className = 'col-md-6 division-card';
                         newDivisionCard.setAttribute('data-division-id', divisionId);
                         newDivisionCard.innerHTML = `
-                            <!-- Division Header -->
-                            <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center gap-2">
-                                <div class="flex-grow-1">
-                                    <input 
-                                        type="text" 
-                                        class="form-control form-control-sm division-name-input" 
-                                        placeholder="Nama divisi"
+                            <div class="card h-100">
+                                <!-- Division Header -->
+                                <div class="card-header">
+                                    <div class="flex-grow-1">
+                                        <input 
+                                            type="text" 
+                                            class="form-control form-control-sm division-name-input" 
+                                            placeholder="Nama divisi"
+                                        >
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-division-btn" title="Hapus Divisi">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Division Body -->
+                                <div class="card-body">
+                                    <label class="form-label fw-bold small mb-2">
+                                        <i class="bi bi-list-check me-2"></i>Jabatan di divisi ini:
+                                    </label>
+
+                                    <!-- Container for Position Inputs -->
+                                    <div class="positions-container mb-3">
+                                        <!-- Empty initially -->
+                                    </div>
+
+                                    <!-- Add Position Button -->
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-sm btn-outline-primary add-position-btn w-100"
+                                        title="Tambah Jabatan"
                                     >
+                                        <i class="bi bi-plus-circle me-2"></i>Tambah Jabatan
+                                    </button>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-danger delete-division-btn" title="Hapus Divisi">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-
-                            <!-- Division Body -->
-                            <div class="card-body">
-                                <label class="form-label fw-bold small mb-2">
-                                    <i class="bi bi-list-check me-2"></i>Jabatan di divisi ini:
-                                </label>
-
-                                <!-- Container for Position Inputs -->
-                                <div class="positions-container mb-3">
-                                    <!-- Empty initially -->
-                                </div>
-
-                                <!-- Add Position Button -->
-                                <button 
-                                    type="button" 
-                                    class="btn btn-sm btn-outline-primary add-position-btn w-100"
-                                    title="Tambah Jabatan"
-                                >
-                                    <i class="bi bi-plus-circle me-2"></i>Tambah Jabatan
-                                </button>
                             </div>
                         `;
                         
-                        // Insert before the add division button
-                        const containerEnd = btnTambahDivisiEdit.parentElement;
-                        containerEnd.parentElement.insertBefore(newDivisionCard, containerEnd);
+                        // Append to the divisions grid
+                        containerDivisions.appendChild(newDivisionCard);
                         
                         // Focus on the division name input
                         newDivisionCard.querySelector('.division-name-input').focus();
@@ -356,14 +367,15 @@
                 btnSimpanPerubahan.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    const departmentName = document.getElementById('inputNamaDepartemen').value;
+                    const departmentName = document.getElementById('inputEditNamaDepartemen').value;
                     
                     // Collect all divisions data
                     const divisions = [];
-                    const divisionCards = document.querySelectorAll('.division-card');
+                    const divisionCards = modalEditDept.querySelectorAll('.division-card');
                     
                     divisionCards.forEach(card => {
-                        const divisionName = card.querySelector('.division-name-input').value;
+                        const nameInput = card.querySelector('.division-name-input');
+                        const divisionName = nameInput ? nameInput.value : card.querySelector('.card-title')?.textContent.trim() || '';
                         const positions = [];
                         
                         // Collect positions for this division
@@ -390,7 +402,12 @@
                     };
                     
                     console.log('Department Data:', departmentData);
-                    alert('Data departemen siap disimpan:\n\n' + JSON.stringify(departmentData, null, 2));
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Data departemen siap disimpan',
+                        html: '<pre class="text-start small mb-0" style="max-height:300px;overflow:auto;">' +
+                            JSON.stringify(departmentData, null, 2).replace(/</g, '&lt;') + '</pre>'
+                    });
                     
                     // TODO: Send to API endpoint
                     // POST /api/departments/{id}

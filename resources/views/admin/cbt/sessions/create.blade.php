@@ -96,7 +96,7 @@
                     <div class="card-body">
                         <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
                             <table class="table table-sm table-hover" id="tableSoal">
-                                <thead class="sticky-top bg-light">
+                                <thead class="sticky-top bg-body-tertiary">
                                     <tr>
                                         <th width="5%"></th>
                                         <th width="35%">Judul Set Soal</th>
@@ -188,7 +188,7 @@
 
                         <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                             <table class="table table-sm table-hover" id="tableKaryawan">
-                                <thead class="sticky-top bg-light">
+                                <thead class="sticky-top bg-body-tertiary">
                                     <tr>
                                         <th width="5%"></th>
                                         <th width="15%">NIK</th>
@@ -510,13 +510,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (soalCount === 0) {
             e.preventDefault();
-            alert('Pilih minimal 1 set soal!');
+            Swal.fire({ icon: 'warning', title: 'Set soal belum dipilih', text: 'Pilih minimal 1 set soal!' });
             return false;
         }
         
         if (karyawanCount === 0) {
             e.preventDefault();
-            alert('Pilih minimal 1 karyawan!');
+            Swal.fire({ icon: 'warning', title: 'Karyawan belum dipilih', text: 'Pilih minimal 1 karyawan!' });
             return false;
         }
         

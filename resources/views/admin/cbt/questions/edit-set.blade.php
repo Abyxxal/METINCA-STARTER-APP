@@ -153,7 +153,7 @@
         <div id="questionsContainer">
         @foreach($questions as $index => $question)
         <div class="card mb-3 question-card">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Soal #{{ $index + 1 }}</h5>
                 <div class="d-flex gap-2">
                     <select name="questions[{{ $index }}][type]" class="form-select form-select-sm type-select" data-index="{{ $index }}" style="width: 150px;">
@@ -364,7 +364,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const questionId = this.dataset.questionId;
             const card = this.closest('.question-card');
             
-            if (confirm('Hapus soal ini? Perubahan akan disimpan setelah klik "Simpan Semua".')) {
+            Swal.fire({
+                title: 'Hapus soal ini?',
+                text: 'Perubahan akan disimpan setelah klik "Simpan Semua".',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: SWAL_BTN.danger,
+                cancelButtonColor: SWAL_BTN.cancel
+            }).then(result => {
+                if (!result.isConfirmed) return;
                 // Mark for deletion by hiding the card and adding delete input
                 card.style.display = 'none';
                 const deleteInput = document.createElement('input');
@@ -373,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 deleteInput.value = questionId;
                 card.appendChild(deleteInput);
                 updateCount();
-            }
+            });
         });
     });
 
@@ -441,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function createNewQuestion(index) {
         return `
             <div class="card mb-3 question-card border-start border-success border-4">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Soal #${index + 1}</h5>
                     <div class="d-flex gap-2">
                         <select name="questions[${index}][type]" class="form-select form-select-sm type-select" data-index="${index}" style="width: 150px;">
@@ -531,10 +541,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const removeBtn = container.querySelector(`.remove-btn-new[data-index="${newQuestionIndex}"]`);
         if (removeBtn) {
             removeBtn.addEventListener('click', function() {
-                if (confirm('Hapus soal ini?')) {
-                    this.closest('.question-card').remove();
-                    updateCount();
-                }
+                Swal.fire({
+                    title: 'Hapus soal ini?',
+                    text: 'Soal baru ini akan dibuang sebelum disimpan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: SWAL_BTN.danger,
+                    cancelButtonColor: SWAL_BTN.cancel
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        this.closest('.question-card').remove();
+                        updateCount();
+                    }
+                });
             });
         }
 

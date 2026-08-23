@@ -490,7 +490,12 @@
 
         // View Product Detail Function
         function viewProductDetail(productName) {
-            alert(`Melihat detail produk: ${productName}\n\nFungsi ini akan dihubungkan dengan halaman detail produk.`);
+            Swal.fire({
+                icon: 'info',
+                title: productName,
+                text: 'Fungsi ini akan dihubungkan dengan halaman detail produk.',
+                confirmButtonColor: '#5d87ff'
+            });
         }
     </script>
 @endpush

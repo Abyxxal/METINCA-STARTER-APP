@@ -19,12 +19,7 @@
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/iconly.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <style>
-        .logo img {
-            width: 50px !important;
-            height: auto !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/theme-overrides.css') }}">
     @stack('styles')
 </head>
 
@@ -38,7 +33,7 @@
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="{{ asset('assets/compiled/svg/logo-metinca.svg') }}" alt="logo-metinca"
+                            <a href="{{ route('dashboard') }}"><img src="{{ asset('assets/compiled/svg/logo-metinca.svg') }}" alt="logo-metinca"
                                     srcset=""></a>
                         </div>
                         <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
@@ -365,7 +360,6 @@
                     </div>
                 </div>
             </header>
-            </header>
 
             <div class="main-content">
                 @yield('content')
@@ -375,11 +369,10 @@
             <footer>
                 <div class="footer clearfix mb-0 text-muted">
                     <div class="float-start">
-                        <p>2025 &copy; Sistem Informasi Universitas Darma Persada</p>
+                        <p>2026 &copy; PT Metinca</p>
                     </div>
                     <div class="float-end">
-                        <p>Crafted with <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-                            by <a href="si.unsada.ac.id">Your Name</a></p>
+                        <p>Sistem Manajemen Kompetensi &amp; Pelatihan</p>
                     </div>
                 </div>
             </footer>
@@ -389,6 +382,7 @@
     <script src="{{ asset('assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>window.SWAL_BTN = { danger: '#dc3545', success: '#198754', cancel: '#6c757d' };</script>
     <script src="{{ asset('assets/compiled/js/app.js') }}"></script>
      <!-- App JS -->
     <script src="{{ asset('js/app.js') }}"></script>
@@ -600,7 +594,6 @@
 
     </script>
     @stack('scripts')
-    <!-- Need: Apexcharts -->
 
 </body>
 

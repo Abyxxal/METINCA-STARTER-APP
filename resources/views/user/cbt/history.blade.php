@@ -50,12 +50,12 @@
         </div>
         <div class="card-body">
             @if($sessions->isEmpty())
-                <div class="text-center py-5">
-                    <i class="bi bi-journal-x text-muted" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3">Belum Ada Riwayat</h4>
-                    <p class="text-muted">Anda belum pernah mengikuti ujian apapun.</p>
-                    <a href="{{ route('cbt.employee.dashboard') }}" class="btn btn-primary">
-                        <i class="bi bi-play"></i> Lihat Ujian Tersedia
+                <div class="empty-state m-3">
+                    <i class="bi bi-journal-x"></i>
+                    <h5>Belum Ada Riwayat</h5>
+                    <p>Anda belum pernah mengikuti ujian apapun.</p>
+                    <a href="{{ route('cbt.employee.dashboard') }}" class="btn btn-primary mt-2">
+                        <i class="bi bi-play me-1"></i> Lihat Ujian Tersedia
                     </a>
                 </div>
             @else

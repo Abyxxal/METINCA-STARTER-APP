@@ -42,7 +42,7 @@
                 <div class="col-md-6">
                     <div class="feature-card text-center">
                         <div class="feature-icon">
-                            <i class="fa-regular fa-compass"></i>
+                            <i class="bi bi-compass"></i>
                         </div>
                         <h4>Vision</h4>
                         <p>To produce beneficial investment castings products that add value to the industry and are safe
@@ -52,7 +52,7 @@
                 <div class="col-md-6">
                     <div class="feature-card text-center">
                         <div class="feature-icon">
-                            <i class="fa-solid fa-chart-line"></i>
+                            <i class="bi bi-graph-up-arrow"></i>
                         </div>
                         <h4>Mission</h4>
                         <p>To feature technology development, as well as reliable human resources, and to be able to work

@@ -42,7 +42,7 @@
                     <div class="division-card division-2 text-center" data-bs-toggle="tab" data-bs-target="#sand-casting-tab"
                         role="tab">
                         <div class="division-icon">
-                            <i class="fa-solid fa-cubes-stacked"></i>
+                            <i class="bi bi-stack"></i>
                         </div>
                         <h4>Sand Casting</h4>
                         <p>Versatile casting method ideal for large components and lower production volumes.</p>
@@ -52,7 +52,7 @@
                     <div class="division-card division-3 text-center" data-bs-toggle="tab" data-bs-target="#valve-manufacturing-tab"
                         role="tab">
                         <div class="division-icon">
-                            <i class="fa-solid fa-gears"></i>
+                            <i class="bi bi-gear-wide-connected"></i>
                         </div>
                         <h4>Valve Manufacturing</h4>
                         <p>Specialized in producing high-quality valves for various industrial applications.</p>
@@ -62,7 +62,7 @@
                     <div class="division-card division-4 text-center" data-bs-toggle="tab" data-bs-target="#permanent-mould-tab"
                         role="tab">
                         <div class="division-icon">
-                            <i class="fa-solid fa-box"></i>
+                            <i class="bi bi-box"></i>
                         </div>
                         <h4>Permanent Mould</h4>
                         <p>Durable mould casting for high-volume production with excellent surface finish.</p>
@@ -77,7 +77,7 @@
                 <div class="tab-pane fade show active" id="investment-casting-tab" role="tabpanel">
                     <div class="card border-0 shadow">
                         <div class="card-header text-white" style="background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);">
-                            <h3 class="mb-0"><i class="fa-solid fa-industry me-2"></i>Investment Casting Division</h3>
+                            <h3 class="mb-0"><i class="bi bi-buildings me-2"></i>Investment Casting Division</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -85,31 +85,31 @@
                                     <div class="side-nav">
                                         <div class="list-group" id="investment-list">
                                             <a class="list-group-item list-group-item-action" href="#ic-wax-injection">
-                                                <i class="fa-solid fa-syringe me-2"></i>Wax Injection
+                                                <i class="bi bi-droplet me-2"></i>Wax Injection
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-pattern-assembling">
-                                                <i class="fa-solid fa-puzzle-piece me-2"></i>Pattern Assembling
+                                                <i class="bi bi-puzzle me-2"></i>Pattern Assembling
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-ceramic">
-                                                <i class="fa-solid fa-layer-group me-2"></i>Ceramic Investment
+                                                <i class="bi bi-layers me-2"></i>Ceramic Investment
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-dewaxing">
-                                                <i class="fa-solid fa-fire me-2"></i>Dewaxing
+                                                <i class="bi bi-fire me-2"></i>Dewaxing
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-sintering">
-                                                <i class="fa-solid fa-temperature-high me-2"></i>Sintering
+                                                <i class="bi bi-thermometer-high me-2"></i>Sintering
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-pouring">
-                                                <i class="fa-solid fa-flask me-2"></i>Metal Pouring
+                                                <i class="bi bi-droplet-half me-2"></i>Metal Pouring
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-cutoff">
-                                                <i class="fa-solid fa-scissors me-2"></i>Cut Off
+                                                <i class="bi bi-scissors me-2"></i>Cut Off
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-finishing">
-                                                <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Finishing
+                                                <i class="bi bi-stars me-2"></i>Finishing
                                             </a>
                                             <a class="list-group-item list-group-item-action" href="#ic-inspection">
-                                                <i class="fa-solid fa-magnifying-glass me-2"></i>Inspection
+                                                <i class="bi bi-search me-2"></i>Inspection
                                             </a>
                                         </div>
                                     </div>
@@ -215,7 +215,7 @@
                 <div class="tab-pane fade" id="sand-casting-tab" role="tabpanel">
                     <div class="card border-0 shadow">
                         <div class="card-header text-white" style="background: linear-gradient(135deg, #000428 0%, #004e92 100%);">
-                            <h3 class="mb-0"><i class="fa-solid fa-cubes-stacked me-2"></i>Sand Casting Division</h3>
+                            <h3 class="mb-0"><i class="bi bi-stack me-2"></i>Sand Casting Division</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -333,7 +333,7 @@
                 <div class="tab-pane fade" id="valve-manufacturing-tab" role="tabpanel">
                     <div class="card border-0 shadow">
                         <div class="card-header text-white" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
-                            <h3 class="mb-0"><i class="fa-solid fa-gears me-2"></i>Valve Division</h3>
+                            <h3 class="mb-0"><i class="bi bi-gear-wide-connected me-2"></i>Valve Division</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -451,7 +451,7 @@
                 <div class="tab-pane fade" id="permanent-mould-tab" role="tabpanel">
                     <div class="card border-0 shadow">
                         <div class="card-header text-white" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);">
-                            <h3 class="mb-0"><i class="fa-solid fa-box me-2"></i>Permanent Mould Division</h3>
+                            <h3 class="mb-0"><i class="bi bi-box me-2"></i>Permanent Mould Division</h3>
                         </div>
                         <div class="card-body">
                             <div class="row">

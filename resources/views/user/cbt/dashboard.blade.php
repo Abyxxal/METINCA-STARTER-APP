@@ -100,7 +100,7 @@
                                     @else
                                         @if($session->isDeadlinePassed())
                                             <button class="btn btn-secondary w-100" disabled>
-                                                <i class="bi bi-lock"></i> Deadline Terlewat
+                                                <i class="bi bi-clock"></i> Deadline Terlewat
                                             </button>
                                         @elseif($session->isNotStartedYet())
                                             <button class="btn btn-secondary w-100" disabled>

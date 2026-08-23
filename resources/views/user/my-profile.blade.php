@@ -66,7 +66,7 @@
         <!-- Profile Form -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light border-bottom">
+                <div class="card-header">
                     <h5 class="mb-0">Informasi Pribadi</h5>
                 </div>
                 <div class="card-body">
@@ -141,7 +141,7 @@
                         <div class="row">
                             <div class="col-sm-9 offset-sm-3">
                                 <button type="button" class="btn btn-primary" onclick="saveProfile()">
-                                    <i class="fas fa-save me-2"></i>Simpan Perubahan
+                                    <i class="bi bi-save me-2"></i>Simpan Perubahan
                                 </button>
                                 <button type="reset" class="btn btn-secondary ms-2">
                                     Batal
@@ -154,7 +154,7 @@
 
             <!-- Activity Section -->
             <div class="card border-0 shadow-sm mt-4">
-                <div class="card-header bg-light border-bottom">
+                <div class="card-header">
                     <h5 class="mb-0">Aktivitas Terbaru</h5>
                 </div>
                 <div class="card-body">
@@ -162,7 +162,7 @@
                         <div class="timeline-item mb-3">
                             <div class="d-flex">
                                 <div class="timeline-marker bg-success me-3">
-                                    <i class="fas fa-check text-white"></i>
+                                    <i class="bi bi-check-lg text-white"></i>
                                 </div>
                                 <div>
                                     <h6 class="mb-1">Menyelesaikan Pelatihan</h6>
@@ -173,7 +173,7 @@
                         <div class="timeline-item mb-3">
                             <div class="d-flex">
                                 <div class="timeline-marker bg-info me-3">
-                                    <i class="fas fa-book text-white"></i>
+                                    <i class="bi bi-journal-text text-white"></i>
                                 </div>
                                 <div>
                                     <h6 class="mb-1">Memulai Pelatihan</h6>
@@ -184,7 +184,7 @@
                         <div class="timeline-item mb-3">
                             <div class="d-flex">
                                 <div class="timeline-marker bg-warning me-3">
-                                    <i class="fas fa-sign-in-alt text-white"></i>
+                                    <i class="bi bi-box-arrow-in-right text-white"></i>
                                 </div>
                                 <div>
                                     <h6 class="mb-1">Login Pertama</h6>

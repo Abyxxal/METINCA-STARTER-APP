@@ -11,12 +11,7 @@
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/app-dark.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/compiled/css/iconly.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <style>
-        .logo img {
-            width: 50px !important;
-            height: auto !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/theme-overrides.css') }}">
     @stack('styles')
 </head>
 
@@ -115,56 +110,40 @@
         </div>
 
         <div id="main">
-            {{-- TOPBAR --}}
-            <div class="topbar">
+            {{-- ========================================
+                 TOPBAR - Struktur sama dengan layouts/app.blade.php
+            ======================================== --}}
+            <header class="topbar">
                 <div class="topbar-container">
                     {{-- Burger Button --}}
-                    <button class="topbar-burger" id="sidebarToggle">
-                        <i class="bi bi-list"></i>
+                    <button class="topbar-burger" id="sidebarToggle" type="button">
+                        <i class="bi bi-justify fs-3"></i>
                     </button>
 
                     {{-- Right Side Items --}}
                     <div class="topbar-items">
-                        {{-- Notification Dropdown --}}
-                        <div class="topbar-item">
-                            <button class="topbar-btn" id="notificationBtn" onclick="toggleDropdown('notificationDropdown')">
-                                <i class="bi bi-bell" style="font-size: 1.25rem;"></i>
-                                <span class="topbar-badge">3</span>
+                        {{-- Notification Bell --}}
+                        <div class="topbar-item" id="notificationWrapper">
+                            <button class="topbar-btn" id="notificationBtn" type="button">
+                                <i class="bi bi-bell fs-4"></i>
                             </button>
-                            
+
                             <div class="topbar-dropdown" id="notificationDropdown">
                                 <div class="topbar-dropdown-header">
-                                    <h6>Notifikasi</h6>
+                                    <h6 class="mb-0">Notifikasi</h6>
                                 </div>
                                 <div class="topbar-dropdown-body">
-                                    <a href="#" class="topbar-dropdown-item">
-                                        <div class="topbar-dropdown-icon bg-primary">
-                                            <i class="bi bi-bell-fill"></i>
-                                        </div>
-                                        <div class="topbar-dropdown-content">
-                                            <div class="topbar-dropdown-title">Pelatihan Baru Tersedia</div>
-                                            <div class="topbar-dropdown-text">2 jam yang lalu</div>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="topbar-dropdown-item">
-                                        <div class="topbar-dropdown-icon bg-success">
-                                            <i class="bi bi-check-circle-fill"></i>
-                                        </div>
-                                        <div class="topbar-dropdown-content">
-                                            <div class="topbar-dropdown-title">Ujian Telah Diverifikasi</div>
-                                            <div class="topbar-dropdown-text">5 jam yang lalu</div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="topbar-dropdown-footer">
-                                    <a href="#">Lihat Semua Notifikasi</a>
+                                    <div class="topbar-dropdown-empty">
+                                        <i class="bi bi-bell-slash text-muted fs-1"></i>
+                                        <p>Belum ada notifikasi</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- User Menu Dropdown --}}
-                        <div class="topbar-item">
-                            <button class="topbar-btn topbar-user-btn" onclick="toggleDropdown('userDropdown')">
+                        {{-- User Menu --}}
+                        <div class="topbar-item" id="userMenuWrapper">
+                            <button class="topbar-btn topbar-user-btn" id="userMenuBtn" type="button">
                                 <div class="topbar-user-info">
                                     <div class="topbar-user-name">{{ Auth::user()->name ?? 'User' }}</div>
                                     <div class="topbar-user-role">Karyawan</div>
@@ -173,26 +152,26 @@
                                     <img src="{{ Auth::user()->profile_photo_url ?? asset('assets/compiled/jpg/1.jpg') }}" alt="Avatar" loading="lazy">
                                 </div>
                             </button>
-                            
-                            <div class="topbar-dropdown topbar-dropdown-user" id="userDropdown">
+
+                            <div class="topbar-dropdown topbar-dropdown-user" id="userMenuDropdown">
                                 <a href="{{ route('user.my-profile') }}" class="topbar-dropdown-item">
-                                    <i class="bi bi-person"></i>
-                                    <span>Profil Saya</span>
+                                    <i class="bi bi-person me-2"></i> Profil Saya
                                 </a>
                                 <a href="#" class="topbar-dropdown-item">
-                                    <i class="bi bi-gear"></i>
-                                    <span>Pengaturan</span>
+                                    <i class="bi bi-gear me-2"></i> Pengaturan
                                 </a>
                                 <div class="topbar-dropdown-divider"></div>
-                                <a href="#" class="topbar-dropdown-item" onclick="event.preventDefault(); handleLogout();">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    <span>Logout</span>
-                                </a>
+                                <form id="formLogout">
+                                    @csrf
+                                    <button type="submit" class="topbar-dropdown-item topbar-logout-btn">
+                                        <i class="bi bi-box-arrow-left me-2"></i> Keluar
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
             <div class="main-content">
                 @yield('content')
@@ -201,11 +180,10 @@
             <footer>
                 <div class="footer clearfix mb-0 text-muted">
                     <div class="float-start">
-                        <p>2025 &copy; Sistem Pelatihan PT Metinca</p>
+                        <p>2026 &copy; PT Metinca</p>
                     </div>
                     <div class="float-end">
-                        <p>Crafted with <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-                            by <a href="#">PT Metinca</a></p>
+                        <p>Sistem Manajemen Kompetensi &amp; Pelatihan</p>
                     </div>
                 </div>
             </footer>
@@ -215,6 +193,7 @@
     <script src="{{ asset('assets/static/js/components/dark.js') }}"></script>
     <script src="{{ asset('assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>window.SWAL_BTN = { danger: '#dc3545', success: '#198754', cancel: '#6c757d' };</script>
     <script src="{{ asset('assets/compiled/js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
@@ -249,86 +228,119 @@
     @endauth
 
     <script>
-        // Toggle Dropdown (Notification & User Menu)
-        function toggleDropdown(dropdownId) {
-            const dropdown = document.getElementById(dropdownId);
-            const allDropdowns = document.querySelectorAll('.topbar-dropdown');
-            
-            // Close all other dropdowns
-            allDropdowns.forEach(d => {
-                if (d.id !== dropdownId) {
+        // ========================================
+        // TOPBAR: Simple Vanilla JS - Sama dengan layouts/app.blade.php
+        // ========================================
+        (function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+
+            function toggleDropdown(dropdown) {
+                const isOpen = dropdown.classList.contains('show');
+
+                document.querySelectorAll('.topbar-dropdown.show').forEach(d => {
                     d.classList.remove('show');
-                }
-            });
-            
-            // Toggle current dropdown
-            dropdown.classList.toggle('show');
-            
-            // Hapus badge jika dropdown notifikasi
-            if (dropdownId === 'notificationDropdown') {
-                const badge = document.querySelector('#notificationBtn .topbar-badge');
-                if (badge) {
-                    badge.style.display = 'none';
+                });
+
+                if (!isOpen) {
+                    dropdown.classList.add('show');
                 }
             }
-        }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.topbar-item')) {
-                document.querySelectorAll('.topbar-dropdown').forEach(dropdown => {
-                    dropdown.classList.remove('show');
+            if (notificationBtn && notificationDropdown) {
+                notificationBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(notificationDropdown);
                 });
             }
-        });
 
-        // Sidebar Toggle for Mobile/Desktop
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            const main = document.getElementById('main');
-            
-            sidebar.classList.toggle('active');
-            sidebar.classList.toggle('inactive');
-            
-            // Optional: Add backdrop for mobile
-            if (window.innerWidth < 1200) {
-                let backdrop = document.querySelector('.sidebar-backdrop');
-                if (!backdrop) {
-                    backdrop = document.createElement('div');
-                    backdrop.className = 'sidebar-backdrop';
-                    backdrop.onclick = function() {
-                        sidebar.classList.remove('active');
-                        sidebar.classList.add('inactive');
-                        backdrop.remove();
-                    };
-                    document.body.appendChild(backdrop);
-                } else {
-                    backdrop.remove();
-                }
+            if (userMenuBtn && userMenuDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(userMenuDropdown);
+                });
             }
-        });
 
-        // Logout Handler
-        function handleLogout() {
-            Swal.fire({
-                title: 'Yakin ingin logout?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Logout',
-                cancelButtonText: 'Batal',
-                confirmButtonColor: '#435ebe',
-                cancelButtonColor: '#6c757d'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post('{{ route('logout') }}', {
-                        _token: '{{ csrf_token() }}'
-                    }).then(response => {
-                        window.location.href = '{{ route('login') }}';
-                    }).catch(error => {
-                        console.log(error);
-                        Swal.fire('Gagal!', 'Terjadi kesalahan saat logout.', 'error');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.getElementById('main');
+
+                    if (sidebar) {
+                        sidebar.classList.toggle('active');
+                        sidebar.classList.toggle('inactive');
+
+                        if (window.innerWidth >= 1200 && mainContent) {
+                            mainContent.style.marginLeft =
+                                sidebar.classList.contains('inactive') ? '0' : '';
+                        }
+
+                        if (window.innerWidth < 1200) {
+                            let backdrop = document.querySelector('.sidebar-backdrop');
+                            if (!backdrop) {
+                                backdrop = document.createElement('div');
+                                backdrop.className = 'sidebar-backdrop';
+                                backdrop.onclick = function() {
+                                    sidebar.classList.remove('active');
+                                    sidebar.classList.add('inactive');
+                                    backdrop.remove();
+                                };
+                                document.body.appendChild(backdrop);
+                            } else {
+                                backdrop.remove();
+                            }
+                        }
+                    }
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.topbar-item')) {
+                    document.querySelectorAll('.topbar-dropdown.show').forEach(d => {
+                        d.classList.remove('show');
                     });
                 }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.topbar-dropdown.show').forEach(d => {
+                        d.classList.remove('show');
+                    });
+                }
+            });
+        })();
+
+        const formLogout = document.getElementById('formLogout');
+        if (formLogout) {
+            formLogout.addEventListener('submit', function(e){
+                e.preventDefault();
+                const form = this;
+
+                Swal.fire({
+                    title: 'Yakin ingin logout?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Logout',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        App.ajax('{{ route('logout') }}', 'POST', new FormData(form)).then(response => {
+                            window.location.href = '{{ route('login') }}';
+                        }).catch(error => {
+                            console.log(error);
+                            App.error('Gagal Logout' || 'Terjadi kesalahan saat logout.');
+                        });
+                    }
+                });
             });
         }
     </script>
