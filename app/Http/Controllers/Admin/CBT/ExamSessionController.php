@@ -321,35 +321,7 @@ class ExamSessionController extends Controller
      */
     public function update(Request $request, ExamSession $session)
     {
-        if (! in_array($session->status, [ExamSession::STATUS_ASSIGNED, ExamSession::STATUS_STARTED])) {
-            return back()->with('error', 'Sesi yang sudah selesai atau diverifikasi tidak dapat diedit!');
-        }
-
-        $validated = $request->validate([
-            'deadline_at' => 'required|date',
-            'passing_score' => 'required|integer|min:0|max:100',
-            'duration_minutes' => 'required|integer|min:5|max:300',
-        ]);
-
-        $deadline = Carbon::parse($validated['deadline_at']);
-
-        // Read directly from request to avoid nullable validator converting empty -> null
-        $schedStartRaw = $request->input('scheduled_start_at');
-        $scheduledStart = ! empty($schedStartRaw) ? Carbon::parse($schedStartRaw) : null;
-
-        DB::table('exam_sessions')->where('id', $session->id)->update([
-            'deadline_at' => $deadline->toDateTimeString(),
-            'scheduled_start_at' => $scheduledStart?->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString(),
-        ]);
-
-        DB::table('exams')->where('id', $session->exam_id)->update([
-            'passing_score' => $validated['passing_score'],
-            'duration_minutes' => $validated['duration_minutes'],
-            'updated_at' => now()->toDateTimeString(),
-        ]);
-
-        return back()->with('success', 'Pengaturan sesi ujian berhasil diperbarui!');
+        return $this->sessionService->update($request, $session);
     }
 
     /**
@@ -420,98 +392,7 @@ class ExamSessionController extends Controller
      */
     public function bulkAssignByDivision(Request $request)
     {
-        $validated = $request->validate([
-            'exam_id' => 'required|exists:exams,id',
-            'division_id' => 'required|exists:divisions,id',
-            'deadline_at' => 'required|date|after:now',
-            'scheduled_start_at' => 'nullable|date|before:deadline_at',
-        ]);
-
-        $exam = Exam::with('examQuestions')->findOrFail($validated['exam_id']);
-
-        $skillId = $exam->examQuestions->first()?->skill_id ?? $exam->skill_id;
-        $targetLevel = $exam->target_level;
-        $requiredLevel = $targetLevel - 1;
-
-        $employees = Employee::with('competencies')
-            ->where('division_id', $validated['division_id'])
-            ->where('status', 'Aktif')
-            ->get();
-
-        if ($employees->isEmpty()) {
-            return back()->with('error', 'Tidak ada karyawan aktif di divisi tersebut!');
-        }
-
-        $assigned = 0;
-        $notEligibleList = [];
-        $skippedList = [];
-        $createdSessions = [];
-
-        foreach ($employees as $employee) {
-            $competency = $employee->competencies->where('skill_id', $skillId)->first();
-            $currentLevel = $competency ? $competency->level : 0;
-
-            if ($currentLevel != $requiredLevel) {
-                $notEligibleList[] = [
-                    'name' => $employee->name,
-                    'nik' => $employee->nik,
-                    'current_level' => $currentLevel,
-                    'required_level' => $requiredLevel,
-                    'target_level' => $targetLevel,
-                ];
-
-                continue;
-            }
-
-            $existingSession = ExamSession::where('exam_id', $exam->id)
-                ->where('employee_nik', $employee->nik)
-                ->whereIn('status', [
-                    ExamSession::STATUS_ASSIGNED,
-                    ExamSession::STATUS_STARTED,
-                ])
-                ->exists();
-
-            if ($existingSession) {
-                $skippedList[] = [
-                    'name' => $employee->name,
-                    'nik' => $employee->nik,
-                    'reason' => 'Sudah memiliki sesi ujian aktif',
-                ];
-
-                continue;
-            }
-
-            $createdSessions[] = ExamSession::create([
-                'exam_id' => $exam->id,
-                'employee_nik' => $employee->nik,
-                'status' => ExamSession::STATUS_ASSIGNED,
-                'deadline_at' => Carbon::parse($validated['deadline_at']),
-                'scheduled_start_at' => ! empty($validated['scheduled_start_at'])
-                    ? Carbon::parse($validated['scheduled_start_at'])
-                    : null,
-            ]);
-            $assigned++;
-        }
-
-        foreach ($createdSessions as $s) {
-            SessionStatusUpdated::dispatch($s, 'assigned');
-        }
-        DashboardStatsUpdated::dispatch();
-
-        $message = "{$assigned} karyawan ditugaskan untuk ujian '{$exam->title}'.";
-        if (count($notEligibleList) > 0) {
-            $message .= ' ('.count($notEligibleList).' karyawan tidak memenuhi syarat - harus Level '.$requiredLevel.')';
-        }
-        if (count($skippedList) > 0) {
-            $message .= ' ('.count($skippedList).' dilewati karena sudah memiliki sesi aktif)';
-        }
-
-        return redirect()
-            ->route('cbt.admin.sessions.index')
-            ->with('success', $message)
-            ->with('notEligibleList', $notEligibleList)
-            ->with('skippedList', $skippedList)
-            ->with('assignedCount', $assigned);
+        return $this->sessionService->bulkAssignByDivision($request);
     }
 
     // ============================================
