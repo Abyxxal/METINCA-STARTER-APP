@@ -29,6 +29,10 @@ use Illuminate\Support\Facades\Cache;
  */
 class MasterDataController extends Controller
 {
+    public function __construct(private \App\Services\SkillService $skillService)
+    {
+    }
+
     // ============================================
     // EMPLOYEE - CREATE & UPDATE
     // ============================================
@@ -1101,30 +1105,9 @@ class MasterDataController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function storeSkill(Request $request)
+        public function storeSkill(Request $request)
     {
-        try {
-            // Validasi input
-            $validated = $request->validate([
-                'division_id' => 'required|exists:divisions,id',
-                'code' => 'required|string',
-                'name' => 'required|string',
-                'description' => 'nullable|string',
-            ]);
-
-            // Buat record skill baru
-            $skill = Skill::create($validated);
-
-            return response()->json([
-                'success' => true, 
-                'data' => $skill
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage()
-            ], 400);
-        }
+        return $this->skillService->storeSkill($request);
     }
 
     /**
@@ -1133,22 +1116,9 @@ class MasterDataController extends Controller
      * @param int $id ID Skill
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroySkill($id)
+        public function destroySkill($id)
     {
-        try {
-            // Delete skill
-            Skill::findOrFail($id)->delete();
-
-            return response()->json([
-                'success' => true, 
-                'message' => 'Skill berhasil dihapus'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage()
-            ], 400);
-        }
+        return $this->skillService->destroySkillById($id);
     }
 
     /**

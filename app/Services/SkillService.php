@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Skill;
+use Illuminate\Http\Request;
 use App\Models\Division;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -208,6 +209,58 @@ class SkillService
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
+        }
+    }
+
+    /**
+     * [R3b - port verbatim dari MasterDataController::storeSkill]
+     * Perilaku asli dipertahankan: validasi inline + respons JSON.
+     * (Service createSkill() yang lama TIDAK dipakai karena berbeda
+     *  perilaku: tanpa field code & memakai Cache::tags.)
+     */
+    public function storeSkill(Request $request)
+    {
+        try {
+            // Validasi input
+            $validated = $request->validate([
+                'division_id' => 'required|exists:divisions,id',
+                'code' => 'required|string',
+                'name' => 'required|string',
+                'description' => 'nullable|string',
+            ]);
+
+            // Buat record skill baru
+            $skill = Skill::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'data' => $skill
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * [R3b - port verbatim dari MasterDataController::destroySkill]
+     */
+    public function destroySkillById($id)
+    {
+        try {
+            Skill::findOrFail($id)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Skill berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 }
