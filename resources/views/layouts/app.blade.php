@@ -135,9 +135,6 @@
                                 <li class="submenu-item {{ request()->is('cbt/admin/sessions/pending*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.sessions.pending') }}" class="submenu-link">
                                         Verifikasi Ujian
-                                        @php
-                                            $pendingCount = \App\Models\ExamSession::where('status', 'submitted')->count();
-                                        @endphp
                                         @if($pendingCount > 0)
                                             <span class="badge bg-danger ms-auto" data-badge="pending-verification">{{ $pendingCount }}</span>
                                         @else
@@ -153,11 +150,6 @@
                                 <li class="submenu-item {{ request()->is('cbt/admin/approval*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.sessions.pending-approval') }}" class="submenu-link">
                                         Persetujuan Level
-                                        @php
-                                            $pendingApprovalCount = \App\Models\ExamSession::where('status', 'verified_pass')
-                                                ->where(function($q) { $q->where('manager_decision', 'pending')->orWhereNull('manager_decision'); })
-                                                ->count();
-                                        @endphp
                                         @if($pendingApprovalCount > 0)
                                             <span class="badge bg-warning ms-auto" data-badge="pending-approval">{{ $pendingApprovalCount }}</span>
                                         @else
@@ -206,11 +198,6 @@
                                     <a href="{{ route('cbt.employee.dashboard') }}" class="submenu-link">
                                         Ujian Saya
                                         @if(Auth::user()->employee)
-                                            @php
-                                                $pendingExamCount = \App\Models\ExamSession::where('employee_nik', Auth::user()->employee->nik)
-                                                    ->whereIn('status', ['assigned', 'started'])
-                                                    ->count();
-                                            @endphp
                                             @if($pendingExamCount > 0)
                                                 <span class="badge bg-warning ms-auto">{{ $pendingExamCount }}</span>
                                             @endif
@@ -268,14 +255,7 @@
                     {{-- Right Side Items --}}
                     <div class="topbar-items">
                         {{-- Notification Bell --}}
-                        @php
-                            $pendingSessions = \App\Models\ExamSession::where('status', 'submitted')
-                                ->with(['employee', 'exam'])
-                                ->orderBy('submitted_at', 'desc')
-                                ->limit(5)
-                                ->get();
-                            $pendingCount = $pendingSessions->count();
-                        @endphp
+
                         
                         <div class="topbar-item" id="notificationWrapper">
                             <button class="topbar-btn" id="notificationBtn" type="button">

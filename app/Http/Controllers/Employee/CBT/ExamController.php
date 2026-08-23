@@ -130,7 +130,12 @@ class ExamController extends Controller
 
         $exam->load(['skill', 'questions']);
 
-        return view('user.cbt.exam-preview', compact('exam', 'employee'));
+        // R1: kompetensi saat ini & kelayakan ambil ujian dipindahkan dari view
+        $competency = $employee->competencies()->where('skill_id', $exam->skill_id)->first();
+        $currentLevel = $competency ? $competency->level : 0;
+        $canTake = ($exam->target_level <= $currentLevel + 1);
+
+        return view('user.cbt.exam-preview', compact('exam', 'employee', 'competency', 'currentLevel', 'canTake'));
     }
 
     /**

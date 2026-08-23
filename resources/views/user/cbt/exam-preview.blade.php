@@ -33,11 +33,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    @php
-                        $competency = $employee->competencies()->where('skill_id', $exam->skill_id)->first();
-                        $currentLevel = $competency ? $competency->level : 0;
-                        $canTake = ($exam->target_level <= $currentLevel + 1);
-                    @endphp
+
 
                     <div class="row text-center mb-4">
                         <div class="col-md-3">
