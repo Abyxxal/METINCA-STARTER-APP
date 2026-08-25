@@ -102,7 +102,7 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
 // ============================================
 // EMPLOYEE CBT ROUTES
 // ============================================
-Route::middleware(['auth'])->prefix('cbt')->name('cbt.employee.')->group(function () {
+Route::middleware(['auth', 'password.changed'])->prefix('cbt')->name('cbt.employee.')->group(function () {
 
     // Dashboard CBT Karyawan
     Route::get('/my-exams', [EmployeeExamController::class, 'dashboard'])->name('dashboard');

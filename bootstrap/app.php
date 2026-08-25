@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'is.admin' => \App\Http\Middleware\IsAdmin::class,
             'is.user' => \App\Http\Middleware\IsUser::class,
             'is.manager' => \App\Http\Middleware\IsManager::class,
+            'password.changed' => \App\Http\Middleware\EnsurePasswordChanged::class,
         ]);
 
         //

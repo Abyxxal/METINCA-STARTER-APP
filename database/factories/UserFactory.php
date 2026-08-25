@@ -32,6 +32,8 @@ class UserFactory extends Factory
             'role' => 'user',
             'profile_photo_url' => null,
             'employee_nik' => null,
+            // User buatan test dianggap mapan: tidak dipaksa ganti password
+            'password_changed_at' => now(),
         ];
     }
 

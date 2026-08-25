@@ -110,14 +110,14 @@ Route::middleware('guest')->group(function () {
 // Middleware: 'auth' - hanya accessible jika sudah login
 // Jika belum login akan redirect ke login page
 
-Route::middleware(['auth'])->group(function(){
+Route::middleware(['auth', 'password.changed'])->group(function(){
 
     // ============================================
     // SHARED ROUTES - Dashboard untuk Admin & User
     // ============================================
     
     // GET /dashboard - Dashboard untuk both admin dan user
-    // Fungsi: Redirect atau show sesuai dengan role
+    // Fungsi: Redirect atau show sesuai role
     Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
 
     // ============================================
@@ -201,6 +201,10 @@ Route::middleware(['auth'])->group(function(){
     // Middleware: 'is.user' - hanya accessible untuk user dengan role 'user'
     
     Route::middleware(['is.user'])->name('user.')->group(function(){
+
+        // WAJIB GANTI PASSWORD (password default dari admin)
+        Route::get('/change-password', [\App\Http\Controllers\Employee\PasswordChangeController::class, 'show'])->name('password.change');
+        Route::post('/change-password', [\App\Http\Controllers\Employee\PasswordChangeController::class, 'update'])->name('password.update');
 
         // GET /my-training - Halaman pelatihan saya
         // Fungsi: Menampilkan daftar pelatihan yang ditugaskan ke user

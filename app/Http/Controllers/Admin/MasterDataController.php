@@ -98,6 +98,7 @@ class MasterDataController extends Controller
                     'password' => bcrypt($validated['password']),
                     'role' => 'user',
                     'employee_nik' => $employee->nik,  // ✅ FIXED: employee_id → employee_nik
+                    'password_changed_at' => null,
                 ]);
                 
                 \Log::info('✅ User account created for employee: ' . $employee->nik . ' (' . $employee->name . ')');
@@ -1248,8 +1249,8 @@ class MasterDataController extends Controller
     public function resetEmployeePassword($id)
     {
         try {
-            // Find employee by NIK or ID
-            $employee = Employee::where('nik', $id)->orWhere('id', $id)->first();
+            // Find employee by NIK (primary key tabel employees)
+            $employee = Employee::where('nik', $id)->first();
 
             if (!$employee) {
                 return response()->json([
@@ -1271,7 +1272,8 @@ class MasterDataController extends Controller
             // Set default password (use NIK as default password)
             $defaultPassword = $employee->nik;
             $user->update([
-                'password' => bcrypt($defaultPassword)
+                'password' => bcrypt($defaultPassword),
+                'password_changed_at' => null,
             ]);
 
             return response()->json([
@@ -1372,3 +1374,4 @@ class MasterDataController extends Controller
         return view('admin.master-data', compact('departments', 'divisions', 'positions'));
     }
 }
+
