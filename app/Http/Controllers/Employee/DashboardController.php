@@ -164,6 +164,8 @@ class DashboardController extends Controller
             'certificates' => 0,
         ];
 
+        $recentActivities = collect();
+
         if ($user->employee) {
             $stats['active'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->whereIn('status', ['assigned', 'started'])
@@ -176,9 +178,16 @@ class DashboardController extends Controller
             $stats['certificates'] = ExamSession::where('employee_nik', $user->employee->nik)
                 ->where('status', 'approved')
                 ->count();
+
+            // Aktivitas nyata milik karyawan ini saja (R3c-lanjutan: dummy dihapus)
+            $recentActivities = ExamSession::with(['exam'])
+                ->where('employee_nik', $user->employee->nik)
+                ->latest('updated_at')
+                ->take(5)
+                ->get();
         }
 
-        return view('user.my-profile', compact('stats'));
+        return view('user.my-profile', compact('stats', 'recentActivities'));
     }
 
     /**

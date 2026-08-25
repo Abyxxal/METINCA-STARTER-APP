@@ -152,54 +152,57 @@
                 </div>
             </div>
 
-            <!-- Activity Section -->
+            <!-- Activity Section (data nyata per karyawan) -->
             <div class="card border-0 shadow-sm mt-4">
                 <div class="card-header">
                     <h5 class="mb-0">Aktivitas Terbaru</h5>
                 </div>
                 <div class="card-body">
-                    <div class="timeline">
+                    @php
+                        $activityStyles = [
+                            'assigned' => ['bg-secondary', 'bi-circle-fill'],
+                            'started' => ['bg-warning', 'bi-hourglass-split'],
+                            'submitted' => ['bg-info', 'bi-clipboard-check-fill'],
+                            'verified_pass' => ['bg-primary', 'bi-check-circle-fill'],
+                            'verified_fail' => ['bg-danger', 'bi-x-circle-fill'],
+                            'approved' => ['bg-success', 'bi-check-circle-fill'],
+                            'rejected' => ['bg-dark', 'bi-x-circle-fill'],
+                        ];
+                    @endphp
+
+                    @forelse($recentActivities as $activity)
+                        @php
+                            [$markerClass, $markerIcon] = $activityStyles[$activity->status] ?? ['bg-secondary', 'bi-circle-fill'];
+                        @endphp
                         <div class="timeline-item mb-3">
                             <div class="d-flex">
-                                <div class="timeline-marker bg-success me-3">
-                                    <i class="bi bi-check-lg text-white"></i>
+                                <div class="timeline-marker {{ $markerClass }} me-3">
+                                    <i class="bi {{ $markerIcon }} text-white"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-1">Menyelesaikan Pelatihan</h6>
-                                    <p class="text-muted mb-0 small">Machine Operation - Advanced (92%) - 15 Nov 2025</p>
+                                    <h6 class="mb-1">{{ $activity->getStatusLabel() }}</h6>
+                                    <p class="text-muted mb-0 small">
+                                        {{ $activity->exam->title ?? '-' }}
+                                        @if(!is_null($activity->score))
+                                            &middot; Nilai: {{ $activity->score }}
+                                        @endif
+                                        &middot; {{ $activity->updated_at->format('d M Y') }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="timeline-item mb-3">
-                            <div class="d-flex">
-                                <div class="timeline-marker bg-info me-3">
-                                    <i class="bi bi-journal-text text-white"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1">Memulai Pelatihan</h6>
-                                    <p class="text-muted mb-0 small">Quality Control Basics - 20 Oct 2025</p>
-                                </div>
-                            </div>
+                    @empty
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <h5>Belum ada aktivitas</h5>
+                            <p class="text-muted mb-0">Aktivitas ujian kamu akan tampil di sini.</p>
                         </div>
-                        <div class="timeline-item mb-3">
-                            <div class="d-flex">
-                                <div class="timeline-marker bg-warning me-3">
-                                    <i class="bi bi-box-arrow-in-right text-white"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1">Login Pertama</h6>
-                                    <p class="text-muted mb-0 small">Akun dibuat - 01 Aug 2025</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Modal Ganti Foto -->
 <div class="modal fade" id="editPhotoModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
