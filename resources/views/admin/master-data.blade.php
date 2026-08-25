@@ -1018,6 +1018,9 @@
                         </form>
                     </div>
                     <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-outline-warning me-auto" id="btnResetPasswordKaryawan">
+                            <i class="bi bi-key me-2"></i>Reset Password
+                        </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-2"></i>Batal
                         </button>
@@ -1266,6 +1269,53 @@
                     });
                 }
             });
+
+            // ============================================
+            // RESET PASSWORD KARYAWAN (default: metinca123)
+            // ============================================
+            const btnResetPassword = document.getElementById('btnResetPasswordKaryawan');
+            if (btnResetPassword) {
+                btnResetPassword.addEventListener('click', function () {
+                    const nik   = document.getElementById('editIdKaryawan').value;
+                    const nama  = document.getElementById('editNamaKaryawan').value;
+
+                    if (!nik) {
+                        Swal.fire({ icon: 'error', title: 'Error!', text: 'Data karyawan tidak dapat diidentifikasi' });
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Reset Password?',
+                        html: 'Password <strong>' + nama + '</strong> akan direset ke <strong>metinca123</strong>' +
+                              ' dan wajib diganti saat login berikutnya.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Reset',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: SWAL_BTN.danger,
+                        cancelButtonColor: SWAL_BTN.cancel
+                    }).then(function (result) {
+                        if (!result.isConfirmed) return;
+
+                        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                        fetch('/api/employees/' + encodeURIComponent(nik) + '/reset-password', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }
+                        })
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) {
+                            if (data.success) {
+                                Swal.fire({ icon: 'success', title: 'Tereset!', text: data.message, confirmButtonColor: SWAL_BTN.success });
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Gagal reset password.', confirmButtonColor: SWAL_BTN.danger });
+                            }
+                        })
+                        .catch(function (err) {
+                            Swal.fire({ icon: 'error', title: 'Error!', text: err.message || 'Terjadi kesalahan jaringan.' });
+                        });
+                    });
+                });
+            }
         })();
         </script>
 
