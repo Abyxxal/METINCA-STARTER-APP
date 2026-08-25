@@ -34,4 +34,26 @@ class PasswordChangeController extends Controller
             ->route('dashboard')
             ->with('success', 'Password berhasil diganti. Selamat bekerja!');
     }
+
+    /**
+     * Ubah password dari halaman profil (wajib verifikasi password lama).
+     */
+    public function updateFromProfile(Request $request)
+    {
+        $validated = $request->validate([
+            'password_lama' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (! Hash::check($validated['password_lama'], $request->user()->password)) {
+            return back()->withErrors(['password_lama' => 'Password lama tidak sesuai.']);
+        }
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+            'password_changed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Password berhasil diganti.');
+    }
 }

@@ -206,6 +206,9 @@ Route::middleware(['auth', 'password.changed'])->group(function(){
         Route::get('/change-password', [\App\Http\Controllers\Employee\PasswordChangeController::class, 'show'])->name('password.change');
         Route::post('/change-password', [\App\Http\Controllers\Employee\PasswordChangeController::class, 'update'])->name('password.update');
 
+        // UBAH PASSWORD DARI HALAMAN PROFIL (verifikasi password lama)
+        Route::post('/profile/password', [\App\Http\Controllers\Employee\PasswordChangeController::class, 'updateFromProfile'])->name('profile.password');
+
         // GET /my-training - Halaman pelatihan saya
         // Fungsi: Menampilkan daftar pelatihan yang ditugaskan ke user
         Route::get('/my-training', [EmployeeDashboardController::class, 'myTraining'])->name('my-training');

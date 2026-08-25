@@ -159,8 +159,7 @@ class EmployeePasswordChangeTest extends TestCase
     }
 
     public function test_store_employee_tanpa_password_pakai_metinca123_default(): void
-    {
-        $this->makeHierarchy();
+    {        $this->makeHierarchy();
         $admin = $this->makeAdmin();
 
         $this->actingAs($admin)
@@ -179,5 +178,64 @@ class EmployeePasswordChangeTest extends TestCase
         $this->assertNotNull($user);
         $this->assertTrue(Hash::check('metinca123', $user->password), 'password default harus metinca123');
         $this->assertNull($user->password_changed_at, 'wajib dipaksa ganti saat login pertama');
+    }
+
+    // ============================================
+    // UBAH PASSWORD DARI HALAMAN PROFIL
+    // ============================================
+
+    public function test_ubah_password_dari_profile_sukses(): void
+    {
+        $user = $this->makeEmployeeUser(['password_changed_at' => now(), 'password' => 'lamaKuno9']);
+        $oldHash = $user->password;
+
+        $this->actingAs($user)
+            ->post(route('user.profile.password'), [
+                'password_lama' => 'lamaKuno9',
+                'password' => 'baruAman99',
+                'password_confirmation' => 'baruAman99',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $user->refresh();
+        $this->assertTrue(Hash::check('baruAman99', $user->password));
+        $this->assertFalse(Hash::check('lamaKuno9', $user->password));
+        $this->assertNotEquals($oldHash, $user->password);
+        $this->assertNotNull($user->password_changed_at);
+    }
+
+    public function test_password_lama_harus_benar(): void
+    {
+        $user = $this->makeEmployeeUser(['password_changed_at' => now(), 'password' => 'lamaKuno9']);
+
+        $this->actingAs($user)
+            ->post(route('user.profile.password'), [
+                'password_lama' => 'BukanPasswordIni',
+                'password' => 'baruAman99',
+                'password_confirmation' => 'baruAman99',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors(['password_lama']);
+
+        $user->refresh();
+        $this->assertTrue(Hash::check('lamaKuno9', $user->password));
+    }
+
+    public function test_konfirmasi_profile_harus_cocok(): void
+    {
+        $user = $this->makeEmployeeUser(['password_changed_at' => now(), 'password' => 'lamaKuno9']);
+
+        $this->actingAs($user)
+            ->post(route('user.profile.password'), [
+                'password_lama' => 'lamaKuno9',
+                'password' => 'baruAman99',
+                'password_confirmation' => 'tidakSama88',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors(['password']);
+
+        $user->refresh();
+        $this->assertTrue(Hash::check('lamaKuno9', $user->password));
     }
 }

@@ -70,7 +70,7 @@
                     <h5 class="mb-0">Informasi Pribadi</h5>
                 </div>
                 <div class="card-body">
-                    <form>
+<div>
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">Nama Lengkap</label>
                             <div class="col-sm-9">
@@ -117,24 +117,39 @@
 
                         <h6 class="mb-3">Ubah Password</h6>
 
+                        @if(session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+                        @if($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0 ps-3">
+                                    @foreach($errors->all() as $err)
+                                        <li>{{ $err }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <form action="{{ route('user.profile.password') }}" method="POST" class="pb-2 mb-2 border-bottom">
+                            @csrf
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">Password Lama</label>
                             <div class="col-sm-9">
-                                <input type="password" class="form-control" placeholder="Masukkan password lama">
+                                <input type="password" name="password_lama" class="form-control" placeholder="Masukkan password lama">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">Password Baru</label>
                             <div class="col-sm-9">
-                                <input type="password" class="form-control" placeholder="Masukkan password baru">
+                                <input type="password" name="password" class="form-control" placeholder="Masukkan password baru">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">Konfirmasi Password</label>
                             <div class="col-sm-9">
-                                <input type="password" class="form-control" placeholder="Konfirmasi password baru">
+                                <input type="password" name="password_confirmation" class="form-control" placeholder="Konfirmasi password baru">
                             </div>
                         </div>
 
@@ -148,7 +163,8 @@
                                 </button>
                             </div>
                         </div>
-                    </form>
+</form>
+</div>
                 </div>
             </div>
 
@@ -250,3 +266,4 @@
     }
 </script>
 @endsection
+
