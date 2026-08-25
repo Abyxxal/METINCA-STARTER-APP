@@ -195,6 +195,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>window.SWAL_BTN = { danger: '#dc3545', success: '#198754', cancel: '#6c757d' };</script>
     <script src="{{ asset('assets/compiled/js/app.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
