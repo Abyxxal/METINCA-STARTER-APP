@@ -29,6 +29,12 @@ use Illuminate\Support\Facades\Cache;
  */
 class MasterDataController extends Controller
 {
+    /**
+     * Password default untuk akun karyawan baru / hasil reset.
+     * Karyawan wajib menggantinya saat login pertama (password_changed_at).
+     */
+    public const DEFAULT_PASSWORD = 'metinca123';
+
     public function __construct(private \App\Services\SkillService $skillService)
     {
     }
@@ -94,7 +100,7 @@ class MasterDataController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'nik' => $validated['nik'],
-                    'password' => bcrypt($validated['nik']),
+                    'password' => bcrypt(self::DEFAULT_PASSWORD),
                     'role' => 'user',
                     'employee_nik' => $employee->nik,  // ✅ FIXED: employee_id → employee_nik
                     'password_changed_at' => null,
@@ -1268,8 +1274,8 @@ class MasterDataController extends Controller
                 ], 404);
             }
 
-            // Set default password (use NIK as default password)
-            $defaultPassword = $employee->nik;
+            // Set default password (nilai konstanta DEFAULT_PASSWORD)
+            $defaultPassword = self::DEFAULT_PASSWORD;
             $user->update([
                 'password' => bcrypt($defaultPassword),
                 'password_changed_at' => null,
@@ -1277,7 +1283,7 @@ class MasterDataController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Password karyawan berhasil direset ke NIK: ' . $employee->nik
+                'message' => 'Password karyawan berhasil direset ke ' . self::DEFAULT_PASSWORD
             ]);
         } catch (\Exception $e) {
             return response()->json([

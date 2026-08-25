@@ -158,7 +158,7 @@ class EmployeePasswordChangeTest extends TestCase
             ->assertRedirect(route('user.password.change'));
     }
 
-    public function test_store_employee_tanpa_password_pakai_nik_default(): void
+    public function test_store_employee_tanpa_password_pakai_metinca123_default(): void
     {
         $this->makeHierarchy();
         $admin = $this->makeAdmin();
@@ -177,7 +177,7 @@ class EmployeePasswordChangeTest extends TestCase
 
         $user = User::where('employee_nik', 'EMP-T2')->first();
         $this->assertNotNull($user);
-        $this->assertTrue(Hash::check('EMP-T2', $user->password), 'password default harus NIK');
+        $this->assertTrue(Hash::check('metinca123', $user->password), 'password default harus metinca123');
         $this->assertNull($user->password_changed_at, 'wajib dipaksa ganti saat login pertama');
     }
 }

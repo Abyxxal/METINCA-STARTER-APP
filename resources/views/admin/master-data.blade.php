@@ -598,7 +598,7 @@
                                     </div>
                                     <div class="alert alert-info mb-3">
                                         <i class="bi bi-info-circle me-1"></i>
-                                        Karyawan login pertama memakai <strong>NIK</strong> sebagai password,
+                                        Karyawan login pertama memakai <strong>metinca123</strong> sebagai password,
                                         lalu sistem otomatis meminta ganti password sendiri.
                                     </div>
                                     <div class="mb-3">
