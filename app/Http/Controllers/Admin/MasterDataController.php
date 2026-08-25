@@ -54,7 +54,6 @@ class MasterDataController extends Controller
                 'nik' => 'required|unique:employees,nik',
                 'name' => 'required|string',
                 'email' => 'required|email|unique:users,email|unique:employees,email',
-                'password' => 'required|string|min:6',
                 'department_id' => 'required|exists:departments,id',
                 'division_id' => 'required|exists:divisions,id',
                 'position_id' => 'required|exists:positions,id',
@@ -95,7 +94,7 @@ class MasterDataController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'nik' => $validated['nik'],
-                    'password' => bcrypt($validated['password']),
+                    'password' => bcrypt($validated['nik']),
                     'role' => 'user',
                     'employee_nik' => $employee->nik,  // ✅ FIXED: employee_id → employee_nik
                     'password_changed_at' => null,

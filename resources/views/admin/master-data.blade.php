@@ -198,7 +198,6 @@
                                             $('#editIdKaryawan').val(emp.nik);
                                             $('#editNamaKaryawan').val(emp.name || emp.nama_karyawan);
                                             $('#editEmailKaryawan').val(emp.email);
-                                            $('#editPasswordKaryawan').val('');
                                             
                                             // Set department first - ini akan trigger cascade
                                             var deptSelect = document.getElementById('editDepartemenKaryawan');
@@ -597,9 +596,10 @@
                                         <label for="emailTambah" class="form-label fw-bold">Email <span class="text-danger">*</span></label>
                                         <input type="email" class="form-control" id="emailTambah" placeholder="nama@company.com" required>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="passwordTambah" class="form-label fw-bold">Password <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="passwordTambah" placeholder="Minimal 6 karakter" required>
+                                    <div class="alert alert-info mb-3">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Karyawan login pertama memakai <strong>NIK</strong> sebagai password,
+                                        lalu sistem otomatis meminta ganti password sendiri.
                                     </div>
                                     <div class="mb-3">
                                         <label for="joinDateTambah" class="form-label fw-bold">Join Date <span class="text-danger">*</span></label>
@@ -808,7 +808,6 @@
                         nik: document.getElementById('nikTambah').value.trim(),
                         name: document.getElementById('namaTambah').value.trim(),
                         email: document.getElementById('emailTambah').value.trim(),
-                        password: document.getElementById('passwordTambah').value,
                         department_id: document.getElementById('departmentTambah').value,
                         division_id: document.getElementById('divisionTambah').value,
                         position_id: document.getElementById('positionTambah').value,
@@ -823,7 +822,6 @@
                     if (!data.nik) missing.push('NIK');
                     if (!data.name) missing.push('Nama');
                     if (!data.email) missing.push('Email');
-                    if (!data.password) missing.push('Password');
                     if (!data.department_id) missing.push('Department');
                     if (!data.division_id) missing.push('Division');
                     if (!data.position_id) missing.push('Position');
@@ -957,12 +955,6 @@
                                     <div class="mb-3">
                                         <label for="editEmailKaryawan" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
                                         <input type="email" class="form-control" id="editEmailKaryawan" placeholder="nama@company.com" required>
-                                    </div>
-
-                                    {{-- Password --}}
-                                    <div class="mb-3">
-                                        <label for="editPasswordKaryawan" class="form-label fw-bold">Password <span class="text-muted">(Kosongkan jika tidak ingin mengubah)</span></label>
-                                        <input type="password" class="form-control" id="editPasswordKaryawan" placeholder="Masukkan password baru (opsional)">
                                     </div>
                                 </div>
 
@@ -1157,7 +1149,6 @@
                         var nik = document.getElementById('editIdKaryawan').value;
                         var nama = document.getElementById('editNamaKaryawan').value;
                         var email = document.getElementById('editEmailKaryawan').value;
-                        var password = document.getElementById('editPasswordKaryawan').value;
                         var departemenId = document.getElementById('editDepartemenKaryawan').value;
                         var divisiId = document.getElementById('editDivisiKaryawan').value;
                         var jabatanId = document.getElementById('editJabatanKaryawan').value;
@@ -1199,11 +1190,7 @@
                         formData.append('division_id', divisiId);
                         formData.append('position_id', jabatanId);
                         formData.append('status', status);
-                        
-                        if (password && password.trim().length > 0) {
-                            formData.append('password', password);
-                        }
-                        
+
                         // Send via fetch with PUT method
                         fetch('/api/employees/' + id, {
                             method: 'PUT',
@@ -3499,7 +3486,6 @@
                         $('#editIdKaryawan').val(emp.nik);
                         $('#editNamaKaryawan').val(emp.name || emp.nama_karyawan);
                         $('#editEmailKaryawan').val(emp.email);
-                        $('#editPasswordKaryawan').val('');
                         
                         // Set department first
                         $('#editDepartemenKaryawan').val(emp.department_id);

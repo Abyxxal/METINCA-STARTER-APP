@@ -157,4 +157,27 @@ class EmployeePasswordChangeTest extends TestCase
             ->get(route('dashboard'))
             ->assertRedirect(route('user.password.change'));
     }
+
+    public function test_store_employee_tanpa_password_pakai_nik_default(): void
+    {
+        $this->makeHierarchy();
+        $admin = $this->makeAdmin();
+
+        $this->actingAs($admin)
+            ->post('/api/employees', [
+                'nik' => 'EMP-T2',
+                'name' => 'Karyawan Tanpa Password',
+                'email' => 'emp-t2@example.com',
+                'department_id' => $this->hierarchy['department']->id,
+                'division_id' => $this->hierarchy['division']->id,
+                'position_id' => $this->hierarchy['position']->id,
+                'status' => 'Aktif',
+            ])
+            ->assertJson(['success' => true]);
+
+        $user = User::where('employee_nik', 'EMP-T2')->first();
+        $this->assertNotNull($user);
+        $this->assertTrue(Hash::check('EMP-T2', $user->password), 'password default harus NIK');
+        $this->assertNull($user->password_changed_at, 'wajib dipaksa ganti saat login pertama');
+    }
 }
