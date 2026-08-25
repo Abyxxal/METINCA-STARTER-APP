@@ -20,6 +20,7 @@
 | 3 | ponytail | Cara membangun kode | Aktif — intensitas full |
 | 4 | secure-code-review | Keamanan kode | Aktif — dijalankan saat owner meminta review |
 | 5 | ui-ux-pro-max | Desain & UX UI | Aktif — dipanggil saat tugas menyentuh UI |
+| 6 | caveman | Gaya komunikasi respons chat | Aktif — intensitas full |
 
 ---
 
@@ -276,6 +277,26 @@ Dial opsional: `--variance`, `--motion`, `--density` (skala 1–10).
 
 Skill adalah rekomendasi, bukan penimpa aturan repo. Stack terdeteksi: **Laravel**.
 Sasaran penerapan: halaman/fitur baru, audit UI, keputusan komponen — bukan tiap commit.
+
+---
+
+## Skill 6 — caveman (Gaya Respons Chat Ringkas)
+
+**Sumber**: skill bawaan agent (`caveman`). Mengatur **gaya respons chat saja**, aktif
+setiap respons sejak diberikan sampai owner bilang "stop caveman" atau "normal mode".
+Intensitas default: **full**. Bahasa mengikuti bahasa owner (Indonesia) — kompresi gaya,
+bukan ganti bahasa.
+
+### Aturan inti
+
+- Jawaban pendek, tanpa basa-basi, tanpa kalimat pembuka/penutup formalitas.
+- Substansi teknis tetap lengkap: angka, unit, nama API, perintah, error string ditulis persis.
+- Kata yang membalik makna (tidak/bukan/jangan/hanya/hanya) tidak boleh dipotong.
+- Kode, blok kode, dan error dikutip apa adanya.
+- Peringatan keamanan dan aksi destruktif ditulis jelas tanpa gaya singkat (auto-clarity),
+  lalu kembali ringkas.
+- Batas: file repo (kode, komentar, commit message, dokumen seperti file ini) tetap
+  ditulis normal — skill ini hanya mengatur chat.
 
 ---
 
