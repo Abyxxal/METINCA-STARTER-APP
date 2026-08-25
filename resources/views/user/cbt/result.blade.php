@@ -119,7 +119,8 @@
                     <h5 class="card-title mb-0">Detail Ujian</h5>
                 </div>
                 <div class="card-body">
-                    <table class="table table-borderless mb-0">
+                    <div class="table-responsive">
+<table class="table table-borderless mb-0">
                         <tr>
                             <td class="text-muted" width="40%">Nama Ujian</td>
                             <td><strong>{{ $session->exam->title ?? '-' }}</strong></td>
@@ -207,7 +208,8 @@
                             </td>
                         </tr>
                         @endif
-                    </table>
+                    
+</div></table>
                 </div>
             </div>
 

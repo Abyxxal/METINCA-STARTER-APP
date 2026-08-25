@@ -195,7 +195,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <table class="table table-bordered">
+                    <div class="table-responsive">
+<table class="table table-bordered">
                         <tr>
                             <td class="text-muted" width="30%">Karyawan</td>
                             <td><strong>{{ $session->employee->name ?? $session->employee_nik }}</strong></td>
@@ -260,11 +261,13 @@
                             <td class="fst-italic">"{{ $session->manager_notes }}"</td>
                         </tr>
                         @endif
-                    </table>
+                    
+</div></table>
 
                     @if($assessment)
                     <h6 class="mt-3">Detail Penilaian Kualitatif</h6>
-                    <table class="table table-sm table-bordered">
+                    <div class="table-responsive">
+<table class="table table-sm table-bordered">
                         <thead class="table-light">
                             <tr>
                                 <th>Kriteria</th>
@@ -285,7 +288,8 @@
                                 @endif
                             @endforeach
                         </tbody>
-                    </table>
+                    
+</div></table>
                     @endif
                 </div>
                 <div class="modal-footer">

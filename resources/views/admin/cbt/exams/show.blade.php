@@ -135,7 +135,8 @@
                     <h4 class="card-title">Info</h4>
                 </div>
                 <div class="card-body">
-                    <table class="table table-borderless">
+                    <div class="table-responsive">
+<table class="table table-borderless">
                         <tr>
                             <td class="text-muted">Status</td>
                             <td>
@@ -158,7 +159,8 @@
                             <td class="text-muted">Dibuat</td>
                             <td>{{ $exam->created_at->format('d M Y H:i') }}</td>
                         </tr>
-                    </table>
+                    
+</div></table>
                 </div>
             </div>
 

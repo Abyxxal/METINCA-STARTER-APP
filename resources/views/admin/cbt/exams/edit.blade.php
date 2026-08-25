@@ -203,7 +203,8 @@
                         <h4 class="card-title">Ringkasan</h4>
                     </div>
                     <div class="card-body">
-                        <table class="table table-borderless">
+                        <div class="table-responsive">
+<table class="table table-borderless">
                             <tr>
                                 <td class="text-muted">Total Soal Dipilih</td>
                                 <td class="fw-bold text-end" id="totalQuestions">{{ $exam->questions->count() }}</td>
@@ -212,7 +213,8 @@
                                 <td class="text-muted">Total Bobot</td>
                                 <td class="fw-bold text-end" id="totalWeight">{{ $exam->getTotalWeight() }}</td>
                             </tr>
-                        </table>
+                        
+</div></table>
 
                         <hr>
 

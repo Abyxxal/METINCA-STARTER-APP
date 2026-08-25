@@ -74,7 +74,8 @@
                     <h4 class="card-title">Informasi</h4>
                 </div>
                 <div class="card-body">
-                    <table class="table table-borderless">
+                    <div class="table-responsive">
+<table class="table table-borderless">
                         <tr>
                             <td class="text-muted">Skill</td>
                             <td><span class="badge bg-info">{{ $question->skill->name ?? '-' }}</span></td>
@@ -111,7 +112,8 @@
                             <td class="text-muted">Diupdate</td>
                             <td>{{ $question->updated_at->format('d M Y H:i') }}</td>
                         </tr>
-                    </table>
+                    
+</div></table>
                 </div>
             </div>
 

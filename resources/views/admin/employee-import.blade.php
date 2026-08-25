@@ -36,7 +36,8 @@
         @if (session('failures'))
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong>Errors ditemukan di file:</strong>
-                <table class="table table-sm mt-2 mb-0">
+                <div class="table-responsive">
+<table class="table table-sm mt-2 mb-0">
                     <thead>
                         <tr>
                             <th>Row</th>
@@ -53,7 +54,8 @@
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
+                
+</div></table>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif

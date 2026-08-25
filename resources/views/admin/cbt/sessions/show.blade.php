@@ -38,7 +38,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <table class="table table-borderless">
+                            <div class="table-responsive">
+<table class="table table-borderless">
                                 <tr>
                                     <td class="text-muted" width="40%">Karyawan</td>
                                     <td>
@@ -57,10 +58,12 @@
                                     <td class="text-muted">Posisi</td>
                                     <td>{{ $session->employee->position->name ?? '-' }}</td>
                                 </tr>
-                            </table>
+                            
+</div></table>
                         </div>
                         <div class="col-md-6">
-                            <table class="table table-borderless">
+                            <div class="table-responsive">
+<table class="table table-borderless">
                                 <tr>
                                     <td class="text-muted" width="40%">Ujian</td>
                                     <td>
@@ -79,7 +82,8 @@
                                     <td class="text-muted">KKM</td>
                                     <td>{{ $session->exam->passing_score }}%</td>
                                 </tr>
-                            </table>
+                            
+</div></table>
                         </div>
                     </div>
                 </div>
@@ -226,7 +230,8 @@
 
                     <hr>
 
-                    <table class="table table-sm table-borderless text-start">
+                    <div class="table-responsive">
+<table class="table table-sm table-borderless text-start">
                         <tr>
                             <td class="text-muted">Ditugaskan</td>
                             <td>{{ $session->created_at->format('d M Y H:i') }}</td>
@@ -280,7 +285,8 @@
                                 </td>
                             </tr>
                         @endif
-                    </table>
+                    
+</div></table>
                 </div>
             </div>
 

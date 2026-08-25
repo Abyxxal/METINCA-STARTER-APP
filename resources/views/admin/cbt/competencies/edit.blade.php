@@ -45,7 +45,8 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <table class="table table-borderless">
+                    <div class="table-responsive">
+<table class="table table-borderless">
                         <tr>
                             <td width="150"><strong>NIK</strong></td>
                             <td>: {{ $employee->nik }}</td>
@@ -62,7 +63,8 @@
                             <td><strong>Jabatan</strong></td>
                             <td>: {{ $employee->position->name ?? '-' }}</td>
                         </tr>
-                    </table>
+                    
+</div></table>
                 </div>
             </div>
         </div>

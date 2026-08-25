@@ -160,7 +160,8 @@
                         <h4 class="card-title">Ringkasan</h4>
                     </div>
                     <div class="card-body">
-                        <table class="table table-borderless">
+                        <div class="table-responsive">
+<table class="table table-borderless">
                             <tr>
                                 <td class="text-muted">Total Soal Dipilih</td>
                                 <td class="fw-bold text-end" id="totalQuestions">0</td>
@@ -169,7 +170,8 @@
                                 <td class="text-muted">Total Bobot</td>
                                 <td class="fw-bold text-end" id="totalWeight">0</td>
                             </tr>
-                        </table>
+                        
+</div></table>
 
                         <hr>
 

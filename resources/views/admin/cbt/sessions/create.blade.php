@@ -288,12 +288,14 @@
 
                         {{-- Ringkasan --}}
                         <h6 class="mb-3"><i class="bi bi-clipboard-data me-2"></i>Ringkasan</h6>
-                        <table class="table table-sm table-borderless">
+                        <div class="table-responsive">
+<table class="table table-sm table-borderless">
                             <tr>
                                 <td class="text-muted">Karyawan Dipilih</td>
                                 <td class="fw-bold text-end" id="selectedKaryawanCount">0</td>
                             </tr>
-                        </table>
+                        
+</div></table>
 
                         <hr>
 
