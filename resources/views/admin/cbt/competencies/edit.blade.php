@@ -75,10 +75,26 @@
             <h4 class="card-title">Level Skill</h4>
         </div>
         <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <span class="small text-muted"><span id="bulkCount">0</span> skill dipilih</span>
+                <select id="bulkAction" class="form-select form-select-sm w-auto">
+                    <option value="">— Aksi massal —</option>
+                    <option value="set_level">Set Level</option>
+                    <option value="reset">Reset (hapus kompetensi)</option>
+                </select>
+                <select id="bulkLevel" class="form-select form-select-sm w-auto d-none">
+                    @for($i = 0; $i <= 4; $i++)
+                        <option value="{{ $i }}">Level {{ $i }} - {{ \App\Models\EmployeeCompetency::$levelLabels[$i] }}</option>
+                    @endfor
+                </select>
+                <input type="text" id="bulkNotes" class="form-control form-control-sm w-auto" placeholder="Catatan opsional">
+                <button type="button" id="btnBulkApply" class="btn btn-sm btn-primary" disabled>Terapkan</button>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
+                            <th style="width:36px"><input type="checkbox" class="form-check-input" id="checkAll"></th>
                             <th>Skill</th>
                             <th>Level Saat Ini</th>
                             <th>Diverifikasi Oleh</th>
@@ -95,6 +111,7 @@
                                 $levelLabel = \App\Models\EmployeeCompetency::$levelLabels[$currentLevel] ?? 'None';
                             @endphp
                             <tr>
+                                <td><input type="checkbox" class="form-check-input skill-check" data-id="{{ $skill->id }}"></td>
                                 <td><strong>{{ $skill->name }}</strong></td>
                                 <td>
                                     <span class="badge bg-{{ $currentLevel == 0 ? 'secondary' : 'primary' }}">
@@ -170,7 +187,7 @@
                             </div>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">Tidak ada skill untuk divisi ini</td>
+                                <td colspan="7" class="text-center text-muted">Tidak ada skill untuk divisi ini</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -203,6 +220,96 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelButtonColor: SWAL_BTN.cancel
             }).then(function(result) {
                 if (result.isConfirmed) form.submit();
+            });
+        });
+    });
+
+    // ============================================
+    // BULK AKSI LEVEL SKILL
+    // ============================================
+    const checkAll   = document.getElementById('checkAll');
+    const skillBoxes = document.querySelectorAll('.skill-check');
+    const bulkCount  = document.getElementById('bulkCount');
+    const bulkAction = document.getElementById('bulkAction');
+    const bulkLevel  = document.getElementById('bulkLevel');
+    const bulkNotes  = document.getElementById('bulkNotes');
+    const btnBulkApply = document.getElementById('btnBulkApply');
+
+    function refreshBulkBar() {
+        const checked = document.querySelectorAll('.skill-check:checked');
+        bulkCount.textContent = checked.length;
+        btnBulkApply.disabled = checked.length === 0 || bulkAction.value === '';
+    }
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            skillBoxes.forEach(function (box) { box.checked = checkAll.checked; });
+            refreshBulkBar();
+        });
+    }
+
+    skillBoxes.forEach(function (box) {
+        box.addEventListener('change', function () {
+            const all = document.querySelectorAll('.skill-check').length;
+            const checked = document.querySelectorAll('.skill-check:checked').length;
+            checkAll.checked = checked === all && all > 0;
+            refreshBulkBar();
+        });
+    });
+
+    bulkAction.addEventListener('change', function () {
+        bulkLevel.classList.toggle('d-none', this.value !== 'set_level');
+        refreshBulkBar();
+    });
+
+    btnBulkApply.addEventListener('click', function () {
+        const ids = Array.from(document.querySelectorAll('.skill-check:checked'))
+            .map(function (box) { return box.dataset.id; });
+
+        if (ids.length === 0) return;
+
+        const isReset = bulkAction.value === 'reset';
+        const summary = isReset
+            ? ids.length + ' kompetensi akan DIHAPUS (kembali Level 0).'
+            : ids.length + ' skill akan diubah ke Level ' + bulkLevel.value + '.';
+
+        Swal.fire({
+            title: 'Terapkan aksi massal?',
+            text: summary,
+            icon: isReset ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Terapkan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: isReset ? SWAL_BTN.danger : SWAL_BTN.success,
+            cancelButtonColor: SWAL_BTN.cancel
+        }).then(function (result) {
+            if (!result.isConfirmed) return;
+
+            fetch('{{ route("cbt.admin.employee-competencies.bulk", $employee) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    skill_ids: ids,
+                    action: bulkAction.value,
+                    level: isReset ? null : (bulkLevel.value || null),
+                    notes: bulkNotes.value.trim() || null
+                })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                Swal.fire({
+                    icon: data.success ? 'success' : 'error',
+                    title: data.success ? 'Berhasil' : 'Gagal',
+                    text: data.message,
+                    confirmButtonColor: '#5d87ff'
+                }).then(function () { location.reload(); });
+            })
+            .catch(function (err) {
+                Swal.fire({ icon: 'error', title: 'Error!', text: err.message || 'Terjadi kesalahan jaringan.' });
             });
         });
     });

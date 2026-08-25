@@ -95,6 +95,7 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
         Route::get('/', [EmployeeCompetencyController::class, 'index'])->name('index');
         Route::get('/{employee}/edit', [EmployeeCompetencyController::class, 'edit'])->name('edit');
         Route::put('/{employee}', [EmployeeCompetencyController::class, 'update'])->name('update');
+        Route::post('/{employee}/bulk', [EmployeeCompetencyController::class, 'bulkUpdate'])->name('bulk');
         Route::delete('/{employee}/skill/{skillId}', [EmployeeCompetencyController::class, 'destroy'])->name('destroy');
     });
 });

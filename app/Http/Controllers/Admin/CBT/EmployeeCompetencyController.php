@@ -89,6 +89,74 @@ class EmployeeCompetencyController extends Controller
     }
 
     /**
+     * Bulk action pada kompetensi terpilih:
+     * - set_level : ubah level ke nilai tertentu
+     * - reset     : hapus record kompetensi (kembali Level 0)
+     *
+     * Riwayat tetap tercatat per skill via EmployeeCompetencyService.
+     */
+    public function bulkUpdate(Request $request, Employee $employee)
+    {
+        $validated = $request->validate([
+            'skill_ids' => 'required|array|min:1',
+            'skill_ids.*' => 'integer|exists:skills,id',
+            'action' => 'required|in:set_level,reset',
+            'level' => 'required_if:action,set_level|nullable|integer|min:0|max:4',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $success = 0;
+        $failed = 0;
+        $failReasons = [];
+
+        foreach ($validated['skill_ids'] as $skillId) {
+            try {
+                if ($validated['action'] === 'set_level') {
+                    $this->competencyService->updateCompetencyLevel(
+                        $employee,
+                        $skillId,
+                        (int) $validated['level'],
+                        $validated['notes'] ?? null
+                    );
+                } else {
+                    $this->competencyService->deleteCompetency($employee, $skillId);
+                }
+                $success++;
+            } catch (\InvalidArgumentException $e) {
+                $failed++;
+                $failReasons[] = "Skill #{$skillId}: {$e->getMessage()}";
+            } catch (\Exception $e) {
+                $failed++;
+                $failReasons[] = "Skill #{$skillId}: gagal diproses";
+            }
+        }
+
+        if ($validated['action'] === 'reset') {
+            $message = "{$success} kompetensi direset (dihapus).";
+        } else {
+            $label = $this->competencyService->getLevelLabel((int) ($validated['level'] ?? 0));
+            $message = "{$success} skill diubah ke Level ".($validated['level'] ?? '-')." ({$label}).";
+        }
+
+        if ($failed > 0) {
+            $message .= " {$failed} dilewati karena error.";
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => $success > 0,
+                'message' => $message,
+                'failReasons' => $failReasons,
+            ]);
+        }
+
+        return back()->with(
+            $failed > 0 && $success === 0 ? 'error' : 'success',
+            $message
+        )->with('bulkFailReasons', $failReasons);
+    }
+
+    /**
      * Delete/reset employee's competency for a skill
      */
     public function destroy(Employee $employee, $skillId)
