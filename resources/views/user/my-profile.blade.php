@@ -155,8 +155,8 @@
 
                         <div class="row">
                             <div class="col-sm-9 offset-sm-3">
-                                <button type="button" class="btn btn-primary" onclick="saveProfile()">
-                                    <i class="bi bi-save me-2"></i>Simpan Perubahan
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-key me-2"></i>Ganti Password
                                 </button>
                                 <button type="reset" class="btn btn-secondary ms-2">
                                     Batal
@@ -255,15 +255,6 @@
             reader.readAsDataURL(file);
         }
     });
-
-    function saveProfile() {
-        Swal.fire({
-            title: 'Sukses!',
-            text: 'Profil Anda telah diperbarui',
-            icon: 'success',
-            confirmButtonText: 'OK'
-        });
-    }
 </script>
 @endsection
 
