@@ -19,6 +19,7 @@
 | 2 | stop-slop | Gaya penulisan | Aktif |
 | 3 | ponytail | Cara membangun kode | Aktif — intensitas full |
 | 4 | secure-code-review | Keamanan kode | Aktif — dijalankan saat owner meminta review |
+| 5 | ui-ux-pro-max | Desain & UX UI | Aktif — dipanggil saat tugas menyentuh UI |
 
 ---
 
@@ -232,6 +233,49 @@ per severity dan matriks cakupan ASVS V2–V14.
 - Endpoint dropdown API publik tanpa middleware eksplisit → CWE-862
 - Kredensial Reverb/Pusher di layout Blade → pastikan memang kunci publik
 - Login `email_or_nik`: rate limit / anti credential stuffing → V2.2.1
+
+---
+
+## Skill 5 — ui-ux-pro-max (Design Intelligence UI/UX)
+
+**Sumber**: skill bawaan agent (`ui-ux-pro-max`, base dir
+`C:\Users\Nyctho\.agents\skills\ui-ux-pro-max`). Dipanggil saat tugas menyentuh cara
+sesuatu terlihat, terasa, atau berinteraksi. Tool pencarian lokal via skrip Python:
+
+```
+python "C:\Users\Nyctho\.agents\skills\ui-ux-pro-max\scripts\search.py" "<query>" --domain <domain>
+```
+
+### Prioritas Aturan (1→10)
+
+1 Aksesibilitas (kontras 4.5:1, aria, keyboard) · 2 Sentuh & interaksi (≥44px, feedback) ·
+3 Performa (CLS, lazy load) · 4 Pemilihan gaya · 5 Layout & responsif ·
+6 Tipografi & warna · 7 Animasi (reduced-motion wajib ada) · 8 Form & feedback ·
+9 Navigasi · 10 Chart & data.
+
+### Kontrak Query
+
+Satu niat dominan, 2–5 istilah bermakna. Mode terkecil yang cukup:
+`--design-system` halaman/proyek baru · `--domain <x>` masalah spesifik ·
+`--stack laravel` implementasi. Hasil kosong: ulangi sekali lebih sempit;
+kalau tetap kosong, sebut eksplisit bahwa rekomendasi dari default bawaan.
+Jangan mengarang output. Jangan memasukkan data privat proyek ke query.
+
+### Persistensi Design System
+
+`--design-system --persist -p "Nama" --output-dir <root-proyek>` menulis
+`design-system/<slug>/MASTER.md` + folder `pages/` override per halaman.
+MASTER sudah ada = tidak ditimpa tanpa otorisasi eksplisit (`--force`).
+Dial opsional: `--variance`, `--motion`, `--density` (skala 1–10).
+
+### Hierarki Kebenaran di Proyek Ini (penting)
+
+1. Instruksi owner
+2. `docs/DESIGN-SYSTEM.md` + `public/css/theme-overrides.css` (sudah disepakati owner)
+3. Baru kemudian rekomendasi skill
+
+Skill adalah rekomendasi, bukan penimpa aturan repo. Stack terdeteksi: **Laravel**.
+Sasaran penerapan: halaman/fitur baru, audit UI, keputusan komponen — bukan tiap commit.
 
 ---
 
