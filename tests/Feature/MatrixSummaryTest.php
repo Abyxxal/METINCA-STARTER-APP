@@ -81,6 +81,8 @@ class MatrixSummaryTest extends TestCase
             ->assertDontSee('>3<', false)
             ->assertDontSee('>2<', false)
             // Setelah fix: hanya 1 record resmi yang dihitung
-            ->assertSee('>1<', false);
+            ->assertSee('>1<', false)
+            // Wrapper matriks TIDAK memakai table-responsive (overflow ancestor memecah sticky header)
+            ->assertDontSee('matrix-wrap table-responsive', false);
     }
 }

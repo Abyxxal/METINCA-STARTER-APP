@@ -119,7 +119,7 @@
                         <p class="text-muted mb-0">Tidak ada karyawan dengan status aktif yang ditemukan di divisi ini.</p>
                     </div>
                 @else
-                    <div class="matrix-wrap table-responsive">
+                    <div class="matrix-wrap">
                         <table class="table matrix-table align-middle" id="competency-matrix-table">
                             <thead>
                                 <tr>
