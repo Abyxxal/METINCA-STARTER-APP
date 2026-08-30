@@ -31,8 +31,13 @@ class CompetencyMatrixController extends Controller
         $skills = collect();
         $employees = collect();
         $competencies = collect();
-        $employeeAverages = collect();
-        $skillAverages = collect();
+        $divisionSkillIds = collect();
+        $summary = [
+            'total_employees' => 0,
+            'total_skills' => 0,
+            'recorded' => 0,
+            'experts' => 0,
+        ];
 
         if ($divisionId) {
             // Get skills for selected division via division_skills pivot
@@ -55,32 +60,16 @@ class CompetencyMatrixController extends Controller
                 ->get()
                 ->groupBy('employee_nik');
 
-            // Aggregate average levels (missing records count as level 0, matching the matrix display)
-            $levelMap = [];
-            foreach ($competencies as $nik => $empCompetencies) {
-                foreach ($empCompetencies as $competency) {
-                    $levelMap[$nik][$competency->skill_id] = (int) $competency->level;
-                }
-            }
+            // Summary scoped to skills shown in the matrix (skill yang tampil di grid)
+            $visibleCompetencies = $competencies->flatten()
+                ->whereIn('skill_id', $divisionSkillIds);
 
-            $skillCount = max($skills->count(), 1);
-            $employeeCount = max($employees->count(), 1);
-
-            foreach ($employees as $employee) {
-                $sum = 0;
-                foreach ($skills as $skill) {
-                    $sum += $levelMap[$employee->nik][$skill->id] ?? 0;
-                }
-                $employeeAverages[$employee->nik] = round($sum / $skillCount, 2);
-            }
-
-            foreach ($skills as $skill) {
-                $sum = 0;
-                foreach ($employees as $employee) {
-                    $sum += $levelMap[$employee->nik][$skill->id] ?? 0;
-                }
-                $skillAverages[$skill->id] = round($sum / $employeeCount, 2);
-            }
+            $summary = [
+                'total_employees' => $employees->count(),
+                'total_skills' => $skills->count(),
+                'recorded' => $visibleCompetencies->count(),
+                'experts' => $visibleCompetencies->where('level', 4)->count(),
+            ];
         }
 
         return view('admin.cbt.matrix.index', compact(
@@ -89,8 +78,7 @@ class CompetencyMatrixController extends Controller
             'competencies',
             'divisions',
             'divisionId',
-            'employeeAverages',
-            'skillAverages'
+            'summary'
         ));
     }
 }

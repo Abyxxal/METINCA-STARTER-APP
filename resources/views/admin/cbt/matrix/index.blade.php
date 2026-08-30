@@ -98,13 +98,6 @@
                         3 => 'Proficient',
                         4 => 'Expert',
                     ];
-                    $bandClass = function ($v) {
-                        if ($v >= 3.25) return 'band-4';
-                        if ($v >= 2.25) return 'band-3';
-                        if ($v >= 1.25) return 'band-2';
-                        if ($v > 0) return 'band-1';
-                        return 'band-0';
-                    };
                 @endphp
 
                 @if(!$divisionId)
@@ -137,9 +130,6 @@
                                             <span>{{ $skill->name }}</span>
                                         </th>
                                     @endforeach
-                                    <th class="col-avg text-center" scope="col" title="Rata-rata level seluruh skill">
-                                        Avg
-                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -186,36 +176,9 @@
                                                 <span class="lvl-num">{{ $level }}</span>
                                             </td>
                                         @endforeach
-                                        @php
-                                            $empAvg = $employeeAverages[$employee->nik] ?? 0;
-                                        @endphp
-                                        <td class="col-avg text-center">
-                                            <div class="avg-value">{{ number_format($empAvg, 1) }}</div>
-                                            <div class="avg-track" role="img" aria-label="Rata-rata level {{ number_format($empAvg, 1) }} dari 4">
-                                                <div class="avg-fill {{ $bandClass($empAvg) }}" style="width: {{ min(100, $empAvg / 4 * 100) }}%"></div>
-                                            </div>
-                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="2" class="sticky-col tfoot-label">Rata-rata Skill</th>
-                                    @foreach($skills as $skill)
-                                        @php $sAvg = $skillAverages[$skill->id] ?? 0; @endphp
-                                        <td class="text-center">
-                                            <span class="fw-semibold">{{ number_format($sAvg, 1) }}</span>
-                                            <div class="avg-track mx-auto mt-1">
-                                                <div class="avg-fill {{ $bandClass($sAvg) }}" style="width: {{ min(100, $sAvg / 4 * 100) }}%"></div>
-                                            </div>
-                                        </td>
-                                    @endforeach
-                                    <td class="text-center">
-                                        @php $overallAvg = $skillAverages->isNotEmpty() ? $skillAverages->avg() : 0; @endphp
-                                        <span class="fw-bold">{{ number_format($overallAvg, 1) }}</span>
-                                    </td>
-                                </tr>
-                            </tfoot>
                         </table>
                     </div>
 
@@ -223,19 +186,11 @@
                         <div class="col-12">
                             <h5 class="mb-0">Ringkasan Statistik</h5>
                         </div>
-                        @php
-                            $totalCompetencies = 0;
-                            $expertCount = 0;
-                            foreach($competencies as $empCompetencies) {
-                                $totalCompetencies += $empCompetencies->count();
-                                $expertCount += $empCompetencies->where('level', 4)->count();
-                            }
-                        @endphp
                         <div class="col-6 col-md-3">
                             <div class="kpi-card">
                                 <i class="bi bi-people kpi-icon kpi-primary"></i>
                                 <div>
-                                    <div class="kpi-value">{{ $employees->count() }}</div>
+                                    <div class="kpi-value">{{ $summary['total_employees'] }}</div>
                                     <div class="kpi-label">Total Karyawan</div>
                                 </div>
                             </div>
@@ -244,7 +199,7 @@
                             <div class="kpi-card">
                                 <i class="bi bi-lightning-charge kpi-icon kpi-info"></i>
                                 <div>
-                                    <div class="kpi-value">{{ $skills->count() }}</div>
+                                    <div class="kpi-value">{{ $summary['total_skills'] }}</div>
                                     <div class="kpi-label">Total Skill</div>
                                 </div>
                             </div>
@@ -253,7 +208,7 @@
                             <div class="kpi-card">
                                 <i class="bi bi-journal-check kpi-icon kpi-success"></i>
                                 <div>
-                                    <div class="kpi-value">{{ $totalCompetencies }}</div>
+                                    <div class="kpi-value">{{ $summary['recorded'] }}</div>
                                     <div class="kpi-label">Kompetensi Tercatat</div>
                                 </div>
                             </div>
@@ -262,7 +217,7 @@
                             <div class="kpi-card">
                                 <i class="bi bi-patch-check kpi-icon kpi-warning"></i>
                                 <div>
-                                    <div class="kpi-value">{{ $expertCount }}</div>
+                                    <div class="kpi-value">{{ $summary['experts'] }}</div>
                                     <div class="kpi-label">Expert (Level 4)</div>
                                 </div>
                             </div>
@@ -348,10 +303,6 @@
         min-width: 76px;
     }
 
-    .matrix-table .col-avg {
-        min-width: 84px;
-    }
-
     .matrix-table .sticky-col {
         position: sticky;
         left: 0;
@@ -369,21 +320,13 @@
     }
 
     .matrix-table thead th.sticky-col,
-    .matrix-table thead th.sticky-col-2,
-    .matrix-table tfoot .sticky-col {
+    .matrix-table thead th.sticky-col-2 {
         z-index: 3;
         background: var(--mx-head-bg);
     }
 
     .matrix-table tbody .sticky-col {
         background: var(--mx-cell-bg);
-    }
-
-    .matrix-table tfoot th,
-    .matrix-table tfoot td {
-        background: var(--mx-foot-bg);
-        border-top: 2px solid var(--mx-divider);
-        padding: .65rem .5rem;
     }
 
     .matrix-table .col-name .text-truncate {
@@ -497,33 +440,6 @@
         border-color: currentColor;
     }
 
-    .avg-value {
-        font-weight: 700;
-        font-variant-numeric: tabular-nums;
-        line-height: 1.1;
-    }
-
-    .avg-track {
-        width: 56px;
-        height: 5px;
-        margin-top: .35rem;
-        overflow: hidden;
-        background: var(--bs-border-color);
-        border-radius: 99px;
-    }
-
-    .avg-fill {
-        height: 100%;
-        border-radius: 99px;
-        transition: width .3s ease;
-    }
-
-    .band-0 { background: #adb5bd; }
-    .band-1 { background: #0dcaf0; }
-    .band-2 { background: #ffc107; }
-    .band-3 { background: #0d6efd; }
-    .band-4 { background: #198754; }
-
     .empty-state {
         padding: 3.5rem 1.5rem;
         text-align: center;
@@ -589,8 +505,7 @@
 
     @media (prefers-reduced-motion: reduce) {
         .level-cell,
-        .legend-chip,
-        .avg-fill {
+        .legend-chip {
             transition: none;
         }
     }
