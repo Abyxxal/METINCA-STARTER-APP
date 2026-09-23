@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CBT\CompetencyHistoryController;
 use App\Http\Controllers\Admin\CBT\CompetencyMatrixController;
 use App\Http\Controllers\Admin\CBT\DivisionSkillController;
 use App\Http\Controllers\Admin\CBT\EmployeeCompetencyController;
+use App\Http\Controllers\Admin\CBT\ExamPeriodController;
 use App\Http\Controllers\Employee\CBT\ExamController as EmployeeExamController;
 use Illuminate\Support\Facades\Route;
 
@@ -74,6 +75,20 @@ Route::middleware(['auth', 'is.admin'])->prefix('cbt/admin')->name('cbt.admin.')
         Route::post('/sessions/{session}/approve-level', [ExamSessionController::class, 'approveLevel'])->name('sessions.approve-level');
         Route::post('/sessions/{session}/reject-level', [ExamSessionController::class, 'rejectLevel'])->name('sessions.reject-level');
         Route::get('/approval-history', [ExamSessionController::class, 'approvalHistory'])->name('sessions.approval-history');
+    });
+
+    // ----- EXAM PERIODS (Periode Ujian - ditetapkan Manager) -----
+    Route::prefix('exam-periods')->name('exam-periods.')->group(function () {
+        Route::get('/', [ExamPeriodController::class, 'index'])->name('index');
+
+        // Write/kelola: khusus Manager.
+        Route::middleware(['is.manager'])->group(function () {
+            Route::get('/create', [ExamPeriodController::class, 'create'])->name('create');
+            Route::post('/', [ExamPeriodController::class, 'store'])->name('store');
+            Route::get('/{period}/edit', [ExamPeriodController::class, 'edit'])->name('edit');
+            Route::put('/{period}', [ExamPeriodController::class, 'update'])->name('update');
+            Route::delete('/{period}', [ExamPeriodController::class, 'destroy'])->name('destroy');
+        });
     });
 
     // ----- COMPETENCY MATRIX (Matriks Kompetensi) -----

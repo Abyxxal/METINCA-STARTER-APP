@@ -55,6 +55,7 @@ class CbtRoleAuthorizationTest extends TestCase
             ['cbt.admin.sessions.index', []],
             ['cbt.admin.sessions.pending', []],
             ['cbt.admin.sessions.create', []],
+            ['cbt.admin.exam-periods.index', []],
             ['cbt.admin.competency-matrix', []],
             ['cbt.admin.division-skills.index', []],
             ['cbt.admin.employee-competencies.index', []],

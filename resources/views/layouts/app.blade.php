@@ -131,6 +131,10 @@
                                 <li class="submenu-item {{ request()->is('cbt/admin/sessions*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.sessions.index') }}" class="submenu-link">Sesi Ujian</a>
                                 </li>
+                                {{-- CBT: Periode Ujian (ditetapkan Manager, dilihat Supervisor) --}}
+                                <li class="submenu-item {{ request()->is('cbt/admin/exam-periods*') ? 'active' : '' }}">
+                                    <a href="{{ route('cbt.admin.exam-periods.index') }}" class="submenu-link">Periode Ujian</a>
+                                </li>
                                 {{-- CBT: Verifikasi (Pending) --}}
                                 <li class="submenu-item {{ request()->is('cbt/admin/sessions/pending*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.sessions.pending') }}" class="submenu-link">
