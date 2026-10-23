@@ -116,7 +116,7 @@
 
                         {{-- Menu Item 3: Evaluation & Exam --}}
                         {{-- Fungsi: Manajemen soal ujian dan tracking hasil ujian karyawan --}}
-                        {{-- Submenu: Bank Soal, Sesi Ujian, Verifikasi Ujian, Hasil Ujian --}}
+                        {{-- Submenu: Bank Soal, Sesi Ujian, Penilaian Ujian, Hasil Ujian --}}
                         <li class="sidebar-item has-sub {{ request()->is('evaluation-and-exam*') || request()->is('cbt/admin*') ? 'active' : '' }}">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-clipboard-check-fill"></i>
@@ -138,7 +138,7 @@
                                 {{-- CBT: Verifikasi (Pending) --}}
                                 <li class="submenu-item {{ request()->is('cbt/admin/sessions/pending*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.sessions.pending') }}" class="submenu-link">
-                                        Verifikasi Ujian
+                                        Penilaian Ujian
                                         @if($pendingCount > 0)
                                             <span class="badge bg-danger ms-auto" data-badge="pending-verification">{{ $pendingCount }}</span>
                                         @else
@@ -271,7 +271,7 @@
                             
                             <div class="topbar-dropdown" id="notificationDropdown">
                                 <div class="topbar-dropdown-header">
-                                    <h6 class="mb-0">Verifikasi Ujian</h6>
+                                    <h6 class="mb-0">Penilaian Ujian</h6>
                                 </div>
                                 <div class="topbar-dropdown-body">
                                     @forelse($pendingSessions as $session)

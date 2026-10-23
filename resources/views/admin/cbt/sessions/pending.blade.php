@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Verifikasi Ujian')
+@section('title', 'Penilaian Ujian')
 
 @section('content')
 <div class="page-heading">
     <div class="page-title">
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
-                <h3>Verifikasi Ujian</h3>
-                <p class="text-subtitle text-muted">Ujian yang menunggu verifikasi</p>
+                <h3>Penilaian Ujian</h3>
+                <p class="text-subtitle text-muted">Ujian yang menunggu penilaian</p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('cbt.admin.sessions.index') }}">Sesi Ujian</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Verifikasi</li>
+                        <li class="breadcrumb-item active" aria-current="page">Penilaian</li>
                     </ol>
                 </nav>
             </div>
@@ -28,7 +28,7 @@
         <div class="card-header">
             <h4 class="card-title">
                 <i class="bi bi-clock-history text-warning"></i>
-                Menunggu Verifikasi ({{ $sessions->total() }})
+                Menunggu Penilaian ({{ $sessions->total() }})
             </h4>
         </div>
         <div class="card-body">
@@ -68,7 +68,7 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('cbt.admin.sessions.show', $session) }}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-eye"></i> Review & Verifikasi
+                                            <i class="bi bi-eye"></i> Review & Penilaian
                                         </a>
                                     </td>
                                 </tr>
@@ -83,7 +83,7 @@
             @else
                 <div class="text-center py-5">
                     <i class="bi bi-check-circle text-success display-1"></i>
-                    <h4 class="mt-3 text-muted">Tidak ada ujian yang menunggu verifikasi</h4>
+                    <h4 class="mt-3 text-muted">Tidak ada ujian yang menunggu penilaian</h4>
                     <a href="{{ route('cbt.admin.sessions.index') }}" class="btn btn-primary mt-3">
                         <i class="bi bi-arrow-left"></i> Lihat Semua Sesi
                     </a>
