@@ -249,7 +249,7 @@
                                     
                                     Swal.fire({
                                         title: 'Hapus Karyawan?',
-                                        html: '<strong>' + nama + '</strong><br><small class="text-muted">NIK: ' + nik + '</small>',
+                                        html: '<strong>' + esc(nama) + '</strong><br><small class="text-muted">NIK: ' + esc(nik) + '</small>',
                                         icon: 'warning',
                                         showCancelButton: true,
                                         confirmButtonColor: SWAL_BTN.danger,
@@ -352,13 +352,13 @@
                                                     
                                                     html += '<tr>' +
                                                         '<td class="text-center">' + (index + 1) + '</td>' +
-                                                        '<td class="text-center"><strong>' + emp.nik + '</strong></td>' +
-                                                        '<td>' + (emp.name || '-') + '</td>' +
-                                                        '<td><small>' + deptDiv + '</small></td>' +
+                                                        '<td class="text-center"><strong>' + esc(emp.nik) + '</strong></td>' +
+                                                        '<td>' + esc(emp.name || '-') + '</td>' +
+                                                        '<td><small>' + esc(deptDiv) + '</small></td>' +
                                                         '<td class="text-center">' + statusBadge + '</td>' +
                                                         '<td class="text-center">' +
-                                                            '<button class="btn btn-sm btn-warning me-1" onclick="editKaryawan(\'' + emp.nik + '\')" title="Edit"><i class="bi bi-pencil"></i></button>' +
-                                                            '<button class="btn btn-sm btn-danger" onclick="hapusKaryawan(\'' + emp.nik + '\', \'' + (emp.name || '') + '\')" title="Hapus"><i class="bi bi-trash"></i></button>' +
+                                                            '<button class="btn btn-sm btn-warning me-1 btn-edit-karyawan" data-employee-nik="' + esc(emp.nik) + '" title="Edit"><i class="bi bi-pencil"></i></button>' +
+                                                            '<button class="btn btn-sm btn-danger btn-hapus-karyawan" data-nik="' + esc(emp.nik) + '" title="Hapus"><i class="bi bi-trash"></i></button>' +
                                                         '</td>' +
                                                     '</tr>';
                                                 });
@@ -1540,7 +1540,7 @@
                                 <div class="mb-3 p-3 border-2 border-primary rounded bg-body-tertiary divisi-wrapper-edit" data-div-id="${division.id}">
                                     <div class="row align-items-center mb-3">
                                         <div class="col-md-10">
-                                            <input type="text" class="form-control form-control-sm divisi-name-edit" placeholder="Nama divisi" value="${division.name}" required>
+                                            <input type="text" class="form-control form-control-sm divisi-name-edit" placeholder="Nama divisi" value="${esc(division.name)}" required>
                                         </div>
                                         <div class="col-md-2 text-end">
                                             <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.divisi-wrapper-edit').remove()">
@@ -1573,7 +1573,7 @@
                                         <div class="mb-2 p-2 bg-body-tertiary border rounded position-field-edit" data-pos-id="${position.id}">
                                             <div class="row align-items-center">
                                                 <div class="col-md-10">
-                                                    <input type="text" class="form-control form-control-sm position-name-edit" placeholder="Nama jabatan" value="${position.name}" required>
+                                                    <input type="text" class="form-control form-control-sm position-name-edit" placeholder="Nama jabatan" value="${esc(position.name)}" required>
                                                 </div>
                                                 <div class="col-md-2 text-end">
                                                     <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.position-field-edit').remove()">
@@ -1977,6 +1977,13 @@
     </script>
     
     <script>
+        // Escape untuk mencegah XSS saat render data API ke HTML/atribut.
+        window.esc = window.esc || function(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        };
+
         // Global error handler
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             console.error('❌ GLOBAL ERROR:', msg, 'at', url, ':', lineNo);
@@ -2071,19 +2078,24 @@
                         
                         // Render rows
                         response.data.forEach((dept, index) => {
-                            var row = `
-                                <tr>
-                                    <td>${index + 1}</td>
-                                    <td><strong>${dept.name}</strong></td>
-                                    <td class="text-center"><span class="badge bg-info">${dept.divisions_count || 0}</span></td>
-                                    <td class="text-center"><span class="badge bg-success">${dept.employees_count || 0}</span></td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-warning me-1" onclick="window.editDepartemen(${dept.id}, '${dept.name}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="window.hapusDepartemen(${dept.id}, '${dept.name}')" title="Hapus"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td><strong>${esc(dept.name)}</strong></td>
+                                <td class="text-center"><span class="badge bg-info">${esc(dept.divisions_count || 0)}</span></td>
+                                <td class="text-center"><span class="badge bg-success">${esc(dept.employees_count || 0)}</span></td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-warning me-1" data-action="edit" title="Edit"><i class="bi bi-pencil-square"></i></button>
+                                    <button type="button" class="btn btn-sm btn-danger" data-action="delete" title="Hapus"><i class="bi bi-trash"></i></button>
+                                </td>
                             `;
-                            tbody.innerHTML += row;
+                            row.querySelector('[data-action="edit"]').addEventListener('click', function() {
+                                window.editDepartemen(dept.id, dept.name);
+                            });
+                            row.querySelector('[data-action="delete"]').addEventListener('click', function() {
+                                window.hapusDepartemen(dept.id, dept.name);
+                            });
+                            tbody.appendChild(row);
                         });
                         
                         console.log('✅ Table rendered with', response.data.length, 'departments');
@@ -2361,7 +2373,7 @@
                 <div class="mb-3 p-3 border-2 border-primary rounded bg-body-tertiary divisi-wrapper-edit" data-div-id="${divId}">
                     <div class="row align-items-center mb-3">
                         <div class="col-md-10">
-                            <input type="text" class="form-control form-control-sm divisi-name-edit" value="${divName}" data-original="${divName}" required>
+                            <input type="text" class="form-control form-control-sm divisi-name-edit" value="${esc(divName)}" data-original="${esc(divName)}" required>
                         </div>
                         <div class="col-md-2 text-end">
                             <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.divisi-wrapper-edit').remove()">
@@ -2409,7 +2421,7 @@
                 <div class="mb-2 p-2 bg-body-tertiary border rounded position-field-edit" data-pos-id="${posId}">
                     <div class="row align-items-center">
                         <div class="col-md-10">
-                            <input type="text" class="form-control form-control-sm position-name-edit" value="${posName}" data-original="${posName}" required>
+                            <input type="text" class="form-control form-control-sm position-name-edit" value="${esc(posName)}" data-original="${esc(posName)}" required>
                         </div>
                         <div class="col-md-2 text-end">
                             <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.position-field-edit').remove()">
@@ -2711,7 +2723,7 @@
                                 deptSelect.html('<option value="">-- Pilih Departemen --</option>');
                                 response.data.forEach(function(dept, index) {
                                     console.log(`Adding option [${index+1}]: ID=${dept.id}, Name=${dept.name}`);
-                                    deptSelect.append(`<option value="${dept.id}">${dept.name}</option>`);
+                                    deptSelect.append(`<option value="${esc(dept.id)}">${esc(dept.name)}</option>`);
                                 });
                                 console.log('✅ Total dropdown options:', deptSelect.find('option').length);
                             }
@@ -2966,7 +2978,7 @@
                             select.find('option:not(:first)').remove(); // Clear except placeholder
                             
                             response.data.forEach(dept => {
-                                select.append(`<option value="${dept.id}">${dept.name}</option>`);
+                                select.append(`<option value="${esc(dept.id)}">${esc(dept.name)}</option>`);
                             });
                             
                             console.log(`✅ Loaded ${response.data.length} departments into dropdown`);
@@ -2999,7 +3011,7 @@
                         console.log('✅ Divisions response:', response);
                         if (response.success && response.data) {
                             response.data.forEach(div => {
-                                divSelect.append(`<option value="${div.id}">${div.name}</option>`);
+                                divSelect.append(`<option value="${esc(div.id)}">${esc(div.name)}</option>`);
                             });
                             console.log(`✅ Loaded ${response.data.length} divisions`);
                         }
@@ -3028,7 +3040,7 @@
                         console.log('✅ Positions response:', response);
                         if (response.success && response.data) {
                             response.data.forEach(pos => {
-                                posSelect.append(`<option value="${pos.id}">${pos.name}</option>`);
+                                posSelect.append(`<option value="${esc(pos.id)}">${esc(pos.name)}</option>`);
                             });
                             console.log(`✅ Loaded ${response.data.length} positions`);
                         }
@@ -3081,7 +3093,7 @@
                 .then(data => {
                     if (data.success && data.data) {
                         data.data.forEach(division => {
-                            divisiSelect.append(`<option value="${division.id}">${division.name}</option>`);
+                            divisiSelect.append(`<option value="${esc(division.id)}">${esc(division.name)}</option>`);
                         });
                         console.log(`✅ Divisions loaded for department ${departmentId}:`, data.data.length);
                     }
@@ -3109,7 +3121,7 @@
                 .then(data => {
                     if (data.success && data.data) {
                         data.data.forEach(position => {
-                            jabatanSelect.append(`<option value="${position.id}">${position.name}</option>`);
+                            jabatanSelect.append(`<option value="${esc(position.id)}">${esc(position.name)}</option>`);
                         });
                         console.log(`✅ Positions loaded for division ${divisionId}:`, data.data.length);
                     }
@@ -3207,13 +3219,13 @@
 
                     const deptName = item.department ? item.department.name : '-';
                     const divName = item.division ? item.division.name : '-';
-                    const deptDivisi = `<small>${deptName} / ${divName}</small>`;
+                    const deptDivisi = `<small>${esc(deptName)} / ${esc(divName)}</small>`;
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="text-center">${index + 1}</td>
-                        <td class="text-center"><strong>${item.nik}</strong></td>
-                        <td>${employeeName}</td>
+                        <td class="text-center"><strong>${esc(item.nik)}</strong></td>
+                        <td>${esc(employeeName)}</td>
                         <td>${deptDivisi}</td>
                         <td class="text-center">${statusBadge}</td>
                         <td class="text-center">
@@ -3221,12 +3233,12 @@
                                 <button class="btn btn-outline-primary btn-edit-karyawan" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#modalEditEmployee"
-                                        data-employee-nik="${item.nik}" 
+                                        data-employee-nik="${esc(item.nik)}" 
                                         title="Edit">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                                 <button class="btn btn-outline-danger btn-hapus-karyawan" 
-                                        data-nik="${item.nik}" 
+                                        data-nik="${esc(item.nik)}" 
                                         title="Hapus">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -3553,7 +3565,7 @@
                                     const divSelect = $('#editDivisiKaryawan');
                                     divSelect.find('option:not(:first)').remove();
                                     data.data.forEach(division => {
-                                        divSelect.append(`<option value="${division.id}">${division.name}</option>`);
+                                        divSelect.append(`<option value="${esc(division.id)}">${esc(division.name)}</option>`);
                                     });
                                     
                                     // Set division value
@@ -3572,7 +3584,7 @@
                                     const posSelect = $('#editJabatanKaryawan');
                                     posSelect.find('option:not(:first)').remove();
                                     data.data.forEach(position => {
-                                        posSelect.append(`<option value="${position.id}">${position.name}</option>`);
+                                        posSelect.append(`<option value="${esc(position.id)}">${esc(position.name)}</option>`);
                                     });
                                     
                                     // Set position value
@@ -3699,7 +3711,7 @@
                 // Show SweetAlert confirmation dialog
                 Swal.fire({
                     title: 'Hapus Karyawan?',
-                    html: '<strong>' + nama + '</strong><br><small class="text-muted">NIK: ' + nik + '</small>',
+                    html: '<strong>' + esc(nama) + '</strong><br><small class="text-muted">NIK: ' + esc(nik) + '</small>',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: SWAL_BTN.danger,
@@ -3835,7 +3847,7 @@
                                                 var item = $(`
                                                     <div class="row mb-2 edit-jabatan-item" data-position-id="${position.id}">
                                                         <div class="col-10">
-                                                            <input type="text" class="form-control input-edit-jabatan" value="${position.name}" readonly>
+                                                            <input type="text" class="form-control input-edit-jabatan" value="${esc(position.name)}" readonly>
                                                         </div>
                                                         <div class="col-2 d-flex justify-content-end">
                                                             <button type="button" class="btn btn-sm btn-outline-danger btn-hapus-jabatan-edit">

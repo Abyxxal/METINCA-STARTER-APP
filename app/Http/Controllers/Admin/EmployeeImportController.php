@@ -43,7 +43,12 @@ class EmployeeImportController extends Controller
                 ->withErrors(['file' => 'Ada error di file Excel'])
                 ->with('failures', $failures);
         } catch (\Exception $e) {
-            return back()->withErrors(['file' => 'Error: ' . $e->getMessage()]);
+            \Log::error('Employee import failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors(['file' => 'Terjadi kesalahan saat mengimport data. Silakan coba lagi.']);
         }
     }
 

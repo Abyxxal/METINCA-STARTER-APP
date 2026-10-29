@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\ExamSession;
+use App\Policies\ExamSessionPolicy;
 use App\View\Composers\SidebarComposer;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +26,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Superadmin bypass all gates
+        Gate::before(function ($user, $ability) {
+            return $user->role === 'superadmin' ? true : null;
+        });
+
+        Gate::policy(ExamSession::class, ExamSessionPolicy::class);
+
         Broadcast::routes(['middleware' => ['web', 'auth']]);
 
         // Data badge/dropdown sidebar & topbar layout admin (R1: query keluar dari view)

@@ -10,70 +10,56 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 // ============================================
-// PUBLIC DROPDOWN ROUTES (tanpa auth requirement)
+// PUBLIC DROPDOWN ROUTES (minimal, rate-limited)
 // ============================================
-Route::get('/dropdowns/departments', [MasterDataController::class, 'getDepartments']);
-Route::get('/dropdowns/divisions', [MasterDataController::class, 'getDivisions']);
-Route::get('/dropdowns/positions', [MasterDataController::class, 'getPositionsByDivision']);
+Route::middleware(['throttle:60,1'])->group(function () {
+    Route::get('/dropdowns/departments', [MasterDataController::class, 'getDepartments']);
+    Route::get('/dropdowns/divisions', [MasterDataController::class, 'getDivisions']);
+    Route::get('/dropdowns/positions', [MasterDataController::class, 'getPositionsByDivision']);
+});
 
-// PUBLIC READ ROUTES (untuk DataTables yang loaded saat page load, sebelum authentication)
-Route::get('/departments', [MasterDataController::class, 'getDepartments']);
-Route::get('/departments/{id}', [MasterDataController::class, 'showDepartment']); // Get single department with divisions & positions
-Route::get('/employees', [MasterDataController::class, 'getEmployees']);
-Route::get('/positions', [MasterDataController::class, 'getPositionsByDivision']);
-Route::get('/divisions', [MasterDataController::class, 'getDivisions']);
-Route::get('/competencies', [MasterDataController::class, 'getCompetencies']);
-Route::get('/questions/set/{questionSetId}', [QuestionController::class, 'getQuestionsFromSet']);
+// ============================================
+// MASTER DATA ROUTES (admin/manager only)
+// ============================================
+Route::middleware(['auth', 'password.changed', 'is.admin'])->group(function () {
 
-// API Routes untuk Master Data (CRUD)
-Route::middleware(['auth'])->group(function () {
-    
-    // ============================================
+    // READ ROUTES
+    Route::get('/departments', [MasterDataController::class, 'getDepartments']);
+    Route::get('/departments/list', [MasterDataController::class, 'listDepartments']);
+    Route::get('/departments/{id}', [MasterDataController::class, 'showDepartment']);
+    Route::get('/positions', [MasterDataController::class, 'getPositionsByDivision']);
+    Route::get('/divisions', [MasterDataController::class, 'getDivisions']);
+    Route::get('/divisions/{id}/skills', [MasterDataController::class, 'getSkillsByDivision']);
+    Route::get('/employees', [MasterDataController::class, 'getEmployees']);
+    Route::get('/employees/{id}', [MasterDataController::class, 'getEmployee']);
+    Route::get('/competencies', [MasterDataController::class, 'getCompetencies']);
+    Route::get('/competencies/skills', [MasterDataController::class, 'getSkillBasedCompetencies']);
+    Route::get('/questions/set/{questionSetId}', [QuestionController::class, 'getQuestionsFromSet']);
+
     // EMPLOYEE ROUTES
-    // ============================================
     Route::post('/employees', [MasterDataController::class, 'storeEmployee']);
     Route::put('/employees/{id}', [MasterDataController::class, 'updateEmployee']);
     Route::delete('/employees/{id}', [MasterDataController::class, 'destroyEmployee']);
-    Route::get('/employees/{id}', [MasterDataController::class, 'getEmployee']); // Fetch single employee
-    Route::post('/employees/{id}/reset-password', [MasterDataController::class, 'resetEmployeePassword']); // Reset employee password
+    Route::post('/employees/{id}/reset-password', [MasterDataController::class, 'resetEmployeePassword']);
 
-    // ============================================
     // DEPARTMENT ROUTES
-    // ============================================
     Route::post('/departments', [MasterDataController::class, 'storeDepartment']);
     Route::put('/departments/{id}', [MasterDataController::class, 'updateDepartment']);
     Route::delete('/departments/{id}', [MasterDataController::class, 'destroyDepartment']);
-    Route::get('/departments/list', [MasterDataController::class, 'listDepartments']); // For dropdown
 
-    // ============================================
     // POSITION ROUTES
-    // ============================================
     Route::post('/positions', [MasterDataController::class, 'storePosition']);
     Route::delete('/positions/{id}', [MasterDataController::class, 'destroyPosition']);
 
-    // ============================================
     // COMPETENCY ROUTES
-    // ============================================
     Route::post('/competencies', [MasterDataController::class, 'storeCompetency']);
-
-    // ============================================
-    // DIVISION ROUTES
-    // ============================================
-    Route::post('/divisions', [MasterDataController::class, 'storeDivision']);
-    Route::delete('/divisions/{id}', [MasterDataController::class, 'destroyDivision']);
-    Route::get('/divisions/{id}/skills', [MasterDataController::class, 'getSkillsByDivision']);
-
-    // ============================================
-    // SKILL ROUTES
-    // ============================================
-    Route::post('/skills', [MasterDataController::class, 'storeSkill']);
-    Route::delete('/skills/{id}', [MasterDataController::class, 'destroySkill']);
-
-    // ============================================
-    // SKILL-BASED COMPETENCY ROUTES
-    // ============================================
-    Route::get('/competencies/skills', [MasterDataController::class, 'getSkillBasedCompetencies']);
     Route::post('/competencies/skills', [MasterDataController::class, 'storeSkillCompetency']);
 
-});
+    // DIVISION ROUTES
+    Route::post('/divisions', [MasterDataController::class, 'storeDivision']);
+    Route::delete('/divisions/{id}', [MasterDataController::class, 'destroyDivision']);
 
+    // SKILL ROUTES
+    Route::post('/skills', [MasterDataController::class, 'storeSkill']);
+    Route::delete('/skills/{id}', [MasterDataController::class, 'destroySkill']);
+});

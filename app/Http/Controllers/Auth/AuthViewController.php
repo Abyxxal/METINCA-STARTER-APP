@@ -16,14 +16,6 @@ class AuthViewController extends Controller
     }
 
     /**
-     * Show registration form
-     */
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-
-    /**
      * Show forgot password form
      */
     public function showForgotPassword()

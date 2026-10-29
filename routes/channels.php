@@ -6,6 +6,6 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('admin.dashboard', function ($user) {
+Broadcast::channel('private-admin.dashboard', function ($user) {
     return in_array($user->role, ['admin', 'manager']);
 });

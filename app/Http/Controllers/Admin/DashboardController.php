@@ -25,7 +25,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // Check role dan redirect sesuai dengan peran user
-        if ($user->role === 'admin' || $user->role === 'manager') {
+        if ($user->role === 'admin' || $user->role === 'manager' || $user->role === 'superadmin') {
             // Ambil data statistik untuk admin dashboard
             $stats = [
                 'total_employees' => Employee::where('status', 'Aktif')->count(),

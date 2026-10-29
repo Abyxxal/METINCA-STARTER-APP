@@ -87,15 +87,7 @@ class User extends Authenticatable
     // ============================================
 
     /**
-     * Check if user is admin (supervisor)
-     */
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    /**
-     * Alias: Check if user is supervisor (same as admin)
+     * Check if user is supervisor
      */
     public function isSupervisor(): bool
     {
@@ -111,11 +103,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has admin panel access (admin OR manager)
+     * Check if user is superadmin (full access)
      */
-    public function isAdminOrManager(): bool
+    public function isSuperadmin(): bool
     {
-        return in_array($this->role, ['admin', 'manager']);
+        return $this->role === 'superadmin';
+    }
+
+    /**
+     * Check if user has admin panel access (supervisor OR manager OR superadmin)
+     */
+    public function isManagerOrSupervisor(): bool
+    {
+        return in_array($this->role, ['admin', 'manager', 'superadmin']);
     }
 
     /**

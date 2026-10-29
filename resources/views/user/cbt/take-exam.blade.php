@@ -84,7 +84,7 @@
                                 <hr>
                                 
                                 <div class="question-text mb-4">
-                                    <p class="fs-5">{!! nl2br(e($question->question_text)) !!}</p>
+                                    <p class="fs-5">{{ nl2br(e($question->question_text)) }}</p>
                                 </div>
 
                                 @if($question->type === 'multiple_choice')

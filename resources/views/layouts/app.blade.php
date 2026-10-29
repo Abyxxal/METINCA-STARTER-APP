@@ -90,7 +90,7 @@
                         {{-- =====================================================
                             ADMIN ONLY MENUS - Hanya visible untuk user dengan role 'admin'
                             ===================================================== --}}
-                        @if(Auth::check() && Auth::user()->isAdminOrManager())
+                        @if(Auth::check() && Auth::user()->isManagerOrSupervisor())
 
                         {{-- Menu Item 2: Master Data --}}
                         {{-- Fungsi: Manajemen data karyawan, departemen, dan posisi kerja --}}
@@ -307,7 +307,7 @@
                             <button class="topbar-btn topbar-user-btn" id="userMenuBtn" type="button">
                                 <div class="topbar-user-info">
                                     <div class="topbar-user-name">{{ auth()->user()->name }}</div>
-                                    <div class="topbar-user-role">{{ auth()->user()->isAdmin() ? 'Administrator' : 'Employee' }}</div>
+                                    <div class="topbar-user-role">{{ auth()->user()->isSupervisor() ? 'Supervisor' : 'Employee' }}</div>
                                 </div>
                                 <div class="topbar-user-avatar">
                                     @if(auth()->user()->employee && auth()->user()->employee->profile_photo_url)

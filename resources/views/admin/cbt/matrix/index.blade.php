@@ -172,7 +172,7 @@
                                                 data-bs-toggle="tooltip"
                                                 data-bs-html="true"
                                                 data-bs-placement="top"
-                                                title="{!! $tip !!}">
+                                                title="{{ $tip }}">
                                                 <span class="lvl-num">{{ $level }}</span>
                                             </td>
                                         @endforeach

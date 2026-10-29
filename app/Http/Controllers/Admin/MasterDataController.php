@@ -123,10 +123,7 @@ class MasterDataController extends Controller
                 'data' => $employee
             ], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -156,20 +153,24 @@ class MasterDataController extends Controller
                 'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ];
 
-            // Only validate NIK uniqueness if it changed
-            $newNik = $request->input('nik');
-            if ($newNik !== $employee->nik) {
-                // NIK changed, validate uniqueness
-                $rules['nik'] = ['required', Rule::unique('employees', 'nik')];
-            } else {
-                // NIK didn't change, just require it
-                $rules['nik'] = 'required';
+            // NIK adalah primary key yang dipakai lintas tabel (ujian, kompetensi,
+            // akun user). Perubahan NIK tidak diizinkan agar identitas tidak nyangkut.
+            if ($request->input('nik') !== $employee->nik) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'NIK tidak dapat diubah.',
+                ], 422);
             }
+            $rules['nik'] = 'required';
 
-            // Always validate email uniqueness but exclude current record
-            $rules['email'] = ['required', 'email', Rule::unique('employees', 'email')->where(function ($query) use ($id) {
-                return $query->where('nik', '!=', $id);
-            })];
+            // Email unik di employees dan users, kecuali record saat ini.
+            $rules['email'] = ['required', 'email', Rule::unique('employees', 'email')->ignore($employee->nik, 'nik')];
+
+            if ($employee->user) {
+                $rules['email'][] = Rule::unique('users', 'email')->ignore($employee->user->id);
+            } else {
+                $rules['email'][] = Rule::unique('users', 'email');
+            }
 
             $validated = $request->validate($rules);
 
@@ -184,8 +185,27 @@ class MasterDataController extends Controller
                 $validated['photo'] = $photoPath;
             }
 
-            // Update record karyawan
-            $employee->update($validated);
+            DB::transaction(function () use ($employee, $validated) {
+                // Update record karyawan
+                $employee->update($validated);
+
+                // Sinkronkan identitas login agar email/name tidak berbeda.
+                if ($employee->user) {
+                    $employee->user->update([
+                        'name' => $validated['name'],
+                        'email' => $validated['email'],
+                    ]);
+
+                    // Revoke login if status changed to Non-Aktif
+                    if ($validated['status'] === 'Non-Aktif') {
+                        // Delete all sessions for this user
+                        DB::table('sessions')->where('user_id', $employee->user->id)->delete();
+                        
+                        // Revoke remember token
+                        $employee->user->update(['remember_token' => null]);
+                    }
+                }
+            });
 
             EmployeeDataUpdated::dispatch('updated', $employee->nik, $employee->name);
             DashboardStatsUpdated::dispatch();
@@ -196,10 +216,7 @@ class MasterDataController extends Controller
                 'data' => $employee
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -234,10 +251,7 @@ class MasterDataController extends Controller
                 'message' => 'Karyawan ' . $name . ' dan user account-nya berhasil dihapus'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -309,10 +323,7 @@ class MasterDataController extends Controller
                 'data' => $department
             ], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -408,10 +419,7 @@ class MasterDataController extends Controller
                 'data' => $department
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -436,10 +444,7 @@ class MasterDataController extends Controller
                 'message' => 'Departemen ' . $name . ' berhasil dihapus'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -539,10 +544,7 @@ class MasterDataController extends Controller
                 'data' => $employees
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -569,10 +571,7 @@ class MasterDataController extends Controller
                 'data' => $employee
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -598,10 +597,7 @@ class MasterDataController extends Controller
                 'data' => $departments
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -625,10 +621,7 @@ class MasterDataController extends Controller
                 'data' => $departments
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -648,10 +641,7 @@ class MasterDataController extends Controller
                 'data' => $department
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 404);
+            return $this->errorResponse($e, 404);
         }
     }
 
@@ -686,10 +676,7 @@ class MasterDataController extends Controller
                 'data' => $positions
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -721,10 +708,7 @@ class MasterDataController extends Controller
                 'data' => $position
             ], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -749,10 +733,7 @@ class MasterDataController extends Controller
                 'data' => $position
             ], 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -865,10 +846,7 @@ class MasterDataController extends Controller
                 'data' => $data
             ], 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -899,10 +877,7 @@ class MasterDataController extends Controller
                 'data' => $competency
             ], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -943,10 +918,7 @@ class MasterDataController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -971,10 +943,7 @@ class MasterDataController extends Controller
                 'message' => 'Divisi berhasil dihapus'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -1071,10 +1040,7 @@ class MasterDataController extends Controller
                 'data' => $divisions
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -1097,11 +1063,7 @@ class MasterDataController extends Controller
                 'skills' => $skills
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage(),
-                'skills' => []
-            ], 400);
+            return $this->errorResponse($e, 400, ['skills' => []]);
         }
     }
 
@@ -1204,10 +1166,7 @@ class MasterDataController extends Controller
                 'skills' => $skills
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -1238,10 +1197,7 @@ class MasterDataController extends Controller
                 'data' => $competency
             ], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false, 
-                'message' => $e->getMessage()
-            ], 400);
+            return $this->errorResponse($e);
         }
     }
 
@@ -1283,19 +1239,37 @@ class MasterDataController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Password karyawan berhasil direset ke ' . self::DEFAULT_PASSWORD
+                'message' => 'Password karyawan berhasil direset. Karyawan wajib mengganti password saat login pertama.'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse($e, 500);
         }
     }
 
     // ============================================
     // HELPER METHODS
     // ============================================
+
+    /**
+     * Response error generik. Detail exception hanya masuk log,
+     * tidak pernah dikirim ke client.
+     */
+    private function errorResponse(\Exception $e, int $status = 400, array $extra = [])
+    {
+        if ($e instanceof \Illuminate\Validation\ValidationException) {
+            throw $e;
+        }
+
+        \Log::error('Master data request failed', [
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+        ]);
+
+        return response()->json(array_merge([
+            'success' => false,
+            'message' => 'Terjadi kesalahan pada server. Silakan coba lagi.',
+        ], $extra), $status);
+    }
 
     /**
      * Memastikan auto-increment direset ke 1 jika tabel kosong

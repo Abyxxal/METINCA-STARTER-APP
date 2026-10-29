@@ -96,10 +96,6 @@
             </div> --}}
             
             <div class="signup-link">
-                Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a>
-            </div>
-            
-            <div class="signup-link">
                 Kembali ke <a href="{{ route('home.main') }}">Homepage</a>
             </div>
         </div>

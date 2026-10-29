@@ -118,6 +118,11 @@ class ExamController extends Controller
                 ->with('error', 'Akun Anda tidak terhubung dengan data karyawan.');
         }
 
+        if (! $exam->is_published) {
+            return redirect()->route('cbt.employee.dashboard')
+                ->with('error', 'Ujian ini tidak tersedia.');
+        }
+
         // Check if employee already has a pending session for this exam
         $existingSession = ExamSession::where('employee_nik', $employee->nik)
             ->where('exam_id', $exam->id)
@@ -182,6 +187,18 @@ class ExamController extends Controller
         if (! $isEligible) {
             return redirect()->route('cbt.employee.dashboard')
                 ->with('error', "Anda belum memenuhi syarat untuk ujian ini. Level Anda saat ini: {$currentLevel}, diperlukan: Level {$requiredLevel}.");
+        }
+
+        // Check session window
+        $now = now();
+        $hasOpenSession = $exam->sessions()
+            ->where('start_time', '<=', $now)
+            ->where('end_time', '>=', $now)
+            ->exists();
+
+        if (! $hasOpenSession) {
+            return redirect()->route('cbt.employee.dashboard')
+                ->with('error', 'Tidak ada jadwal ujian yang terbuka saat ini untuk ujian ini.');
         }
 
         // Create new exam session
@@ -263,16 +280,30 @@ class ExamController extends Controller
             return response()->json(['error' => 'Ujian tidak aktif'], 403);
         }
 
+        // Check time limit
+        if ($session->isTimeUp()) {
+            return response()->json(['error' => 'Waktu ujian sudah berakhir'], 403);
+        }
+
         $validated = $request->validate([
-            'question_id' => 'required|exists:questions,id',
+            'question_id' => 'required|integer',
             'selected_answer' => 'nullable|string',
         ]);
+
+        // Hanya soal yang benar-benar bagian dari ujian ini.
+        $question = $session->exam->questions()
+            ->where('questions.id', $validated['question_id'])
+            ->first();
+
+        if (! $question) {
+            return response()->json(['error' => 'Soal bukan bagian dari ujian ini'], 422);
+        }
 
         // Update or create answer
         $answer = ExamAnswer::updateOrCreate(
             [
                 'exam_session_id' => $session->id,
-                'question_id' => $validated['question_id'],
+                'question_id' => $question->id,
             ],
             [
                 'selected_answer' => $validated['selected_answer'],
@@ -280,8 +311,7 @@ class ExamController extends Controller
         );
 
         // Auto-grade if multiple choice
-        $question = Question::find($validated['question_id']);
-        if ($question && $question->type !== 'essay') {
+        if ($question->type !== 'essay') {
             $answer->grade();
         }
 
@@ -315,13 +345,18 @@ class ExamController extends Controller
             'answers.*' => 'nullable|string',
         ]);
 
+        // Jawaban hanya boleh untuk soal yang benar-benar ada di ujian ini.
+        // Ini mencegah penyisipan jawaban dari bank soal / ujian lain.
+        $examQuestionIds = $session->exam->questions()->pluck('questions.id')->all();
+        $answers = collect($validated['answers'] ?? [])->only($examQuestionIds);
+
         // Aturan submit: selama waktu masih berjalan, seluruh soal wajib dijawab.
         // Saat waktu sudah habis (auto-submit), validasi ini dilewati dan jawaban
         // kosong diperbolehkan (dianggap bernilai 0).
         if (! $session->isTimeUp()) {
-            $totalQuestions = $session->exam->examQuestions()->count();
+            $totalQuestions = count($examQuestionIds);
 
-            $answered = collect($request->answers ?? [])
+            $answered = $answers
                 ->filter(fn ($answer) => $answer !== null && trim((string) $answer) !== '')
                 ->count();
 
@@ -337,7 +372,7 @@ class ExamController extends Controller
             $session->load(['exam.questions']);
 
             // Get total number of questions in this exam
-            $totalQuestions = $session->exam->questions()->count();
+            $totalQuestions = count($examQuestionIds);
 
             // Edge case: No questions
             if ($totalQuestions === 0) {
@@ -349,8 +384,8 @@ class ExamController extends Controller
             $correctAnswersCount = 0;
 
             // Process and save all answers
-            if ($request->has('answers')) {
-                foreach ($request->answers as $questionId => $selectedAnswer) {
+            if ($answers->isNotEmpty()) {
+                foreach ($answers as $questionId => $selectedAnswer) {
                     // Fetch the question to get correct answer
                     $question = Question::find($questionId);
 
@@ -441,7 +476,12 @@ class ExamController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', 'Gagal submit ujian: '.$e->getMessage());
+            \Log::error('Gagal submit ujian', [
+                'session_id' => $session->id,
+                'message' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'Gagal submit ujian. Silakan coba lagi.');
         }
     }
 

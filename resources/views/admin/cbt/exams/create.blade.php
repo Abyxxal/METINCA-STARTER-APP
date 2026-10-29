@@ -276,29 +276,73 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '<p class="text-muted mb-3"><i class="bi bi-info-circle"></i> Pilih set soal yang akan digunakan untuk ujian ini</p>';
         html += '<div class="list-group">';
 
+        const listGroup = document.createElement('div');
+        listGroup.className = 'list-group';
+
         filteredSets.forEach((set, index) => {
-            html += `<label class="list-group-item d-flex align-items-center">
-                <input type="checkbox" class="form-check-input me-3 set-checkbox" 
-                    data-set-id="${set.question_set_id}" 
-                    data-count="${set.question_count}"
-                    value="${set.question_set_id}">
-                <div class="flex-grow-1">
-                    <h6 class="mb-1">${set.set_title}</h6>
-                    <small class="text-muted">
-                        <span class="badge bg-secondary">Level ${set.for_level}</span>
-                        <span class="badge bg-primary">${set.question_count} soal</span>
-                    </small>
-                </div>
-                <div class="d-flex align-items-center ms-3">
-                    <input type="number" class="form-control form-control-sm weight-per-question" 
-                        placeholder="Bobot" value="10" min="1" max="100" style="width: 80px;" disabled>
-                    <small class="text-muted ms-2">poin/soal</small>
-                </div>
-            </label>`;
+            const label = document.createElement('label');
+            label.className = 'list-group-item d-flex align-items-center';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'form-check-input me-3 set-checkbox';
+            checkbox.dataset.setId = set.question_set_id;
+            checkbox.dataset.count = set.question_count;
+            checkbox.value = set.question_set_id;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'flex-grow-1';
+            
+            const title = document.createElement('h6');
+            title.className = 'mb-1';
+            title.textContent = set.set_title;
+            
+            const badges = document.createElement('small');
+            badges.className = 'text-muted';
+            
+            const levelBadge = document.createElement('span');
+            levelBadge.className = 'badge bg-secondary';
+            levelBadge.textContent = `Level ${set.for_level}`;
+            
+            const countBadge = document.createElement('span');
+            countBadge.className = 'badge bg-primary';
+            countBadge.textContent = `${set.question_count} soal`;
+            
+            badges.appendChild(levelBadge);
+            badges.appendChild(document.createTextNode(' '));
+            badges.appendChild(countBadge);
+            
+            contentDiv.appendChild(title);
+            contentDiv.appendChild(badges);
+
+            const weightDiv = document.createElement('div');
+            weightDiv.className = 'd-flex align-items-center ms-3';
+            
+            const weightInput = document.createElement('input');
+            weightInput.type = 'number';
+            weightInput.className = 'form-control form-control-sm weight-per-question';
+            weightInput.placeholder = 'Bobot';
+            weightInput.value = '10';
+            weightInput.min = '1';
+            weightInput.max = '100';
+            weightInput.style.width = '80px';
+            weightInput.disabled = true;
+            
+            const weightLabel = document.createElement('small');
+            weightLabel.className = 'text-muted ms-2';
+            weightLabel.textContent = 'poin/soal';
+            
+            weightDiv.appendChild(weightInput);
+            weightDiv.appendChild(weightLabel);
+
+            label.appendChild(checkbox);
+            label.appendChild(contentDiv);
+            label.appendChild(weightDiv);
+            listGroup.appendChild(label);
         });
 
-        html += '</div>';
-        questionsContainer.innerHTML = html;
+        questionsContainer.innerHTML = '<p class="text-muted mb-3"><i class="bi bi-info-circle"></i> Pilih set soal yang akan digunakan untuk ujian ini</p>';
+        questionsContainer.appendChild(listGroup);
 
         // Fetch questions for each set when checked and add to form
         document.querySelectorAll('.set-checkbox').forEach(checkbox => {

@@ -327,7 +327,7 @@
             return {
                 series: [{
                     name: 'Rata-rata Nilai',
-                    data: {!! json_encode($skillStats->pluck('avg_score')->toArray()) !!}
+                    data: @json($skillStats->pluck('avg_score')->toArray())
                 }],
                 chart: {
                     type: 'bar',
@@ -359,7 +359,7 @@
                     }
                 },
                 xaxis: {
-                    categories: {!! json_encode($skillStats->pluck('code')->toArray()) !!},
+                    categories: @json($skillStats->pluck('code')->toArray()),
                     position: 'bottom',
                     labels: {
                         rotate: -45,

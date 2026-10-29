@@ -59,6 +59,7 @@ class LoginRequest extends FormRequest
         // ===== TRY LOGIN DENGAN EMAIL DULU (untuk admin & user) =====
         if (Auth::attempt(['email' => $emailOrNik, 'password' => $password], $this->boolean('remember'))) {
             RateLimiter::clear($this->throttleKey());
+            RateLimiter::clear($this->ipThrottleKey());
             return;
         }
 
@@ -67,12 +68,14 @@ class LoginRequest extends FormRequest
         if (!filter_var($emailOrNik, FILTER_VALIDATE_EMAIL)) {
             if (Auth::attempt(['nik' => $emailOrNik, 'password' => $password], $this->boolean('remember'))) {
                 RateLimiter::clear($this->throttleKey());
+                RateLimiter::clear($this->ipThrottleKey());
                 return;
             }
         }
 
         // ===== KEDUA-DUANYA GAGAL =====
         RateLimiter::hit($this->throttleKey());
+        RateLimiter::hit($this->ipThrottleKey());
 
         throw ValidationException::withMessages([
             'email_or_nik' => 'Email/NIK atau password salah',
@@ -86,13 +89,19 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        $identityLocked = RateLimiter::tooManyAttempts($this->throttleKey(), 5);
+        $ipLocked = RateLimiter::tooManyAttempts($this->ipThrottleKey(), 20);
+
+        if (! $identityLocked && ! $ipLocked) {
             return;
         }
 
         event(new Lockout($this));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $seconds = max(
+            RateLimiter::availableIn($this->throttleKey()),
+            RateLimiter::availableIn($this->ipThrottleKey())
+        );
 
         throw ValidationException::withMessages([
             'email' => trans('auth.throttle', [
@@ -108,5 +117,13 @@ class LoginRequest extends FormRequest
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->input('email_or_nik')).'|'.$this->ip());
+    }
+
+    /**
+     * Throttle key per IP: mencegah brute force lintas banyak NIK/email.
+     */
+    public function ipThrottleKey(): string
+    {
+        return 'login-ip|'.$this->ip();
     }
 }

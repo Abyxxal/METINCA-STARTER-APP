@@ -218,6 +218,12 @@ class ExamSessionService
      */
     public function approveLevel(Request $request, ExamSession $session)
     {
+        // Prevent self-approval
+        $manager = Auth::user();
+        if ($manager->employee && $manager->employee->nik === $session->employee_nik) {
+            return back()->with('error', 'Anda tidak dapat menyetujui kenaikan level Anda sendiri.');
+        }
+
         $tidakMemenuhiCount = $this->countTidakMemenuhi($request);
 
         $rules = [

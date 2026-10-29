@@ -5,7 +5,6 @@ use App\Http\Controllers\Auth\AuthViewController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeImportController;
@@ -49,9 +48,7 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthViewController::class, 'showLogin'])
         ->name('login');
     
-    // GET /register - Halaman form registrasi
-    Route::get('register', [AuthViewController::class, 'showRegister'])
-        ->name('register');
+    // Registrasi publik dinonaktifkan (aplikasi internal, akun dibuat admin)
     
     // GET /forgot-password - Halaman form lupa password
     Route::get('forgot-password', [AuthViewController::class, 'showForgotPassword'])
@@ -64,9 +61,7 @@ Route::middleware('guest')->group(function () {
     // ---- AUTHENTICATION LOGIC (POST) ----
     // Menghandle submit form login/register/password reset
     
-    // POST /register - Proses registrasi user baru
-    Route::post('register', [RegisteredUserController::class, 'store'])
-        ->name('register.store');
+    // POST /register - dinonaktifkan (registrasi publik ditutup)
     
     // POST /login - Proses autentikasi login
     Route::post('login', [AuthenticatedSessionController::class, 'store'])

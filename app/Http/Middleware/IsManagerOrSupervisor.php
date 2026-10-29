@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class IsAdmin
+class IsManagerOrSupervisor
 {
     /**
      * Handle an incoming request.
@@ -15,13 +15,13 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check jika user sudah login dan memiliki role 'admin' atau 'manager'
+        // Check jika user sudah login dan memiliki role 'admin' (supervisor) atau 'manager'
         // Keduanya bisa akses panel admin
         if (auth()->check() && in_array(auth()->user()->role, ['admin', 'manager'])) {
             return $next($request);
         }
 
-        // Jika user sudah login tapi bukan admin, redirect ke user dashboard
+        // Jika user sudah login tapi bukan supervisor/manager, redirect ke user dashboard
         if (auth()->check()) {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini');
         }
