@@ -15,6 +15,11 @@ class IsManagerOrSupervisor
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Superadmin bypass semua
+        if (auth()->check() && auth()->user()->isSuperadmin()) {
+            return $next($request);
+        }
+
         // Check jika user sudah login dan memiliki role 'admin' (supervisor) atau 'manager'
         // Keduanya bisa akses panel admin
         if (auth()->check() && in_array(auth()->user()->role, ['admin', 'manager'])) {

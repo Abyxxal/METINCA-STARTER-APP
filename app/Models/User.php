@@ -115,7 +115,7 @@ class User extends Authenticatable
      */
     public function isManagerOrSupervisor(): bool
     {
-        return in_array($this->role, ['admin', 'manager', 'superadmin']);
+        return $this->isSuperadmin() || in_array($this->role, ['admin', 'manager']);
     }
 
     /**
