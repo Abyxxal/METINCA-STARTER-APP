@@ -256,6 +256,13 @@
         --lvl-4-bg: #14522f;   --lvl-4-fg: #7ce3a1;
     }
 
+    .matrix-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        border-radius: 0.375rem;
+        border: 1px solid var(--bs-border-color);
+    }
+
     .matrix-table {
         --bs-table-bg: transparent;
         border-collapse: separate;
