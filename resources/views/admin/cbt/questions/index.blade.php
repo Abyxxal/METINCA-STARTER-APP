@@ -155,19 +155,23 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('cbt.admin.questions.show-set', $set->question_set_id) }}" class="btn btn-sm btn-outline-info" title="Lihat Detail Set">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{{ route('cbt.admin.questions.edit-set', $set->question_set_id) }}" class="btn btn-sm btn-outline-warning" title="Edit Set">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form action="{{ route('cbt.admin.questions.destroy-set', $set->question_set_id) }}" method="POST" class="d-inline form-delete-set" data-title="{{ $set->set_title }}" data-count="{{ $set->question_count }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Set">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
+                                    @if($set->question_set_id)
+                                        <a href="{{ route('cbt.admin.questions.show-set', $set->question_set_id) }}" class="btn btn-sm btn-outline-info" title="Lihat Detail Set">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ route('cbt.admin.questions.edit-set', $set->question_set_id) }}" class="btn btn-sm btn-outline-warning" title="Edit Set">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form action="{{ route('cbt.admin.questions.destroy-set', $set->question_set_id) }}" method="POST" class="d-inline form-delete-set" data-title="{{ $set->set_title }}" data-count="{{ $set->question_count }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Set">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-muted">Set ID kosong</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
