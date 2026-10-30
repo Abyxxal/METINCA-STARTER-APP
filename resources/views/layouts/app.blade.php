@@ -150,7 +150,7 @@
                                 <li class="submenu-item {{ request()->is('cbt/admin/competency-matrix*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.competency-matrix') }}" class="submenu-link">Matriks Kompetensi</a>
                                 </li>
-                                @if(Auth::user()->isManager())
+                                @if(Auth::user()->isSuperadmin() || Auth::user()->isManager())
                                 <li class="submenu-item {{ request()->is('cbt/admin/approval*') ? 'active' : '' }}">
                                     <a href="{{ route('cbt.admin.sessions.pending-approval') }}" class="submenu-link">
                                         Persetujuan Level
